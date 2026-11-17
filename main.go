@@ -33,7 +33,7 @@ var uiFS embed.FS
 var b64 = base64.RawURLEncoding
 
 // version is overschrijfbaar met -ldflags "-X main.version=…".
-var version = "1.2.1"
+var version = "1.2.2"
 
 const (
 	appID      = "aerocx-blackout"

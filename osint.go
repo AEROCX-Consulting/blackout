@@ -84,6 +84,7 @@ type osSource struct {
 	LastErr string
 
 	everOk  bool
+	okRun   time.Time // laatste geslaagde ophaling in deze run (niet bewaard)
 	running bool
 	nextAt  time.Time
 	every   time.Duration
@@ -909,4 +910,23 @@ func (o *OSINT) rewordLocked() {
 	for _, it := range o.items {
 		o.applyWordsLocked(it)
 	}
+}
+
+// InternetSeen: is een internetbron (niet mesh/adsb) binnen `within` gelukt?
+// Dient als bewijs dat dit station internet heeft, ook zonder contacten en met STUN uit.
+func (o *OSINT) InternetSeen(within time.Duration) bool {
+	if o == nil {
+		return false
+	}
+	o.mu.Lock()
+	defer o.mu.Unlock()
+	// Alleen ophalingen van deze run tellen, gemeten met de monotone klok: een herstart
+	// of een verkeerd gezette klok (Pi zonder RTC) mag geen "internet werkt" tonen.
+	now := o.now()
+	for _, s := range o.srcs {
+		if s != nil && s.On && !s.Offline && !s.okRun.IsZero() && now.Sub(s.okRun) >= 0 && now.Sub(s.okRun) <= within {
+			return true
+		}
+	}
+	return false
 }

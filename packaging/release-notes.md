@@ -1,8 +1,11 @@
-## AEROCX Blackout 1.2.1
+## AEROCX Blackout 1.2.2
 
 Berichten sturen naar je eigen mensen zolang er een wifi-netwerk is: op hetzelfde wifi-netwerk ook zonder internet, tussen huizen over gewoon internet (Starlink of je gewone provider), en over een LoRa-radio als alles wegvalt. Rechtstreeks van computer naar computer, tussen de computers versleuteld, zonder server en zonder account.
 
 **Downloaden en installeren:** ga naar **https://blackout.aerocx.be/**. De pagina kiest zelf het juiste bestand voor je computer.
+
+### Nieuw in 1.2.2
+- **Verbindingsstatus klopt ook zonder contacten.** De app zag je internet (Starlink of je provider) pas als er al een contact bereikbaar was. Nu kijkt hij zelf: lukt het opzoeken van je adres of haalt OSINT nieuws en waarschuwingen op, dan staat er "Starlink werkt" of "internet werkt".
 
 ### Nieuw in 1.2.1
 - **Werkt ook op gewone wifi en gewoon internet**, niet alleen over Starlink: ook met Proximus, Telenet, Orange of een 4G/5G-hotspot.

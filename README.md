@@ -65,7 +65,7 @@ iPhone, iPad en Android hebben geen eigen app: ze verbinden via de browser met e
 Nodig: Go 1.24.
 
 ```sh
-GOTOOLCHAIN=local CGO_ENABLED=0 go build -trimpath -ldflags "-s -w -X main.version=1.2.1" -o aerocx-blackout .
+GOTOOLCHAIN=local CGO_ENABLED=0 go build -trimpath -ldflags "-s -w -X main.version=1.2.2" -o aerocx-blackout .
 ./aerocx-blackout -open
 ```
 
@@ -75,7 +75,7 @@ Handige vlaggen: `-open` (browser openen), `-background` (zonder venster, log in
 
 Testen: `go vet ./... && go test ./...`
 
-De installatiebestanden worden gemaakt door GitHub Actions (`.github/workflows/release.yml`) bij een tag `v*`. Lokaal kun je een `.deb` maken met `scripts/build-deb.sh arm64 <binary> 1.2.1`; de Mac-bestanden met `scripts/macos-package.sh` (alleen op een Mac). Het icoon maak je opnieuw met `python3 scripts/make-icon.py`.
+De installatiebestanden worden gemaakt door GitHub Actions (`.github/workflows/release.yml`) bij een tag `v*`. Lokaal kun je een `.deb` maken met `scripts/build-deb.sh arm64 <binary> 1.2.2`; de Mac-bestanden met `scripts/macos-package.sh` (alleen op een Mac). Het icoon maak je opnieuw met `python3 scripts/make-icon.py`.
 
 ## Eerlijke beperkingen
 

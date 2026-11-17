@@ -530,6 +530,7 @@ func (n *Node) netJSON() map[string]any {
 			starOnline = true
 		}
 	}
+	osintNet := n.osint != nil && n.osint.InternetSeen(20*time.Minute)
 	w.mu.Lock()
 	defer w.mu.Unlock()
 	for _, a := range w.stunPub {
@@ -544,7 +545,10 @@ func (n *Node) netJSON() map[string]any {
 	if pub == nil {
 		pub = []string{}
 	}
-	internet := w.stun == "ok" || portOpen || starOnline
+	// Internet is er als we het ergens aan zien: STUN lukte, een open poort, een contact via internet,
+	// of een OSINT-internetbron die recent iets ophaalde. Een Starlink-schotel of IPv6-adres alleen
+	// is geen bewijs (bij een storing blijven die zichtbaar).
+	internet := w.stun == "ok" || portOpen || starOnline || osintNet
 	out := map[string]any{
 		"internet": internet, "ipv6Global": ipv6, "publicAddrs": pub, "stun": w.stun, "portmap": w.pmStatus,
 		"starlink": w.starlink, "lan": lan, "portOpen": portOpen, "changingPort": w.stunSym,

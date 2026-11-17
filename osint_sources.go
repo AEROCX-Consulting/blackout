@@ -236,6 +236,7 @@ func (o *OSINT) finish(id string, res osResult, ferr error) {
 		s.nextAt = now.Add(s.retry)
 	} else {
 		s.LastOk, s.everOk, s.Active, s.LastErr = now.UnixMilli(), true, true, ""
+		s.okRun = now // tijdstip in deze run (monotoon), voor InternetSeen
 		s.Status = res.status
 		if s.Status == "" {
 			s.Status = "actief"

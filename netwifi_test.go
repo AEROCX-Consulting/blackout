@@ -795,3 +795,35 @@ func TestUPnPReuseOwnPermanent(t *testing.T) {
 		t.Fatalf("%+v %v", m, igd.maps)
 	}
 }
+
+// Zonder contacten en met STUN uit moet "internet" toch kloppen als een OSINT-internetbron
+// net iets ophaalde (zo zag een gebruiker op Starlink "geen internet" in 1.2.0).
+func TestInternetFromOSINT(t *testing.T) {
+	n := bareNode(t, "A")
+	o := newOSINT(t.TempDir())
+	n.osint = o
+	var get = func() bool {
+		var v bool
+		n.mu.Lock()
+		v = n.netJSON()["internet"].(bool)
+		n.mu.Unlock()
+		return v
+	}
+	if get() {
+		t.Fatal("internet zonder enig bewijs")
+	}
+	o.mu.Lock()
+	o.srcs["news"].okRun = o.now()
+	o.mu.Unlock()
+	if !get() {
+		t.Fatal("recente nieuwsbron telt niet als internet")
+	}
+	o.mu.Lock()
+	o.srcs["news"].okRun = o.now().Add(-30 * time.Minute)
+	o.srcs["news"].LastOk = o.nowMs() // bewaarde LastOk (bv. na herstart) telt niet
+	o.srcs["mesh"].okRun = o.now()    // mesh is geen internet
+	o.mu.Unlock()
+	if get() {
+		t.Fatal("oude nieuwsbron of mesh mag niet als internet tellen")
+	}
+}
