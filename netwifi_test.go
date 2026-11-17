@@ -625,7 +625,9 @@ func TestLinkLocalSending(t *testing.T) {
 	})
 	waitFor(t, "adres geleerd via probe", 5*time.Second, func() bool {
 		ok := false
-		a.lock(func() { _, ok = a.st.Contacts[b.myID].Observed[bAddr.String()] })
+		// welk adres van Bert het eerst antwoordt, hangt af van de interfaces van de machine
+		// (CI-runners hebben eth0, docker0, IPv6); elk geleerd adres is goed.
+		a.lock(func() { ok = len(a.st.Contacts[b.myID].Observed) > 0 })
 		return ok
 	})
 }
