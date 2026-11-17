@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/">
+<channel>
+<title>Gemeente Voorbeeld &#8211; Nieuws</title>
+<link>https://www.voorbeeld.be/</link>
+<description>Nieuws van de gemeente</description>
+<item>
+<title>Stroomonderbreking in de Kerkstraat op dinsdag</title>
+<link>https://www.voorbeeld.be/nieuws/stroomonderbreking</link>
+<description><![CDATA[<p>Fluvius voert werken uit. Café en winkels zijn&nbsp;bereikbaar.</p><p>Meer info volgt.</p>]]></description>
+<pubDate>Mon, 16 Nov 2026 09:30:00 +0100</pubDate>
+<guid isPermaLink="false">vb-123</guid>
+</item>
+<item>
+<title>Kerstmarkt op de markt</title>
+<link>https://www.voorbeeld.be/nieuws/kerstmarkt</link>
+<description>De kerstmarkt opent op 12 december &amp; duurt drie dagen.</description>
+<dc:date>2026-11-15T08:00:00Z</dc:date>
+</item>
+<item>
+<title>Oud bericht</title>
+<link>https://www.voorbeeld.be/nieuws/oud</link>
+<description>Te oud om te tonen.</description>
+<pubDate>Wed, 01 Jan 2025 10:00:00 GMT</pubDate>
+</item>
+</channel>
+</rss>

@@ -1,0 +1,324 @@
+# Bouwt alle installatiebestanden en maakt een GitHub Release.
+#
+# - Tag "v1.2.0" pushen  -> alles bouwen, testen en een release "v1.2.0" maken.
+# - Handmatig starten     -> alles bouwen als test (bestanden onder "Artifacts"), geen release.
+#
+# Ondertekenen gebeurt alleen als de geheimen bestaan (Settings > Secrets and variables > Actions):
+#   Mac:      APPLE_CERT_P12_BASE64, APPLE_CERT_PASSWORD, APPLE_INSTALLER_CERT_P12_BASE64,
+#             APPLE_TEAM_ID, APPLE_ID, APPLE_APP_PASSWORD
+#   Windows:  Azure Trusted Signing: AZURE_TENANT_ID, AZURE_CLIENT_ID, AZURE_CLIENT_SECRET,
+#             AZURE_ENDPOINT, AZURE_SIGNING_ACCOUNT, AZURE_CERT_PROFILE
+#             of een eigen certificaat: WINDOWS_CERT_PFX_BASE64, WINDOWS_CERT_PASSWORD
+# Zonder geheimen wordt alles ongetekend gebouwd.
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Versie voor een testbouw (bv. 1.2.0-test.1). Leeg = 0.0.0-dev.<nummer>"
+        required: false
+        default: ""
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  GOTOOLCHAIN: local
+  CGO_ENABLED: "0"
+
+jobs:
+  version:
+    name: Versie bepalen
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.v.outputs.version }}
+      numeric: ${{ steps.v.outputs.numeric }}
+    steps:
+      - id: v
+        env:
+          INPUT_VERSION: ${{ inputs.version }}
+        run: |
+          if [[ "$GITHUB_REF_TYPE" == "tag" && "$GITHUB_REF_NAME" == v* ]]; then
+            V="${GITHUB_REF_NAME#v}"
+          elif [[ -n "$INPUT_VERSION" ]]; then
+            V="${INPUT_VERSION#v}"
+          else
+            V="0.0.0-dev.${GITHUB_RUN_NUMBER}"
+          fi
+          if ! [[ "$V" =~ ^[0-9]+\.[0-9]+\.[0-9]+([-+][0-9A-Za-z.-]+)?$ ]]; then
+            echo "::error::Ongeldige versie: $V (verwacht bv. 1.2.0 of 1.2.0-rc.1)"
+            exit 1
+          fi
+          N="${V%%[-+]*}"
+          echo "version=$V" >>"$GITHUB_OUTPUT"
+          echo "numeric=$N" >>"$GITHUB_OUTPUT"
+          echo "Versie: $V ($N)"
+
+  test:
+    name: Testen (go vet, go test)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
+      - uses: actions/setup-go@924ae3a1cded613372ab5595356fb5720e22ba16 # v6.5.0
+        with:
+          go-version-file: go.mod
+      - run: go vet ./...
+      - run: go test ./...
+
+  linux:
+    name: Linux en Raspberry Pi
+    needs: [version, test]
+    runs-on: ubuntu-latest
+    env:
+      VERSION: ${{ needs.version.outputs.version }}
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
+      - uses: actions/setup-go@924ae3a1cded613372ab5595356fb5720e22ba16 # v6.5.0
+        with:
+          go-version-file: go.mod
+      - name: Binaries bouwen
+        run: |
+          mkdir -p dist
+          for arch in amd64 arm64; do
+            GOOS=linux GOARCH=$arch go build -trimpath -ldflags "-s -w -X main.version=$VERSION" \
+              -o "dist/aerocx-blackout-linux-$arch" .
+          done
+          file dist/*
+      - name: .deb-pakketten
+        run: |
+          for arch in amd64 arm64; do
+            scripts/build-deb.sh "$arch" "dist/aerocx-blackout-linux-$arch" "$VERSION" dist
+            dpkg-deb -I "dist/aerocx-blackout_$arch.deb"
+          done
+      - name: Draagbare zips
+        run: |
+          for arch in amd64 arm64; do
+            stage="build/zip-$arch/AEROCX Blackout"
+            mkdir -p "$stage"
+            install -m 755 "dist/aerocx-blackout-linux-$arch" "$stage/aerocx-blackout"
+            install -m 755 packaging/portable/linux/start.sh "$stage/start.sh"
+            install -m 644 packaging/portable/linux/LEESMIJ.txt "$stage/LEESMIJ.txt"
+            (cd "build/zip-$arch" && zip -r -X "../../dist/AEROCX-Blackout-linux-$arch.zip" "AEROCX Blackout")
+          done
+      - name: Installatiescripts
+        run: |
+          shellcheck scripts/install.sh scripts/install-mac.sh
+          cp scripts/install.sh scripts/install-mac.sh scripts/install.ps1 dist/
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: linux
+          path: dist/*
+          if-no-files-found: error
+
+  windows:
+    name: Windows
+    needs: [version, test]
+    runs-on: windows-latest
+    env:
+      VERSION: ${{ needs.version.outputs.version }}
+      NUMVERSION: ${{ needs.version.outputs.numeric }}
+      HAS_AZURE: >-
+        ${{ secrets.AZURE_CLIENT_ID != '' && secrets.AZURE_CLIENT_SECRET != '' && secrets.AZURE_TENANT_ID != ''
+        && secrets.AZURE_ENDPOINT != '' && secrets.AZURE_SIGNING_ACCOUNT != '' && secrets.AZURE_CERT_PROFILE != '' }}
+      HAS_PFX: ${{ secrets.WINDOWS_CERT_PFX_BASE64 != '' && secrets.WINDOWS_CERT_PASSWORD != '' }}
+    defaults:
+      run:
+        shell: pwsh
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
+      - uses: actions/setup-go@924ae3a1cded613372ab5595356fb5720e22ba16 # v6.5.0
+        with:
+          go-version-file: go.mod
+      - name: Icoon en versie-informatie in de exe
+        run: |
+          go install github.com/tc-hib/go-winres@v0.3.3
+          $winres = Join-Path (go env GOPATH) 'bin\go-winres.exe'
+          & $winres simply --arch amd64 --icon packaging/icon.png --manifest gui `
+            --product-name "AEROCX Blackout" --file-description "AEROCX Blackout" `
+            --copyright "Copyright (c) 2026 AEROCX Consulting Group CommV" `
+            --original-filename aerocx-blackout.exe `
+            --product-version "$env:NUMVERSION.0" --file-version "$env:NUMVERSION.0" --out rsrc
+          if ($LASTEXITCODE -ne 0) { throw "go-winres mislukt" }
+          Get-ChildItem rsrc_windows_amd64.syso
+      - name: Exe bouwen (zonder zwart venster)
+        env:
+          GOOS: windows
+          GOARCH: amd64
+        run: |
+          New-Item -ItemType Directory -Force dist, build\sign-exe, build\setup | Out-Null
+          go build -trimpath -ldflags "-s -w -H windowsgui -X main.version=$env:VERSION" -o build\sign-exe\aerocx-blackout-windows.exe .
+          if ($LASTEXITCODE -ne 0) { throw "go build mislukt" }
+          Remove-Item rsrc_windows_amd64.syso
+
+      # ---- exe ondertekenen (optioneel) ----
+      - name: Exe ondertekenen (Azure Trusted Signing)
+        if: env.HAS_AZURE == 'true'
+        uses: azure/artifact-signing-action@c7ab2a863ab5f9a846ddb8265964877ef296ee82 # v2.0.0
+        with:
+          endpoint: ${{ secrets.AZURE_ENDPOINT }}
+          signing-account-name: ${{ secrets.AZURE_SIGNING_ACCOUNT }}
+          certificate-profile-name: ${{ secrets.AZURE_CERT_PROFILE }}
+          files-folder: ${{ github.workspace }}\build\sign-exe
+          files-folder-filter: exe
+          azure-tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          azure-client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          azure-client-secret: ${{ secrets.AZURE_CLIENT_SECRET }}
+      - name: Certificaat klaarzetten (signtool)
+        if: env.HAS_PFX == 'true' && env.HAS_AZURE != 'true'
+        env:
+          PFX: ${{ secrets.WINDOWS_CERT_PFX_BASE64 }}
+        run: |
+          $pfx = Join-Path $env:RUNNER_TEMP 'blackout-cert.pfx'
+          [IO.File]::WriteAllBytes($pfx, [Convert]::FromBase64String($env:PFX))
+          $signtool = Get-ChildItem "${env:ProgramFiles(x86)}\Windows Kits\10\bin\*\x64\signtool.exe" |
+            Sort-Object FullName | Select-Object -Last 1 -ExpandProperty FullName
+          if (-not $signtool) { throw "signtool.exe niet gevonden" }
+          "SIGNTOOL=$signtool" | Out-File -Append -Encoding utf8 $env:GITHUB_ENV
+          "PFX_PATH=$pfx" | Out-File -Append -Encoding utf8 $env:GITHUB_ENV
+      - name: Exe ondertekenen (signtool)
+        if: env.HAS_PFX == 'true' && env.HAS_AZURE != 'true'
+        env:
+          PFX_PASSWORD: ${{ secrets.WINDOWS_CERT_PASSWORD }}
+        run: |
+          & $env:SIGNTOOL sign /f $env:PFX_PATH /p $env:PFX_PASSWORD /fd sha256 /tr http://timestamp.digicert.com /td sha256 /d "AEROCX Blackout" build\sign-exe\aerocx-blackout-windows.exe
+          if ($LASTEXITCODE -ne 0) { throw "ondertekenen mislukt" }
+      - name: Exe naar dist
+        run: Copy-Item build\sign-exe\aerocx-blackout-windows.exe dist\
+
+      # ---- installatieprogramma (Inno Setup) ----
+      - name: Inno Setup klaarzetten
+        run: |
+          $iscc = (Get-Command iscc.exe -ErrorAction SilentlyContinue).Source
+          if (-not $iscc) {
+            $candidate = "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe"
+            if (Test-Path $candidate) { $iscc = $candidate }
+          }
+          if (-not $iscc) {
+            choco install innosetup -y --no-progress
+            $iscc = "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe"
+          }
+          if (-not (Test-Path $iscc)) { throw "ISCC.exe niet gevonden" }
+          "ISCC=$iscc" | Out-File -Append -Encoding utf8 $env:GITHUB_ENV
+      - name: Installatieprogramma bouwen
+        run: |
+          & $env:ISCC "/DAppVersion=$env:VERSION" "/DNumVersion=$env:NUMVERSION" "/O$env:GITHUB_WORKSPACE\build\setup" packaging\windows\blackout.iss
+          if ($LASTEXITCODE -ne 0) { throw "Inno Setup mislukt" }
+      - name: Installatieprogramma ondertekenen (Azure Trusted Signing)
+        if: env.HAS_AZURE == 'true'
+        uses: azure/artifact-signing-action@c7ab2a863ab5f9a846ddb8265964877ef296ee82 # v2.0.0
+        with:
+          endpoint: ${{ secrets.AZURE_ENDPOINT }}
+          signing-account-name: ${{ secrets.AZURE_SIGNING_ACCOUNT }}
+          certificate-profile-name: ${{ secrets.AZURE_CERT_PROFILE }}
+          files-folder: ${{ github.workspace }}\build\setup
+          files-folder-filter: exe
+          azure-tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          azure-client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          azure-client-secret: ${{ secrets.AZURE_CLIENT_SECRET }}
+      - name: Installatieprogramma ondertekenen (signtool)
+        if: env.HAS_PFX == 'true' && env.HAS_AZURE != 'true'
+        env:
+          PFX_PASSWORD: ${{ secrets.WINDOWS_CERT_PASSWORD }}
+        run: |
+          & $env:SIGNTOOL sign /f $env:PFX_PATH /p $env:PFX_PASSWORD /fd sha256 /tr http://timestamp.digicert.com /td sha256 /d "AEROCX Blackout" build\setup\AEROCX-Blackout-Setup.exe
+          if ($LASTEXITCODE -ne 0) { throw "ondertekenen mislukt" }
+          Remove-Item $env:PFX_PATH -Force
+      - name: Installatieprogramma naar dist
+        run: Copy-Item build\setup\AEROCX-Blackout-Setup.exe dist\
+
+      # ---- draagbare zip ----
+      - name: Draagbare zip
+        run: |
+          $stage = 'build\zip\AEROCX Blackout'
+          New-Item -ItemType Directory -Force $stage | Out-Null
+          Copy-Item dist\aerocx-blackout-windows.exe (Join-Path $stage 'aerocx-blackout.exe')
+          Copy-Item packaging\portable\windows\* $stage
+          Compress-Archive -Path $stage -DestinationPath dist\AEROCX-Blackout-windows.zip -Force
+          Get-ChildItem dist
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: windows
+          path: dist/*
+          if-no-files-found: error
+
+  macos:
+    name: Mac
+    needs: [version, test]
+    runs-on: macos-14
+    env:
+      VERSION: ${{ needs.version.outputs.version }}
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
+      - uses: actions/setup-go@924ae3a1cded613372ab5595356fb5720e22ba16 # v6.5.0
+        with:
+          go-version-file: go.mod
+      - name: App, .pkg, .dmg en zip bouwen
+        env:
+          APPLE_CERT_P12_BASE64: ${{ secrets.APPLE_CERT_P12_BASE64 }}
+          APPLE_CERT_PASSWORD: ${{ secrets.APPLE_CERT_PASSWORD }}
+          APPLE_INSTALLER_CERT_P12_BASE64: ${{ secrets.APPLE_INSTALLER_CERT_P12_BASE64 }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_APP_PASSWORD: ${{ secrets.APPLE_APP_PASSWORD }}
+        run: scripts/macos-package.sh
+      - name: Controle
+        run: |
+          pkgutil --payload-files dist/AEROCX-Blackout-mac.pkg | head -20
+          lipo -info dist/aerocx-blackout-mac-universal
+          hdiutil imageinfo dist/AEROCX-Blackout-mac.dmg | head -5
+          unzip -l dist/AEROCX-Blackout-mac.zip
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: macos
+          path: dist/*
+          if-no-files-found: error
+
+  release:
+    name: GitHub Release
+    needs: [version, linux, windows, macos]
+    if: github.ref_type == 'tag' && startsWith(github.ref_name, 'v')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    env:
+      VERSION: ${{ needs.version.outputs.version }}
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
+      - uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5.0.0
+        with:
+          path: dist
+          merge-multiple: true
+      - name: Alle bestanden aanwezig?
+        run: |
+          cd dist
+          missing=0
+          for f in AEROCX-Blackout-mac.pkg AEROCX-Blackout-mac.dmg AEROCX-Blackout-mac.zip aerocx-blackout-mac-universal \
+                   AEROCX-Blackout-Setup.exe AEROCX-Blackout-windows.zip aerocx-blackout-windows.exe \
+                   aerocx-blackout_arm64.deb aerocx-blackout_amd64.deb \
+                   AEROCX-Blackout-linux-arm64.zip AEROCX-Blackout-linux-amd64.zip \
+                   aerocx-blackout-linux-arm64 aerocx-blackout-linux-amd64 \
+                   install.sh install-mac.sh install.ps1; do
+            if [ ! -s "$f" ]; then echo "::error::ontbreekt: $f"; missing=1; fi
+          done
+          exit $missing
+      - name: SHA256SUMS.txt
+        run: |
+          cd dist
+          rm -f SHA256SUMS.txt
+          sha256sum -- * >SHA256SUMS.txt
+          cat SHA256SUMS.txt
+      - name: Release maken
+        uses: softprops/action-gh-release@3bb12739c298aeb8a4eeaf626c5b8d85266b0e65 # v2.6.2
+        with:
+          name: AEROCX Blackout ${{ env.VERSION }}
+          body_path: packaging/release-notes.md
+          prerelease: ${{ contains(env.VERSION, '-') }}
+          fail_on_unmatched_files: true
+          files: dist/*

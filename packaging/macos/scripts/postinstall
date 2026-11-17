@@ -1,0 +1,77 @@
+#!/bin/sh
+# Draait als root na de installatie in /Applications.
+# 1. Zet automatisch starten bij aanmelden aan voor de ingelogde gebruiker (LaunchAgent).
+# 2. Start de app meteen en open de browser op http://localhost:8474.
+# Een fout hier mag de installatie nooit laten mislukken: altijd exit 0.
+APP="/Applications/AEROCX Blackout.app"
+BIN="$APP/Contents/MacOS/aerocx-blackout"
+LABEL="be.aerocx.blackout"
+URL="http://localhost:8474"
+
+log() { echo "AEROCX Blackout postinstall: $*"; }
+
+USER_NAME=$(stat -f%Su /dev/console 2>/dev/null || true)
+if [ -z "$USER_NAME" ] || [ "$USER_NAME" = "root" ] || [ "$USER_NAME" = "loginwindow" ]; then
+	log "geen ingelogde gebruiker, automatisch starten niet ingesteld"
+	exit 0
+fi
+USER_ID=$(id -u "$USER_NAME" 2>/dev/null || true)
+USER_GROUP=$(id -gn "$USER_NAME" 2>/dev/null || echo staff)
+USER_HOME=$(dscl . -read "/Users/$USER_NAME" NFSHomeDirectory 2>/dev/null | awk '{print $2}')
+[ -n "$USER_HOME" ] || USER_HOME="/Users/$USER_NAME"
+if [ -z "$USER_ID" ]; then
+	log "gebruiker $USER_NAME niet gevonden"
+	exit 0
+fi
+
+as_user() { launchctl asuser "$USER_ID" sudo -u "$USER_NAME" "$@"; }
+
+AGENTS="$USER_HOME/Library/LaunchAgents"
+PLIST="$AGENTS/$LABEL.plist"
+mkdir -p "$AGENTS"
+chown "$USER_NAME:$USER_GROUP" "$AGENTS" 2>/dev/null || true
+cat >"$PLIST" <<PLIST
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>Label</key>
+	<string>$LABEL</string>
+	<key>ProgramArguments</key>
+	<array>
+		<string>$BIN</string>
+		<string>-background</string>
+	</array>
+	<key>RunAtLoad</key>
+	<true/>
+	<key>KeepAlive</key>
+	<false/>
+	<key>ProcessType</key>
+	<string>Interactive</string>
+</dict>
+</plist>
+PLIST
+chown "$USER_NAME:$USER_GROUP" "$PLIST"
+chmod 644 "$PLIST"
+
+# Opnieuw laden: bootstrap start de app meteen (RunAtLoad), als de gebruiker.
+launchctl bootout "gui/$USER_ID/$LABEL" >/dev/null 2>&1 || true
+if ! launchctl bootstrap "gui/$USER_ID" "$PLIST" >/dev/null 2>&1; then
+	log "LaunchAgent laden lukte niet; de app start bij de volgende aanmelding"
+fi
+
+# Wacht tot de app antwoordt (max. 20 s) en open dan de browser van de gebruiker.
+i=0
+while [ $i -lt 40 ]; do
+	if curl -fsS -m 1 http://127.0.0.1:8474/api/ping 2>/dev/null | grep -q aerocx-blackout; then
+		as_user open "$URL" >/dev/null 2>&1 || true
+		exit 0
+	fi
+	sleep 0.5
+	i=$((i + 1))
+done
+
+# Kwam er geen antwoord, start dan de app zoals bij een dubbelklik.
+log "geen antwoord op $URL, app gewoon openen"
+as_user open -a "$APP" >/dev/null 2>&1 || true
+exit 0

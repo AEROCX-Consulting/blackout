@@ -1,0 +1,13 @@
+Package: aerocx-blackout
+Version: @VERSION@
+Architecture: @ARCH@
+Maintainer: @MAINTAINER@
+Installed-Size: @SIZE@
+Section: net
+Priority: optional
+Homepage: https://blackout.aerocx.be/
+Description: berichten over Starlink, wifi en LoRa-radio zonder centrale server
+ AEROCX Blackout stuurt versleutelde berichten rechtstreeks van computer naar
+ computer: over Starlink (IPv6), over het lokale netwerk of via een
+ Meshtastic-radio (LoRa) als het internet wegvalt. Geen server, geen account.
+ Het scherm opent in de browser op http://localhost:8474.

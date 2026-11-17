@@ -1,0 +1,16 @@
+# Systemd-gebruikersdienst voor het .deb-pakket (/usr/lib/systemd/user/aerocx-blackout.service).
+# Eén ontwerp voor alle Linux-installaties: dezelfde inhoud schrijven install.sh en de app zelf
+# ("automatisch starten aan", autostart_linux.go) naar ~/.config/systemd/user/aerocx-blackout.service;
+# alleen het pad in ExecStart verschilt. Dezelfde naam, dus een eigen kopie in ~/.config gaat voor.
+[Unit]
+Description=AEROCX Blackout (noodcommunicatie)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+ExecStart="/usr/bin/aerocx-blackout" -background
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=default.target

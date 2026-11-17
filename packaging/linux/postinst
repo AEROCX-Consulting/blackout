@@ -1,0 +1,24 @@
+#!/bin/sh
+set -e
+# Niets forceren per gebruiker: alleen uitleggen hoe je automatisch starten aanzet.
+if [ "$1" = "configure" ]; then
+	if command -v update-desktop-database >/dev/null 2>&1; then
+		update-desktop-database -q /usr/share/applications || true
+	fi
+	if command -v gtk-update-icon-cache >/dev/null 2>&1; then
+		gtk-update-icon-cache -q -t /usr/share/icons/hicolor || true
+	fi
+	cat <<'MSG'
+
+AEROCX Blackout is geinstalleerd.
+
+  Starten met een scherm:  kies AEROCX Blackout in het menu, of typ: aerocx-blackout -open
+  Automatisch starten voor jouw gebruiker (zonder sudo):
+      systemctl --user enable --now aerocx-blackout
+  Raspberry Pi zonder scherm, ook starten zonder aan te melden:
+      sudo loginctl enable-linger $USER
+  Daarna openen:           http://localhost:8474  (of http://<ip-van-deze-pi>:8474 + pincode)
+
+MSG
+fi
+exit 0

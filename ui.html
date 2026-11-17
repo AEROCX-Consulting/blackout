@@ -1,0 +1,1441 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0B0B0C">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="apple-mobile-web-app-title" content="Blackout">
+<title>AEROCX | Blackout</title>
+<link rel="manifest" href="/assets/manifest.webmanifest">
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32.png">
+<link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
+<style>
+@font-face{font-family:Jost;font-weight:300;font-display:block;src:url(/assets/jost-latin-300-normal.woff2) format("woff2")}
+@font-face{font-family:Jost;font-weight:400;font-display:block;src:url(/assets/jost-latin-400-normal.woff2) format("woff2")}
+@font-face{font-family:Jost;font-weight:500;font-display:block;src:url(/assets/jost-latin-500-normal.woff2) format("woff2")}
+@font-face{font-family:"IBM Plex Mono";font-weight:400;font-display:block;src:url(/assets/ibm-plex-mono-latin-400-normal.woff2) format("woff2")}
+:root{
+  --side:#0B0B0C; --side2:#161618; --sideLine:#232326; --sideText:#E4E4E7; --sideMuted:#8A8A91;
+  --bg:#F2F2F4; --card:#FFFFFF; --line:#E7E7EB; --line2:#DADADF;
+  --ink:#0B0B0C; --text:#2D2D32; --muted:#6E6E73; --faint:#9A9AA0; --soft:#F4F4F6;
+  --amberBg:#FBEFDF; --amber:#8A5A1E; --amberDarkBg:#3A2B15; --amberDark:#F4B967;
+  --sans:"Jost","Helvetica Neue",Arial,sans-serif; --mono:"IBM Plex Mono",Menlo,Consolas,monospace;
+  --rc:20px; --rb:12px; --rs:10px;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0;background:var(--bg);color:var(--text)}
+body{font:15.5px/1.5 var(--sans);overflow:hidden;-webkit-font-smoothing:antialiased;-webkit-text-size-adjust:100%}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+[hidden]{display:none!important}
+svg.i{width:18px;height:18px;flex:none;stroke:currentColor;fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.lbl{font:400 11px/1 var(--mono);letter-spacing:.16em;text-transform:uppercase;color:var(--faint)}
+.mono{font-family:var(--mono)}
+.muted{color:var(--muted)} .faint{color:var(--faint)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:1px solid var(--ink);background:var(--ink);color:#fff;padding:11px 18px;border-radius:var(--rb);font:400 15px/1 var(--sans);cursor:pointer;white-space:nowrap;text-decoration:none}
+.btn:hover{opacity:.9}
+.btn.ghost{background:var(--card);color:var(--ink);border-color:var(--line2)}
+.btn.ghost:hover{border-color:var(--ink);opacity:1}
+.btn.sm{padding:8px 13px;font-size:14px;border-radius:var(--rs)}
+.btn:disabled{opacity:.35;cursor:default}
+input[type=text],input[type=password],input[type=url],input:not([type]),select,textarea{background:var(--card);border:1px solid var(--line2);padding:11px 13px;border-radius:var(--rb);outline:none;width:100%;color:var(--ink);font-size:16px}
+input:focus,select:focus,textarea:focus{border-color:var(--ink)}
+select{-webkit-appearance:none;appearance:none;padding-right:34px;background:var(--card) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%236E6E73' stroke-width='1.5'/%3E%3C/svg%3E") no-repeat right 13px center}
+textarea{resize:none}
+.chip{display:inline-flex;align-items:center;gap:6px;padding:5px 10px;border-radius:999px;background:var(--soft);color:var(--text);font:400 13px/1.2 var(--sans);white-space:nowrap}
+.chip.amber{background:var(--amberBg);color:var(--amber)}
+.chip.ink{background:var(--ink);color:#fff}
+.chip.line{background:var(--card);border:1px solid var(--line2)}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--faint);flex:none;display:inline-block}
+.dot.on{background:var(--ink)} .dot.half{background:linear-gradient(90deg,var(--ink) 50%,var(--line2) 50%)} .dot.off{background:var(--line2)}
+.av{width:40px;height:40px;border-radius:var(--rs);background:var(--soft);display:flex;align-items:center;justify-content:center;font:500 14px/1 var(--sans);color:var(--ink);flex:none;position:relative}
+.av.grp{background:var(--ink);color:#fff}
+.av .dot{position:absolute;right:-3px;bottom:-3px;border:2px solid var(--card);width:12px;height:12px}
+
+/* frame */
+.app{display:grid;grid-template-columns:248px minmax(0,1fr);height:100%}
+aside.side{background:var(--side);color:var(--sideText);display:flex;flex-direction:column;padding:26px 16px 16px;min-height:0;overflow:auto}
+.brand{color:#fff;padding:0 8px}
+.brand svg{height:19px;width:auto;display:block}
+.brand .sub{font:400 11px/1 var(--mono);letter-spacing:.18em;color:var(--sideMuted);margin-top:10px}
+.search{display:flex;align-items:center;gap:10px;margin:22px 0 10px;padding:10px 12px;border:1px solid var(--sideLine);border-radius:var(--rb);background:var(--side2);color:var(--sideText);cursor:pointer;width:100%;text-align:left;font:400 15px var(--sans)}
+.search .k{margin-left:auto;font:400 10.5px/1 var(--mono);border:1px solid #3a3a40;border-radius:6px;padding:3px 5px;color:var(--sideMuted)}
+.sos{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;min-height:44px;margin:0 0 14px;padding:12px;border-radius:var(--rb);border:1px solid #3a3a40;background:transparent;color:#fff;font:500 14px/1 var(--sans);letter-spacing:.14em;cursor:pointer;user-select:none;-webkit-user-select:none}
+.sos:hover{border-color:#fff}
+.sos small{font:400 10.5px var(--mono);letter-spacing:.06em;color:var(--sideMuted)}
+.sos.active{background:#fff;color:var(--ink);border-color:#fff;animation:pulse 1.2s steps(2) infinite}
+.sos.active small{display:none}
+@keyframes pulse{50%{opacity:.6}}
+.nav{display:grid;gap:3px}
+.nav .sec{font:400 10.5px/1 var(--mono);letter-spacing:.18em;color:var(--sideMuted);padding:14px 12px 6px}
+.nav button{display:flex;align-items:center;gap:12px;background:none;border:0;border-radius:var(--rb);padding:9px 12px;color:var(--sideText);font:400 15.5px/1 var(--sans);cursor:pointer;text-align:left}
+.nav button:hover{background:var(--side2)}
+.nav button[aria-current="page"]{background:#fff;color:var(--ink)}
+.nav .n{margin-left:auto;font:500 11px/1 var(--mono);background:var(--amberDarkBg);color:var(--amberDark);padding:4px 7px;border-radius:999px}
+.nav button[aria-current="page"] .n{background:var(--amberBg);color:var(--amber)}
+.sidefoot{margin-top:auto;padding-top:16px;display:grid;gap:10px}
+.box{background:var(--side2);border:1px solid var(--sideLine);border-radius:16px;padding:14px}
+.conn{display:grid;gap:9px}
+.conn>div{display:flex;align-items:center;gap:9px;font:400 14px/1.2 var(--sans);color:var(--sideText)}
+.conn .dot.on{background:#fff} .conn .dot.half{background:linear-gradient(90deg,#fff 50%,#3a3a40 50%)} .conn .dot.off{background:#3a3a40}
+.conn .x{margin-left:auto;font:400 11.5px var(--mono);color:var(--sideMuted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:110px}
+.tg{display:flex;justify-content:space-between;align-items:center;gap:12px;cursor:pointer;font:400 15px/1.3 var(--sans);color:var(--ink)}
+.tg input{appearance:none;-webkit-appearance:none;width:34px;height:20px;border-radius:999px;background:var(--line2);position:relative;flex:none;cursor:pointer;margin:0;transition:background .15s}
+.tg input::after{content:"";position:absolute;top:3px;left:3px;width:14px;height:14px;border-radius:50%;background:#fff;transition:left .15s}
+.tg input:checked{background:var(--ink)}
+.tg input:checked::after{left:17px}
+.tg input:disabled{opacity:.4;cursor:default}
+.me{display:flex;align-items:center;gap:11px;cursor:pointer}
+.me .av{background:#2a2a2e;color:#fff;width:38px;height:38px}
+.me b{display:block;font:500 15px/1.2 var(--sans);color:#fff}
+.me span{font:400 13px/1.3 var(--sans);color:var(--sideMuted)}
+
+main{min-height:0;overflow:hidden;display:flex;flex-direction:column;position:relative}
+.view{display:none;flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch}
+.hero>*,.og>*,.rg>*,.grid2>*,.pair>*{min-width:0}
+.view.on{display:block}
+.page{padding:30px 36px 60px;max-width:1360px}
+.date{font:400 12px/1 var(--mono);letter-spacing:.18em;text-transform:uppercase;color:var(--muted)}
+h1{font:400 44px/1.08 var(--sans);letter-spacing:-.02em;color:var(--ink);margin:12px 0 22px;text-wrap:balance}
+h1.s{font-size:34px;margin-bottom:8px}
+.lead{margin:0 0 22px;color:var(--muted);max-width:68ch;font-size:16px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--rc)}
+.cpad{padding:22px 24px}
+.chead{display:flex;align-items:center;gap:14px;padding:18px 24px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.chead h3{margin:0;font:500 19px/1.2 var(--sans);color:var(--ink)}
+.chead .r{margin-left:auto;font-size:13.5px;color:var(--muted)}
+.seg{display:inline-flex;gap:2px;background:var(--soft);border-radius:var(--rb);padding:4px;max-width:100%;overflow-x:auto;scrollbar-width:none}
+.seg::-webkit-scrollbar{display:none}
+.seg button{border:0;background:none;padding:8px 13px;border-radius:9px;font:400 14.5px/1 var(--sans);color:var(--text);cursor:pointer;white-space:nowrap}
+.seg button .n{color:var(--faint);margin-left:5px;font-size:13px}
+.seg button[aria-pressed="true"]{background:var(--card);color:var(--ink);box-shadow:0 1px 2px rgba(11,11,12,.06)}
+table{width:100%;border-collapse:collapse}
+th{font:400 10.5px/1 var(--mono);letter-spacing:.16em;text-transform:uppercase;color:var(--faint);text-align:left;padding:14px 24px;border-bottom:1px solid var(--line);white-space:nowrap}
+td{padding:13px 24px;border-bottom:1px solid var(--line);font-size:15px;color:var(--ink);vertical-align:middle}
+tr:last-child td{border-bottom:0}
+tr[data-open]{cursor:pointer} tr[data-open]:hover td{background:#FAFAFB}
+.who{display:flex;align-items:center;gap:13px}
+.who b{display:block;font:500 15.5px/1.2 var(--sans);color:var(--ink)}
+.who span{font-size:13.5px;color:var(--muted)}
+.iconbtn{width:34px;height:34px;border-radius:var(--rs);border:0;background:none;color:var(--text);cursor:pointer;display:inline-flex;align-items:center;justify-content:center}
+.iconbtn:hover{background:var(--soft);color:var(--ink)}
+.tw{overflow-x:auto}
+.show-m{display:none!important}
+.empty{padding:20px 24px;margin:0;color:var(--muted)}
+
+/* meldingen bovenaan */
+.bar{display:flex;gap:14px;align-items:center;flex-wrap:wrap;padding:12px 36px}
+.bar .btn{margin-left:auto}
+.bar.off{background:var(--amberBg);color:var(--amber);font-size:14.5px}
+.bar.mine{background:var(--ink);color:#fff}
+.bar.mine b{font:500 13px var(--mono);letter-spacing:.18em}
+.bar.mine .btn{background:#fff;color:var(--ink);border-color:#fff}
+.insos{background:var(--ink);color:#fff;padding:16px 36px;display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:16px;align-items:center;border-bottom:3px solid var(--amberDark)}
+.insos+.insos{border-top:1px solid #2a2a2e}
+.insos .tag{font:500 13px/1 var(--mono);letter-spacing:.2em;background:var(--amberDark);color:var(--ink);padding:9px 11px;border-radius:9px;animation:pulse 1s steps(2) infinite}
+.insos b{display:block;font:500 19px/1.25 var(--sans)}
+.insos span{color:#c9c9cf;font-size:14.5px}
+.insos .row .btn{background:#fff;color:var(--ink);border-color:#fff}
+.insos .row .btn.ghost{background:transparent;color:#fff;border-color:#4a4a50}
+
+/* vandaag */
+.hero{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr) minmax(0,.95fr);gap:16px;margin-bottom:16px}
+.black{background:var(--ink);color:#fff;border-radius:var(--rc);padding:24px 26px;display:flex;flex-direction:column;gap:18px}
+.black .top{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.black .lbl{color:#8a8a91}
+.black .chip{background:var(--amberDarkBg);color:var(--amberDark)}
+.black h2{margin:0;font:400 34px/1.1 var(--sans);letter-spacing:-.01em;color:#fff}
+.black .sub{color:#a1a1a8;font-size:15px;margin-top:4px}
+.black .acts{display:flex;gap:10px;flex-wrap:wrap}
+.black .btn{background:#fff;color:var(--ink);border-color:#fff;padding:13px 18px;font-size:16px}
+.black .btn.ghost{background:transparent;color:#fff;border-color:#3a3a40}
+.black .note{color:#8a8a91;font-size:13.5px}
+.bigicon{width:58px;height:58px;border-radius:14px;background:#fff;color:var(--ink);display:flex;align-items:center;justify-content:center;flex:none}
+.bigicon svg.i{width:26px;height:26px}
+.ringrow{display:flex;gap:18px;align-items:center}
+.ring{width:96px;height:96px;flex:none}
+.ring circle{fill:none;stroke-width:9}
+.ring .bgc{stroke:var(--soft)} .ring .fg{stroke:var(--ink);stroke-linecap:round}
+.ring text{font:400 16px var(--mono);fill:var(--ink)}
+.bars{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:18px}
+.bars div{text-align:center;font-size:12.5px;color:var(--muted)}
+.bars i{display:block;height:6px;border-radius:999px;background:var(--soft);margin-bottom:6px;overflow:hidden}
+.bars i b{display:block;height:100%;background:var(--ink)}
+.kv2{display:grid}
+.kv2 div{display:flex;justify-content:space-between;align-items:baseline;padding:13px 0;border-bottom:1px solid var(--line)}
+.kv2 div:last-child{border-bottom:0}
+.kv2 span{font-size:15.5px;color:var(--ink)}
+.kv2 b{font:300 30px/1 var(--mono);color:var(--ink)}
+
+/* berichten */
+.chat{display:grid;grid-template-columns:340px minmax(0,1fr);height:calc(100vh - 210px);height:calc(100dvh - 210px);min-height:460px;overflow:hidden}
+.convs{border-right:1px solid var(--line);overflow:auto;display:flex;flex-direction:column}
+.convs .chead{padding:12px 14px;gap:8px;flex-wrap:nowrap}
+.convs .chead .seg button{padding:8px 11px}
+.cv{padding:13px 18px;border-bottom:1px solid var(--line);cursor:pointer;display:grid;grid-template-columns:40px minmax(0,1fr) auto;gap:2px 13px;align-items:center}
+.cv:hover{background:var(--soft)}
+.cv.sel{background:var(--soft)}
+.cv .av{grid-row:1/3}
+.cv .nm{font:500 15.5px/1.25 var(--sans);color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cv .tm{font:400 11.5px var(--mono);color:var(--faint)}
+.cv .ls{font-size:14px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cv .u{font:500 11px/1 var(--mono);background:var(--amberBg);color:var(--amber);padding:4px 7px;border-radius:999px;justify-self:end}
+.thread{display:flex;flex-direction:column;min-height:0;background:#FAFAFB}
+.thead{padding:14px 22px;background:var(--card);border-bottom:1px solid var(--line);display:flex;gap:14px;align-items:center}
+.thead h2{margin:0;font:500 19px/1.2 var(--sans);color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.thead .route{font-size:13.5px;color:var(--muted);margin-top:3px}
+.msgs{flex:1;overflow:auto;padding:22px;display:flex;flex-direction:column;gap:10px}
+.m{max-width:66%;padding:11px 15px;background:var(--card);border:1px solid var(--line);border-radius:16px 16px 16px 6px;white-space:pre-wrap;word-wrap:break-word;overflow-wrap:anywhere;color:var(--ink);line-height:1.45;align-self:flex-start}
+.m.mine{align-self:flex-end;background:var(--ink);color:#fff;border-color:var(--ink);border-radius:16px 16px 6px 16px}
+.m .who2{font:500 12.5px/1 var(--sans);color:var(--muted);margin-bottom:6px;white-space:normal}
+.m.mine .who2{color:#a1a1a8}
+.m .meta{font:400 11px/1.2 var(--mono);color:var(--faint);margin-top:7px;display:flex;gap:6px;flex-wrap:wrap;align-items:center;white-space:normal}
+.m.mine .meta{color:#9a9aa0}
+.m .via{font:400 10.5px/1 var(--mono);padding:3px 7px;border-radius:999px;background:var(--soft);color:var(--muted)}
+.m.mine .via{background:#26262a;color:#c9c9cf}
+.m .via.radio,.m .via.bridge{background:var(--amberBg);color:var(--amber)}
+.m.mine .via.radio,.m.mine .via.bridge{background:var(--amberDarkBg);color:var(--amberDark)}
+.m img{display:block;max-width:min(260px,100%);max-height:240px;margin:2px 0 6px;border-radius:10px;cursor:zoom-in;background:var(--soft)}
+.m .ph{display:flex;align-items:center;justify-content:center;width:220px;max-width:100%;height:140px;margin:2px 0 6px;border-radius:10px;background:var(--soft);color:var(--muted);font-size:13.5px;white-space:normal;text-align:center;padding:10px}
+.m.mine .ph{background:#26262a;color:#a1a1a8}
+.m.sosm{border:2px solid var(--amberDark);box-shadow:0 0 0 3px var(--amberBg)}
+.m.sosm .who2{color:var(--amber);letter-spacing:.14em}
+.m.mine.sosm .who2{color:var(--amberDark)}
+.m.osm .who2{color:var(--amber)}
+.m.fail{opacity:.75}
+.m .retry{background:none;border:0;color:inherit;text-decoration:underline;cursor:pointer;padding:0;font:inherit}
+.sysm{align-self:center;font:400 12px var(--mono);color:var(--muted);background:var(--card);border:1px solid var(--line);border-radius:999px;padding:6px 12px;text-align:center;max-width:90%}
+.compose{background:var(--card);border-top:1px solid var(--line);padding:12px 16px;display:flex;gap:8px;align-items:flex-end}
+.compose textarea{height:46px;min-height:46px;max-height:140px}
+.attach{border:1px solid var(--line2);background:var(--card);color:var(--ink);width:46px;height:46px;border-radius:var(--rb);cursor:pointer;display:flex;align-items:center;justify-content:center;flex:none}
+.attach:hover{border-color:var(--ink)}
+.hint{font-size:13px;color:var(--amber);background:var(--amberBg);padding:8px 18px}
+.hint:empty{display:none}
+.back{display:none}
+
+/* osint */
+.og{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:16px;align-items:start}
+.olist{display:grid}
+.oi{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:14px;padding:16px 24px;border-bottom:1px solid var(--line);cursor:pointer;align-items:start}
+.oi:last-child{border-bottom:0}
+.oi:hover{background:#FAFAFB}
+.oi.sel{background:var(--soft)}
+.oi .av.s3{background:var(--ink);color:#fff}
+.oi .av.s2{background:var(--amberBg);color:var(--amber)}
+.oi .src{display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-size:13px;color:var(--muted)}
+.oi h4{margin:5px 0 3px;font:500 16px/1.3 var(--sans);color:var(--ink)}
+.oi p{margin:0;font-size:14.5px;color:var(--muted);display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.oi .rt{font:400 11.5px/1.6 var(--mono);color:var(--faint);text-align:right;white-space:nowrap}
+.hit{background:var(--amberBg);color:var(--amber);border-radius:3px;padding:0;box-shadow:0 0 0 2px var(--amberBg)}
+.new{font:500 10px/1 var(--mono);letter-spacing:.12em;text-transform:uppercase;background:var(--ink);color:#fff;padding:4px 6px;border-radius:6px}
+.oside{display:grid;gap:16px}
+.srcrow{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:2px 11px;align-items:center;padding:11px 0;border-bottom:1px solid var(--line)}
+.srcrow:last-child{border-bottom:0}
+.srcrow .nm{font:500 15px/1.2 var(--sans);color:var(--ink)}
+.srcrow .st{grid-column:2/3;font-size:13px;color:var(--muted);overflow-wrap:anywhere}
+.srcrow .st b{color:var(--amber);font-weight:400}
+.words{display:flex;gap:6px;flex-wrap:wrap;margin-top:12px}
+.word{display:inline-flex;gap:7px;align-items:center;background:var(--amberBg);color:var(--amber);padding:6px 10px;border-radius:999px;font-size:14px}
+.word button{background:none;border:0;cursor:pointer;color:var(--amber);padding:0;font:400 15px/1 var(--sans)}
+.detail h3{margin:8px 0 8px;font:500 20px/1.25 var(--sans);color:var(--ink)}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:7px 16px;font-size:14px;margin:14px 0}
+.kv>span:nth-child(odd){font:400 10.5px/1.9 var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--faint)}
+.kv a{color:var(--ink);overflow-wrap:anywhere}
+
+/* radar */
+.rg{display:grid;grid-template-columns:minmax(0,1fr) 360px;gap:16px;align-items:start}
+.radar{padding:16px;display:flex;justify-content:center}
+.radar svg{width:100%;max-width:680px;height:auto;display:block}
+.radar .ring2{fill:none;stroke:var(--line2);stroke-dasharray:2 5}
+.radar .rr{fill:rgba(251,239,223,.45);stroke:#E7C89A}
+.radar .ax{stroke:var(--line)}
+.radar .t1{fill:var(--faint);font:400 11px var(--mono)}
+.radar .t2{fill:var(--ink);font:500 13.5px var(--sans)}
+.radar .t3{fill:var(--muted);font:400 10.5px var(--mono)}
+.radar .ln{stroke:var(--line2)} .radar .ln.sel{stroke:var(--ink)}
+.radar .pt{stroke:var(--ink);stroke-width:1.5}
+.radar .on{fill:var(--ink)} .radar .off{fill:#fff} .radar .half{fill:url(#half)}
+.radar .sosp{fill:var(--amberDark);stroke:var(--ink);stroke-width:2}
+.radar .mep{fill:#fff;stroke:var(--ink);stroke-width:2.5}
+.radar .stopA{stop-color:var(--ink)} .radar .stopB{stop-color:#fff}
+.rrow{padding:13px 20px;border-bottom:1px solid var(--line);display:grid;grid-template-columns:minmax(0,1fr) auto;gap:3px 10px;cursor:pointer}
+.rrow:last-child{border-bottom:0}
+.rrow:hover,.rrow.sel{background:var(--soft)}
+.rrow .nm{font:500 15.5px var(--sans);color:var(--ink);display:flex;gap:9px;align-items:center}
+.rrow .d{font:400 13px var(--mono);text-align:right;color:var(--ink)}
+.rrow .s{font-size:13.5px;color:var(--muted);grid-column:1/3}
+.noloc{padding:40px 24px;text-align:center;color:var(--muted);max-width:420px;margin:0 auto}
+.noloc b{display:block;font:500 18px var(--sans);color:var(--ink);margin-bottom:6px}
+
+/* logboek */
+.kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:16px}
+.kpi{background:var(--card);border:1px solid var(--line);border-radius:var(--rc);padding:18px 20px}
+.kpi b{display:block;font:300 36px/1 var(--mono);color:var(--ink);margin:12px 0 6px}
+.kpi span.x{font-size:13.5px;color:var(--muted)}
+.grid2{display:grid;grid-template-columns:1.45fr 1fr;gap:16px;align-items:start}
+.log{max-height:520px;overflow:auto}
+.log>div{display:grid;grid-template-columns:48px 1fr;gap:12px;padding:12px 24px;border-bottom:1px solid var(--line);font-size:14.5px;color:var(--ink)}
+.log>div:last-child{border-bottom:0}
+.log.wide>div{grid-template-columns:100px 1fr}
+.log .t{font:400 11.5px/1.8 var(--mono);color:var(--faint)}
+.log .k{font:400 10px/1 var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--faint);display:block;margin-bottom:4px}
+
+/* koppelen */
+.pair{display:grid;grid-template-columns:340px minmax(0,1fr);gap:16px;align-items:start}
+.qrbox{background:#fff;border:1px solid var(--line);border-radius:16px;padding:14px;display:flex;justify-content:center;align-items:center;min-height:278px}
+.qrbox img{display:block;width:250px;height:250px;image-rendering:pixelated}
+.codeline{font:400 11.5px/1.5 var(--mono);color:var(--muted);background:var(--soft);border-radius:10px;padding:9px 11px;margin-top:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.stack{display:grid;gap:16px;min-width:0}
+.stack>*{min-width:0}
+.stack .card h3,.set .card h3{margin:0 0 6px;font:500 18px/1.2 var(--sans);color:var(--ink)}
+.stack .card p,.set .card p{margin:0 0 14px;color:var(--muted);font-size:14.5px}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.found{border:1px solid var(--ink);border-radius:16px;padding:16px;margin-top:14px}
+.found h3{margin:8px 0 10px!important}
+.chk{display:flex;gap:11px;align-items:center;padding:11px 0;border-bottom:1px solid var(--line);cursor:pointer;color:var(--ink)}
+.chk:last-child{border-bottom:0}
+.chk input{appearance:none;-webkit-appearance:none;width:18px;height:18px;border:1.5px solid var(--line2);border-radius:6px;margin:0;flex:none;background:#fff;cursor:pointer}
+.chk input:checked{background:var(--ink);border-color:var(--ink);box-shadow:inset 0 0 0 3px #fff}
+.chk input[type=radio]{border-radius:50%}
+.chk select{width:auto}
+
+.set{display:grid;gap:16px;max-width:820px}
+.set .card .tg+.tg{margin-top:12px}
+.role{display:inline-flex;align-items:center;gap:6px;padding:5px 10px;border-radius:999px;font:500 12.5px/1.1 var(--sans);background:var(--soft);color:var(--text)}
+.role.beheerder{background:var(--ink);color:#fff}
+.role.lezer{background:var(--card);border:1px solid var(--line2);color:var(--muted)}
+.role.geblokkeerd{background:var(--amberBg);color:var(--amber)}
+.rsel{width:auto!important;padding:7px 30px 7px 11px!important;border-radius:999px!important;font-size:13.5px!important;background-position:right 11px center!important}
+.matrix th:not(:first-child),.matrix td:not(:first-child){text-align:center}
+.matrix td:first-child b{display:block;font:500 15px var(--sans);color:var(--ink)}
+.matrix td:first-child span{font-size:13px;color:var(--muted)}
+.req{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:14px;align-items:center;padding:16px 24px;border-bottom:1px solid var(--line)}
+.req:last-child{border-bottom:0}
+.req b{display:block;font:500 15.5px var(--sans);color:var(--ink)}
+.req span{font-size:13.5px;color:var(--muted)}
+.invite{display:grid;grid-template-columns:auto minmax(0,1fr);gap:20px;align-items:start}
+.invite .qr{width:180px;height:180px;border:1px solid var(--line);border-radius:12px;padding:8px;background:#fff;display:flex;align-items:center;justify-content:center;text-align:center;color:var(--faint);font-size:13px}
+.invite .qr img{width:100%;height:100%;image-rendering:pixelated;display:block}
+.qrmini{width:44px;height:44px;border:1px solid var(--line);border-radius:8px;padding:3px;background:#fff;cursor:zoom-in;image-rendering:pixelated;display:block}
+.pin{font:400 30px/1 var(--mono);letter-spacing:.2em;color:var(--ink);margin:4px 0 6px}
+.urls{font:400 13.5px/1.7 var(--mono);color:var(--ink);overflow-wrap:anywhere}
+.pinv{font:400 15px var(--mono);color:var(--ink)}
+
+/* overlays */
+.ov{position:fixed;inset:0;background:rgba(11,11,12,.45);display:none;align-items:flex-start;justify-content:center;z-index:30;padding:10vh 16px 16px;overflow:auto}
+.ov.on{display:flex}
+.ovp{background:var(--card);border-radius:var(--rc);padding:26px;max-width:560px;width:100%;max-height:80vh;overflow:auto;box-shadow:0 30px 60px rgba(11,11,12,.25)}
+.ovp h1.s{margin:8px 0 12px}
+.ovp .lead{margin-bottom:16px}
+.toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%);background:var(--ink);color:#fff;padding:13px 18px;border-radius:14px;font:400 14.5px var(--sans);z-index:40;display:none;max-width:90vw;box-shadow:0 10px 30px rgba(11,11,12,.25)}
+.toast.on{display:block}
+.toast.err{background:var(--amberBg);color:var(--amber);border:1px solid #E7C89A}
+.sres{display:grid;margin-top:10px}
+.sres button{display:flex;align-items:center;gap:12px;padding:10px;border:0;background:none;border-radius:var(--rb);cursor:pointer;text-align:left}
+.sres button:hover,.sres button.act{background:var(--soft)}
+.full{position:fixed;inset:0;background:var(--bg);z-index:50;display:none;align-items:center;justify-content:center;padding:20px;overflow:auto}
+.full.on{display:flex}
+.full .card{max-width:440px;width:100%;padding:30px}
+.full .brandrow{color:var(--ink);display:flex;align-items:center;gap:12px;margin-bottom:26px}
+.full .brandrow svg{height:19px;width:auto;display:block}
+.full .brandrow .sep{width:1px;height:18px;background:var(--line2)}
+.full h1{font-size:32px;margin:0 0 8px}
+.full p{color:var(--muted);margin:0 0 18px}
+.full .pinin{font:400 22px/1 var(--mono);letter-spacing:.3em;text-align:center}
+.err{color:var(--amber);font-size:14px;margin-top:10px;min-height:1em}
+.bigimg{max-width:100%;max-height:70vh;display:block;margin:0 auto;border-radius:12px}
+
+/* smartphone */
+.mtop,.tabbar{display:none}
+@media (max-width:1180px){ .hero{grid-template-columns:1fr 1fr} .hero .black{grid-column:1/3} .og,.rg{grid-template-columns:1fr} .kpis{grid-template-columns:repeat(3,1fr)} }
+@media (max-width:860px){
+  .app{grid-template-columns:1fr;grid-template-rows:auto 1fr auto}
+  aside.side{display:none}
+  .mtop{display:flex;align-items:center;gap:12px;padding:12px 16px;padding-top:calc(12px + env(safe-area-inset-top));background:var(--side);color:#fff}
+  .mtop .lg svg{height:16px;width:auto;display:block}
+  .mtop .sub{font:400 10px/1 var(--mono);letter-spacing:.18em;color:var(--sideMuted)}
+  .mtop .sos{width:auto;margin:0 0 0 auto;padding:9px 16px;min-height:38px}
+  .mtop .sos small{display:none}
+  .tabbar{display:grid;grid-template-columns:repeat(5,1fr);background:var(--side);padding:6px 6px calc(6px + env(safe-area-inset-bottom))}
+  .tabbar button{background:none;border:0;border-radius:var(--rb);padding:8px 2px;display:flex;flex-direction:column;align-items:center;gap:4px;font:400 11.5px/1 var(--sans);color:var(--sideMuted);position:relative;cursor:pointer}
+  .tabbar button[aria-current="page"]{background:#fff;color:var(--ink)}
+  .tabbar .n{position:absolute;top:3px;right:16%;font:500 9.5px/1 var(--mono);background:var(--amberDark);color:var(--ink);padding:2px 5px;border-radius:999px}
+  .page{padding:20px 14px 40px}
+  .bar,.insos{padding-left:16px;padding-right:16px}
+  .insos{grid-template-columns:auto minmax(0,1fr)} .insos .row{grid-column:1/3}
+  h1{font-size:30px;margin:8px 0 16px} h1.s{font-size:26px}
+  .lead{font-size:15px;margin-bottom:16px}
+  .hero{grid-template-columns:1fr} .hero .black{grid-column:auto}
+  .black h2{font-size:26px}
+  .chat{grid-template-columns:1fr;height:calc(100vh - 250px);height:calc(100dvh - 250px);min-height:420px}
+  .chat.open .convs{display:none}
+  #v-berichten.open .page>.date,#v-berichten.open .page>h1,#v-berichten.open .page>.lead{display:none}
+  #v-berichten.open .page{padding-top:10px;padding-bottom:10px}
+  #v-berichten.open .chat{height:calc(100vh - 150px);height:calc(100dvh - 150px);min-height:380px}
+  .chat:not(.open) .thread{display:none}
+  .back{display:inline-flex}
+  .kpis{grid-template-columns:repeat(2,1fr);gap:8px}
+  .kpis{grid-template-columns:repeat(3,1fr)} .kpi{padding:11px 12px;border-radius:14px} .kpi .lbl{font-size:9.5px;letter-spacing:.1em} .kpi b{font-size:24px;margin:7px 0 0} .kpi span.x{display:none}
+  .radar{padding:8px} .radar .t2{font-size:20px} .radar .t3{font-size:15px} .radar .t1{font-size:14px}
+  .grid2,.pair{grid-template-columns:1fr}
+  th,td{padding-left:14px;padding-right:14px}
+  .chead{padding:14px 16px}
+  .cpad{padding:18px}
+  .hide-m{display:none!important} .show-m{display:inline-flex!important}
+  .oi{padding:14px 16px} .oi .rt{display:none}
+  .m{max-width:86%}
+  .msgs{padding:14px}
+  .compose{padding:10px}
+  .req{grid-template-columns:auto minmax(0,1fr);padding:14px} .req .row{grid-column:1/3}
+  .invite{grid-template-columns:1fr}
+  .ov{padding:6vh 10px 10px}
+  .ovp{padding:20px;max-height:86vh}
+  .toast{bottom:calc(84px + env(safe-area-inset-bottom))}
+}
+@media (prefers-reduced-motion:reduce){.sos.active,.insos .tag{animation:none}}
+</style>
+</head>
+<body>
+<template id="logoTpl">{{LOGO}}</template>
+<div class="app" id="app">
+  <div class="mtop">
+    <span class="lg" data-logo aria-label="AEROCX"></span><span class="sub">BLACKOUT</span>
+    <button class="sos" type="button" data-act="sos" aria-label="SOS versturen"><span class="t">SOS</span></button>
+  </div>
+
+  <aside class="side" aria-label="Navigatie">
+    <div class="brand"><span data-logo aria-label="AEROCX"></span><div class="sub">BLACKOUT</div></div>
+    <button class="search" type="button" data-act="search"><svg class="i" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4.2-4.2"/></svg>Zoeken<span class="k" id="kbd">⌘K</span></button>
+    <button class="sos" type="button" data-act="sos" aria-label="SOS versturen"><span class="t">SOS</span><small>noodbericht</small></button>
+    <div class="nav" id="nav"></div>
+    <div class="sidefoot">
+      <div class="box conn" id="conn"></div>
+      <div class="box me" data-act="go" data-v="instellingen" id="meCard"><span class="av" id="meAv">·</span><div><b id="meName">…</b><span id="meSub">Dit station</span></div></div>
+    </div>
+  </aside>
+
+  <main>
+    <div id="bars"></div>
+
+    <section class="view" id="v-vandaag"><div class="page">
+      <div class="date" id="today"></div>
+      <h1 id="greet">Verbinden met je station…</h1>
+      <div class="hero">
+        <div class="black" id="heroCard"></div>
+        <div class="card cpad" id="reachCard"></div>
+        <div class="card cpad" id="osintCard"></div>
+      </div>
+      <div class="card">
+        <div class="chead"><h3>Contacten</h3><div class="seg" id="ctTabs"></div><span class="r hide-m">Tik op een contact om een bericht te sturen.</span></div>
+        <div class="tw"><table><thead><tr><th>Naam</th><th>Weg</th><th class="hide-m">Afstand</th><th class="hide-m">Laatst gezien</th><th></th></tr></thead><tbody id="ctRows"></tbody></table></div>
+      </div>
+    </div></section>
+
+    <section class="view" id="v-berichten"><div class="page">
+      <div class="date">Berichten</div>
+      <h1 class="s">Gesprekken en groepen</h1>
+      <p class="lead">Elk bericht kiest zelf de beste weg: Starlink, wifi, radio of een brug via een buur.</p>
+      <div class="card chat" id="chat">
+        <div class="convs">
+          <div class="chead"><div class="seg" id="cvFilter"></div><button class="btn ghost sm" type="button" data-act="newGroup" style="margin-left:auto;padding:8px 10px" title="Nieuwe groep" aria-label="Nieuwe groep"><svg class="i" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></button></div>
+          <div id="convList"></div>
+        </div>
+        <div class="thread">
+          <div class="thead"><button class="iconbtn back" type="button" data-act="back" aria-label="Terug"><svg class="i" viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6"/></svg></button><div style="flex:1;min-width:0"><h2 id="tTitle">Iedereen</h2><div class="route" id="tRoute"></div></div><button class="btn ghost sm" type="button" data-act="convInfo" id="tInfo" hidden>Leden</button></div>
+          <div class="msgs" id="msgs"></div>
+          <div class="hint" id="cHint"></div>
+          <div class="compose">
+            <label class="attach" title="Foto toevoegen" for="photoIn"><svg class="i" viewBox="0 0 24 24"><rect x="3.5" y="5.5" width="17" height="13" rx="2.5"/><circle cx="9" cy="10.5" r="1.6"/><path d="M20.5 16l-5-5-8 7.5"/></svg></label><input type="file" id="photoIn" accept="image/*" hidden>
+            <textarea id="txt" placeholder="Schrijf een bericht…" maxlength="600" aria-label="Bericht" rows="1"></textarea>
+            <button class="btn" type="button" data-act="send" id="sendBtn"><svg class="i" viewBox="0 0 24 24"><path d="M4.5 12L20 4.5l-5.5 15-3-6z"/></svg><span class="hide-m">Stuur</span></button>
+          </div>
+        </div>
+      </div>
+    </div></section>
+
+    <section class="view" id="v-osint"><div class="page">
+      <div class="date">OSINT</div>
+      <h1 class="s">Wat er rondom je gebeurt</h1>
+      <p class="lead">Openbare meldingen op één plek. Het mesh-netwerk via je radio en luchtverkeer via een SDR-ontvanger werken zonder internet. Waarschuwingen, weer, aardbevingen en nieuws komen binnen zolang er internet is.</p>
+      <div class="og">
+        <div class="card"><div class="chead"><h3>Meldingen</h3><button class="btn ghost sm" type="button" data-act="oReadAll" id="oReadAll" style="margin-left:auto">Alles gelezen</button><div style="flex-basis:100%;min-width:0"><div class="seg" id="oFilters"></div></div></div><div class="olist" id="oList"></div></div>
+        <div class="oside">
+          <div class="card cpad detail" id="oDetail"></div>
+          <div class="card cpad"><span class="lbl">Trefwoorden</span><p class="muted" style="margin:8px 0 0;font-size:14px">Meldingen met deze woorden komen bovenaan en krijgen een markering.</p>
+            <div class="words" id="oWords"></div>
+            <div class="row" style="margin-top:12px"><input type="text" id="oWordIn" placeholder="bv. je straat" style="flex:1;min-width:120px" maxlength="30"><button class="btn sm" type="button" data-act="wordAdd">Voeg toe</button></div></div>
+          <div class="card cpad"><span class="lbl">Bronnen</span><div id="oSources" style="margin-top:6px"></div>
+            <p class="muted" style="margin:14px 0 8px;font-size:14px">Eigen nieuwsfeed toevoegen (RSS-adres):</p>
+            <div class="row"><input type="url" id="oFeedIn" placeholder="https://…" style="flex:1;min-width:140px"><button class="btn ghost sm" type="button" data-act="feedAdd">Voeg toe</button></div></div>
+        </div>
+      </div>
+    </div></section>
+
+    <section class="view" id="v-radar"><div class="page">
+      <div class="date">Radar</div>
+      <h1 class="s">Waar iedereen is</h1>
+      <p class="lead">Afstand en richting tot je contacten, zonder kaart en zonder internet.</p>
+      <div class="rg">
+        <div class="card radar" id="radarBox"><svg id="radarSvg" viewBox="-300 -300 600 600" role="img" aria-label="Positie van je contacten ten opzichte van jou"></svg></div>
+        <div class="card"><div class="chead"><h3>Posities</h3><label class="tg" style="margin-left:auto;font-size:14.5px">Deel mijn locatie met mijn contacten — versleuteld<input type="checkbox" id="shareLoc" data-chg="share"></label></div><div id="rList"></div>
+          <p class="muted" style="margin:0;padding:14px 20px;font-size:13.5px;border-top:1px solid var(--line)">De schaal groeit met de wortel van de afstand, zodat wie dichtbij is leesbaar blijft. Het lichte vlak is het geschatte radiobereik.</p></div>
+      </div>
+    </div></section>
+
+    <section class="view" id="v-koppelen"><div class="page">
+      <div class="date">Koppelen</div>
+      <h1 class="s">Iemand toevoegen</h1>
+      <p class="lead">Laat je QR-code scannen en scan die van de ander. Wie niet naast je staat, krijgt je code via mail, sms of op papier. Beiden moeten elkaar toevoegen.</p>
+      <div class="pair">
+        <div class="stack">
+          <div class="card cpad">
+            <div class="qrbox" id="qrBox"></div>
+            <div class="row" style="justify-content:space-between;margin-top:14px"><b style="font:500 17px var(--sans);color:var(--ink)" id="qrName"></b><span class="mono faint" id="qrId" style="font-size:12px"></span></div>
+            <div class="codeline" id="qrCode"></div>
+            <div class="row" style="margin-top:14px"><button class="btn ghost sm" type="button" data-act="qrBig">Toon groot</button><button class="btn ghost sm" type="button" data-act="copyCode">Kopieer code</button></div>
+          </div>
+        </div>
+        <div class="stack">
+          <div id="kReqs"></div>
+          <div class="card cpad"><h3>Scan een QR-code</h3><p>Op je telefoon of iPad opent de camera. Op een computer kies je een foto of schermafbeelding van de code.</p>
+            <label class="btn" for="scanIn"><svg class="i" viewBox="0 0 24 24"><path d="M4 8V5.5A1.5 1.5 0 0 1 5.5 4H8M16 4h2.5A1.5 1.5 0 0 1 20 5.5V8M20 16v2.5a1.5 1.5 0 0 1-1.5 1.5H16M8 20H5.5A1.5 1.5 0 0 1 4 18.5V16M4 12h16"/></svg>Scan QR-code</label><input type="file" id="scanIn" accept="image/*" capture="environment" hidden>
+            <div class="found" id="found" hidden></div></div>
+          <div class="card cpad"><h3>Of plak een code</h3>
+            <textarea id="pasteCode" rows="3" class="mono" style="font-size:13px" placeholder="AXB2:…"></textarea>
+            <div class="row" style="margin-top:10px"><input type="text" id="pasteName" placeholder="Naam (optioneel)" style="flex:1;min-width:160px"><button class="btn" type="button" data-act="pasteAdd">Toevoegen</button></div>
+            <div class="err" id="pasteErr"></div></div>
+          <div class="card cpad"><h3>Meteen in een groep zetten</h3><p>Wie je nu toevoegt, komt ook in de groepen die je hier aanvinkt.</p><div id="pairGroups"></div></div>
+          <div id="kInv"></div>
+        </div>
+      </div>
+    </div></section>
+
+    <section class="view" id="v-logboek"><div class="page">
+      <div class="date">Logboek</div>
+      <h1 class="s">Hoe je netwerk ervoor staat</h1>
+      <p class="lead" id="statusLead"></p>
+      <div class="kpis" id="kpis"></div>
+      <div class="grid2">
+        <div class="card"><div class="chead"><h3>Contacten</h3></div><div class="tw"><table><thead><tr><th>Naam</th><th>Weg</th><th>Signaal</th><th class="hide-m">Afstand</th><th class="hide-m">Laatst</th></tr></thead><tbody id="nodes"></tbody></table></div></div>
+        <div class="card"><div class="chead"><h3>Activiteit</h3></div><div class="log" id="log"></div></div>
+      </div>
+    </div></section>
+
+    <section class="view" id="v-instellingen"><div class="page">
+      <div class="date">Instellingen</div>
+      <h1 class="s">Dit station</h1>
+      <p class="lead">Elke computer met AEROCX Blackout is een eigen station. Er is geen centrale server: berichten gaan rechtstreeks en versleuteld van station naar station.</p>
+      <div class="set">
+        <div class="card cpad"><h3>Naam en locatie</h3><p>Je naam zien je contacten. De vaste locatie wordt gebruikt als er geen GPS van de radio is.</p>
+          <div class="row"><input type="text" id="myName" placeholder="Je naam" style="flex:1;min-width:160px" maxlength="40" aria-label="Je naam"><input type="text" id="myLoc" placeholder="bv. 50.8798, 4.7005" class="mono" style="flex:1;min-width:160px;font-size:14px" aria-label="Vaste locatie"><button class="btn sm" type="button" data-act="saveMe">Bewaar</button></div>
+          <p style="margin:12px 0 12px;font-size:13.5px" class="muted" id="locTxt"></p>
+          <label class="tg">Deel mijn locatie met mijn contacten — versleuteld<input type="checkbox" id="shareLoc2" data-chg="share"></label></div>
+        <div class="card cpad"><h3>Radio (LoRa · Meshtastic)</h3><p id="radioTxt"></p>
+          <div class="row"><select id="rMode" data-chg="rmode" style="flex:1;min-width:200px" aria-label="Hoe de radio verbonden is"><option value="auto">USB (automatisch zoeken)</option><option value="tcp">Via wifi (IP-adres van de radio)</option><option value="off">Uit</option></select><select id="rCh" style="width:auto;min-width:190px" aria-label="Kanaal"></select></div>
+          <div class="row" style="margin-top:8px"><input type="text" id="rTarget" class="mono" style="flex:1;min-width:180px;font-size:14px" aria-label="Poort of adres"><button class="btn sm" type="button" data-act="saveRadio">Bewaar</button></div>
+          <p id="rHint" class="muted" style="margin:8px 0 14px;font-size:13.5px"></p>
+          <label class="tg">Geef berichten door voor buren die alleen een radio hebben (brug)<input type="checkbox" id="bridgeOn" data-chg="bridge"></label>
+          <p class="muted" style="margin:10px 0 0;font-size:13.5px">Zet op alle radio's van de groep een kanaal met de naam <i>Blackout</i> en dezelfde sleutel; de app kiest dat kanaal dan zelf.</p></div>
+        <div class="card cpad"><h3>Luchtverkeer (SDR-ontvanger)</h3><p>Een RTL-SDR-stick met readsb of dump1090 ontvangt vliegtuigen en helikopters in de buurt, ook zonder internet.</p>
+          <p style="margin:0 0 12px;font-size:14.5px;color:var(--ink)" id="sdrTxt"></p>
+          <label class="tg">Luchtverkeer tonen bij OSINT<input type="checkbox" id="sdrOn" data-chg="sdr"></label></div>
+        <div class="card cpad"><h3>Automatisch starten</h3>
+          <label class="tg"><span id="autoLbl">Start mee bij het aanmelden op deze computer</span><input type="checkbox" id="autoStart" data-chg="autostart"></label>
+          <p style="margin:12px 0 0" id="autoTxt"></p></div>
+        <div class="card cpad"><h3>Back-up van sleutels en contacten</h3><p>Versleuteld met een wachtzin. Bewaar het bestand op een USB-stick, niet op deze computer. Zonder wachtzin is het bestand onbruikbaar.</p>
+          <div class="row"><input type="password" id="bkPass" placeholder="Wachtzin (minstens 12 tekens)" style="flex:1;min-width:200px" autocomplete="new-password"><button class="btn sm" type="button" data-act="backup"><svg class="i" viewBox="0 0 24 24"><path d="M12 4v11M7.5 10.5L12 15l4.5-4.5M5 19.5h14"/></svg>Maak back-up</button></div>
+          <p style="margin:12px 0 16px" id="bkTxt"></p>
+          <span class="lbl">Herstellen</span>
+          <div class="row" style="margin-top:10px"><label class="btn ghost sm" for="rsFile"><svg class="i" viewBox="0 0 24 24"><path d="M12 15V4M7.5 8.5L12 4l4.5 4.5M5 19.5h14"/></svg>Kies bestand</label><input type="file" id="rsFile" accept=".axb,application/octet-stream" hidden><span class="muted" id="rsName" style="font-size:14px">Geen bestand gekozen</span></div>
+          <div class="row" style="margin-top:10px"><input type="password" id="rsPass" placeholder="Wachtzin van de back-up" style="flex:1;min-width:200px" autocomplete="off"><button class="btn ghost sm" type="button" data-act="restore">Herstel</button></div>
+          <div class="err" id="bkErr"></div></div>
+        <div class="card cpad" id="padCard"></div>
+        <div class="card cpad"><h3>Over dit station</h3><div class="kv" id="aboutKv" style="margin:6px 0 0"></div></div>
+        <div class="card cpad" id="quitCard"><h3>Afsluiten</h3><p id="quitTxt">Stopt AEROCX Blackout op deze computer. Je ontvangt dan geen berichten meer tot je het weer opent.</p><button class="btn ghost sm" type="button" data-act="quit" id="quitBtn"><svg class="i" viewBox="0 0 24 24"><path d="M12 3.5v8"/><path d="M7.2 6.5a7.5 7.5 0 1 0 9.6 0"/></svg>Afsluiten</button></div>
+      </div>
+    </div></section>
+
+    <section class="view" id="v-beheer"><div class="page">
+      <div class="date">Beheer</div>
+      <h1 class="s">Gebruikers en toegang</h1>
+      <p class="lead">Jij bent beheerder van dit netwerk. Rollen en blokkeringen onderteken je met je eigen sleutel; de apps van de andere leden volgen ze.</p>
+      <div class="kpis" id="admKpis"></div>
+      <div class="seg" id="admTabs" style="margin-bottom:16px"></div>
+      <div id="adm"></div>
+    </div></section>
+  </main>
+  <nav class="tabbar" id="tabbar" aria-label="Navigatie"></nav>
+</div>
+
+<div class="ov" id="ov"><div class="ovp" id="ovp" role="dialog" aria-modal="true"></div></div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<div class="full" id="login"><div class="card">
+  <div class="brandrow"><span data-logo aria-label="AEROCX"></span><span class="sep"></span><span class="lbl" style="color:var(--ink)">Blackout</span></div>
+  <h1>Pincode</h1>
+  <p>Typ de pincode van de computer waarop AEROCX Blackout draait. Je vindt hem daar bij Instellingen, onder <i>iPad of telefoon</i>.</p>
+  <input type="text" id="pin" class="pinin" inputmode="numeric" autocomplete="one-time-code" placeholder="••••••" maxlength="12" aria-label="Pincode">
+  <div class="row" style="margin-top:14px"><button class="btn" type="button" data-act="login" style="flex:1">Verder</button></div>
+  <div class="err" id="loginErr"></div>
+</div></div>
+
+<div class="full" id="stopped"><div class="card">
+  <div class="brandrow"><span data-logo aria-label="AEROCX"></span><span class="sep"></span><span class="lbl" style="color:var(--ink)">Blackout</span></div>
+  <h1>Afgesloten</h1>
+  <p>AEROCX Blackout is gestopt op deze computer. Open het programma opnieuw om weer berichten te ontvangen. Je kunt dit venster sluiten.</p>
+</div></div>
+
+<script src="/assets/jsqr.js" defer></script>
+<script>
+(function(){
+'use strict';
+/* ================= hulpjes ================= */
+const $=id=>document.getElementById(id);
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const arr=x=>Array.isArray(x)?x:[];
+const T=x=>{ x=+x||0; return x&&x<1e12?x*1000:x; };           // seconden of ms → ms
+let skew=0; const nowMs=()=>Date.now()+skew;
+const hhmm=t=>t?new Date(T(t)).toLocaleTimeString('nl-BE',{hour:'2-digit',minute:'2-digit'}):'';
+const dmy=t=>new Date(T(t)).toLocaleString('nl-BE',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}).replace(',','');
+const dayOnly=t=>new Date(T(t)).toLocaleDateString('nl-BE',{day:'numeric',month:'short',year:'numeric'});
+function ago(t){ if(!t) return 'nog nooit'; const d=Math.round((nowMs()-T(t))/60000); return d<1?'net nog':d<60?d+' min geleden':d<1440?Math.round(d/60)+' u geleden':Math.round(d/1440)+' d geleden'; }
+function msgTime(t){ const d=new Date(T(t)), n=new Date(nowMs()); return d.toDateString()===n.toDateString()?hhmm(t):dmy(t); }
+const initials=n=>String(n||'?').split(/\s+/).filter(Boolean).slice(0,2).map(w=>w[0]).join('').toUpperCase()||'?';
+const first=n=>String(n||'').split(' ')[0];
+const plural=(n,a,b)=>n+' '+(n===1?a:b);
+function toast(t,err){ const e=$('toast'); e.textContent=t; e.classList.toggle('err',!!err); e.classList.add('on'); clearTimeout(toast.t); toast.t=setTimeout(()=>e.classList.remove('on'),err?4200:2800); }
+function pref(k,v){ try{ if(v===undefined) return localStorage.getItem('axb-ui-'+k); localStorage.setItem('axb-ui-'+k,v); }catch(e){ return null; } }
+/* alleen vervangen als de inhoud echt veranderde, en niet terwijl iemand in dat stuk typt */
+function put(el,html){ if(typeof el==='string') el=$(el); if(!el) return false; if(el._h===html) return false;
+  const a=document.activeElement; if(a&&a!==document.body&&el.contains(a)&&/^(INPUT|SELECT|TEXTAREA)$/.test(a.tagName)) return false;
+  el._h=html; el.innerHTML=html; return true; }
+
+/* iconen (lijnstijl) */
+const IC={
+ vandaag:'<circle cx="12" cy="12" r="3"/><path d="M12 3v2M12 19v2M3 12h2M19 12h2"/>',
+ berichten:'<path d="M4.5 5.5h15v10h-9l-4.5 4v-4h-1.5z"/>',
+ osint:'<circle cx="12" cy="12" r="1.6"/><path d="M8.6 8.6a4.8 4.8 0 0 0 0 6.8M15.4 8.6a4.8 4.8 0 0 1 0 6.8M5.8 5.8a8.8 8.8 0 0 0 0 12.4M18.2 5.8a8.8 8.8 0 0 1 0 12.4"/>',
+ radar:'<circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4.5"/><path d="M12 12l5.5-5.5"/>',
+ koppelen:'<rect x="4" y="4" width="6" height="6" rx="1.2"/><rect x="14" y="4" width="6" height="6" rx="1.2"/><rect x="4" y="14" width="6" height="6" rx="1.2"/><path d="M14 14h2.5v2.5H14zM18 18h2v2h-2zM18 14h2M14 18v2"/>',
+ logboek:'<path d="M4 19.5h16M7 16v-5M11.5 16V7M16 16v-3"/>',
+ instellingen:'<path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/>',
+ beheer:'<path d="M12 3.5l7 3v5c0 4.5-3 7.8-7 9-4-1.2-7-4.5-7-9v-5z"/><path d="M9 12l2 2 4-4"/>',
+ meer:'<circle cx="6" cy="12" r="1.3"/><circle cx="12" cy="12" r="1.3"/><circle cx="18" cy="12" r="1.3"/>',
+ send:'<path d="M4.5 12L20 4.5l-5.5 15-3-6z"/>',
+ sat:'<path d="M5 13a6 6 0 0 0 6 6M5 9a10 10 0 0 1 10 10"/><circle cx="5.5" cy="18.5" r="1.4"/>',
+ wifi:'<path d="M4 9.5a11.5 11.5 0 0 1 16 0M7 12.8a7 7 0 0 1 10 0M10 16a2.8 2.8 0 0 1 4 0"/><circle cx="12" cy="19" r=".6"/>',
+ radio:'<path d="M12 10v10M8 20h8"/><path d="M9 7a4 4 0 0 1 6 0M6.5 4.5a7.5 7.5 0 0 1 11 0"/>',
+ brug:'<path d="M3 16h18M6 16v-4a6 6 0 0 1 12 0v4M10 16v-3M14 16v-3"/>',
+ relay:'<circle cx="5" cy="12" r="2"/><circle cx="19" cy="12" r="2"/><circle cx="12" cy="6" r="2"/><path d="M6.6 10.8l3.8-3.4M13.6 7.4l3.8 3.4"/>',
+ alert:'<path d="M12 4l9 16H3z"/><path d="M12 10v4M12 17h.01"/>',
+ plane:'<path d="M12 3.5v17M12 9l8 4v1.5l-8-2M12 9l-8 4v1.5l8-2M9.5 19.5L12 18l2.5 1.5"/>',
+ weer:'<path d="M7 17.5h10a4 4 0 0 0 .5-8 5.5 5.5 0 0 0-10.7 1.5A3.3 3.3 0 0 0 7 17.5z"/>',
+ stroom:'<path d="M13 3L5.5 13.5H12L11 21l7.5-10.5H12z"/>',
+ nieuws:'<path d="M5 5.5h11v13H6.5A1.5 1.5 0 0 1 5 17zM16 9h3v8a1.5 1.5 0 0 1-3 0M8 9h5M8 12h5M8 15h3"/>',
+ ramp:'<path d="M3 12h4l2-5 3 10 2.5-7 1.5 2h5"/>',
+ user:'<circle cx="12" cy="8.5" r="3.5"/><path d="M5 20a7 7 0 0 1 14 0"/>',
+ users:'<circle cx="9" cy="8.5" r="3"/><path d="M3.5 19a5.5 5.5 0 0 1 11 0"/><circle cx="16.5" cy="9.5" r="2.3"/><path d="M15.5 14.2A4.6 4.6 0 0 1 21 18.5"/>',
+ chat:'<path d="M4.5 5.5h15v10h-9l-4.5 4v-4h-1.5z"/>',
+ device:'<rect x="7" y="3.5" width="10" height="17" rx="2"/><path d="M11 17.5h2"/>',
+ laptop:'<rect x="5" y="5.5" width="14" height="9.5" rx="1.5"/><path d="M3 18.5h18"/>',
+ ban:'<circle cx="12" cy="12" r="8"/><path d="M6.5 6.5l11 11"/>',
+ trash:'<path d="M4.5 7h15M9.5 7V4.5h5V7M6.5 7l1 12.5h9l1-12.5M10 10.5v6M14 10.5v6"/>',
+ key:'<circle cx="8" cy="15" r="3.5"/><path d="M10.5 12.5L19 4M16 7l2 2M14 9l1.5 1.5"/>',
+ plus:'<path d="M12 5v14M5 12h14"/>',
+ link:'<path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/>'
+};
+const ic=(n,s)=>`<svg class="i" viewBox="0 0 24 24"${s?` style="width:${s}px;height:${s}px"`:''}>${IC[n]||''}</svg>`;
+
+/* logo: één keer ingebakken, per plek eigen id's voor de clipPaths */
+function placeLogos(raw){ let n=0; document.querySelectorAll('[data-logo]').forEach(el=>{ n++; el.innerHTML=raw.replace(/id="([^"]+)"/g,`id="$1-l${n}"`).replace(/url\(#([^)]+)\)/g,`url(#$1-l${n})`); }); }
+(function(){ const raw=$('logoTpl').innerHTML.trim(); if(raw.indexOf('<svg')===0) placeLogos(raw); else fetch('/assets/logo.svg').then(r=>r.text()).then(placeLogos).catch(()=>{}); })();
+$('kbd').textContent=/Mac|iPhone|iPad/.test(navigator.platform||'')?'⌘K':'Ctrl K';
+
+/* ================= verbinding met het eigen station ================= */
+let S=null, conn=true, loginShown=false;
+function setConn(ok){ if(conn!==ok){ conn=ok; renderChrome(); } }
+async function api(path,body,opt){
+  opt=opt||{};
+  let init={cache:'no-store',credentials:'same-origin'};
+  if(body instanceof FormData) init={method:'POST',body,credentials:'same-origin'};
+  else if(body!==undefined) init={method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body),credentials:'same-origin'};
+  let r;
+  try{ r=await fetch(path,init); }
+  catch(e){ setConn(false); const er=new Error('Geen verbinding met je eigen station. Draait AEROCX Blackout nog op de computer?'); er.offline=true; throw er; }
+  setConn(true);
+  if(r.status===401){ showLogin(); const er=new Error('Typ eerst de pincode.'); er.login=true; throw er; }
+  if(!r.ok){
+    let msg=''; try{ const t=await r.text(); try{ msg=(JSON.parse(t)||{}).error||''; }catch(e){ msg=''; } }catch(e){}
+    if(!msg) msg=r.status===404?'Deze functie kent je station nog niet. Werk AEROCX Blackout bij.':r.status===403?'Dat mag niet vanaf dit toestel.':'Er ging iets mis (fout '+r.status+').';
+    const er=new Error(msg); er.status=r.status; throw er;
+  }
+  if(opt.raw) return r;
+  const t=await r.text(); if(!t) return {};
+  try{ return JSON.parse(t); }catch(e){ return {}; }
+}
+async function act(path,body,okMsg){
+  try{ const r=await api(path,body); if(okMsg) toast(okMsg); poll(true); return r||{}; }
+  catch(e){ if(!e.login) toast(e.message,true); return null; }
+}
+function showLogin(){ if(loginShown) return; loginShown=true; $('login').classList.add('on'); setTimeout(()=>{ try{$('pin').focus();}catch(e){} },60); }
+function hideLogin(){ if(!loginShown) return; loginShown=false; $('login').classList.remove('on'); }
+async function login(){
+  const pin=$('pin').value.replace(/\s+/g,''); if(!pin){ $('loginErr').textContent='Typ de pincode.'; return; }
+  $('loginErr').textContent='';
+  try{ await api('/api/login',{pin}); hideLogin(); $('pin').value=''; poll(true); }
+  catch(e){ $('loginErr').textContent=e.status===403&&/^Verkeerde pincode/.test(e.message)?'Verkeerde pincode. Probeer het opnieuw.':e.message; }
+}
+/* gevoelige acties vanaf een ander toestel: eerst de pincode opnieuw vragen (op de computer zelf niet) */
+function askPin(what){ return new Promise(res=>{
+  if(S&&S.local){ res(''); return; }
+  ov(`<span class="lbl">Pincode</span><h1 class="s">Bevestig met de pincode</h1><p class="lead">${esc(what)} kan vanaf dit toestel alleen met de pincode van het station.</p><input type="password" id="apPin" class="pinin" inputmode="numeric" autocomplete="off" placeholder="••••••" maxlength="12" aria-label="Pincode" style="font:400 22px/1 var(--mono);letter-spacing:.3em;text-align:center;width:100%"><div class="row" style="margin-top:14px"><button class="btn" type="button" id="apOk">Bevestig</button><button class="btn ghost" type="button" data-close>Annuleer</button></div>`);
+  let fin=false; const done=v=>{ if(fin) return; fin=true; $('ov').removeEventListener('click',cancel); res(v); };
+  const cancel=e=>{ if(e.target===$('ov')||e.target.closest('[data-close]')) done(null); }; $('ov').addEventListener('click',cancel);
+  const ok=()=>{ const p=$('apPin').value.replace(/\s+/g,''); if(!p){ $('apPin').focus(); return; } closeOv(); done(p); };
+  $('apOk').onclick=ok; $('apPin').addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefault(); ok(); } });
+  setTimeout(()=>{ try{ $('apPin').focus(); }catch(e){} },30);
+}); }
+$('pin').addEventListener('keydown',e=>{ if(e.key==='Enter') login(); });
+
+/* ================= gegevens ================= */
+let view='vandaag', conv=pref('conv')||'alle', chatOpen=false, convs=null, msgCache={}, osintData=null, tick=0, busy=false;
+let outbox=[]; // optimistisch getoonde berichten {tmp,conv,body,img,ts,state:'bezig'|'fout'}
+const contacts=()=>arr(S&&S.contacts);
+const groups=()=>arr(S&&S.groups);
+const C=id=>contacts().find(c=>c.id===id);
+const gid=id=>String(id||'').replace(/^g:/,'');
+const G=id=>groups().find(g=>g.id===gid(id));
+const isGroupConv=c=>/^g:/.test(c||'');
+const convIdOf=cv=>cv.kind==='groep'&&!isGroupConv(cv.id)?'g:'+cv.id:cv.id;
+const nameOf=id=>{ if(!id) return '?'; if(S&&S.me&&(id===S.me.id||id===S.me.fullId)) return S.me.name; const c=C(id); return c?c.name:'?'; };
+
+function routeOf(c){
+  if(!c) return {k:'none',t:'onbekend'};
+  if(c.blocked) return {k:'none',t:'geblokkeerd'};
+  if(c.route&&c.route.k) return {k:c.route.k,t:c.route.t||ROUTE_TXT[c.route.k]||''};
+  if(c.online) return c.via==='lan'?{k:'lan',t:'via wifi in huis'}:{k:'star',t:'via Starlink'};
+  if(c.radioSeen&&nowMs()-T(c.radioSeen)<30*60e3) return {k:'radio',t:'via radio'};
+  return {k:'none',t:'nu niet bereikbaar, wacht'};
+}
+const ROUTE_TXT={star:'via Starlink',lan:'via wifi in huis',radio:'via radio',bridge:'via een brug',relay:'doorgegeven door een contact',none:'nu niet bereikbaar, wacht'};
+const VIA={star:'Starlink',lan:'wifi',radio:'radio',bridge:'brug',relay:'doorgegeven'};
+const dotOf=k=>(k==='star'||k==='lan')?'on':(k==='radio'||k==='bridge'||k==='relay')?'half':'off';
+const routeIc=k=>({star:'sat',lan:'wifi',radio:'radio',bridge:'brug',relay:'relay'}[k]||'alert');
+const reachable=c=>routeOf(c).k!=='none';
+function routeCounts(){ const n={direct:0,radio:0,bridge:0,none:0}; contacts().forEach(c=>{ const k=routeOf(c).k; if(k==='star'||k==='lan'||k==='relay') n.direct++; else if(k==='radio') n.radio++; else if(k==='bridge') n.bridge++; else n.none++; }); return n; }
+function starlinkOk(){ if(!S) return false; const a=arr(S.me&&S.me.addrs); if(a.some(x=>/^\[?2[0-9a-f]{3}:/i.test(x))) return true; return contacts().some(c=>routeOf(c).k==='star'); }
+const radioOk=()=>!!(S&&S.radio&&S.radio.connected);
+const lanOk=()=>contacts().some(c=>routeOf(c).k==='lan');
+
+/* afstand en richting */
+function km(a,b){const R=6371,r=x=>x*Math.PI/180;const dLa=r(b.lat-a.lat),dLo=r(b.lon-a.lon);const h=Math.sin(dLa/2)**2+Math.cos(r(a.lat))*Math.cos(r(b.lat))*Math.sin(dLo/2)**2;return 2*R*Math.asin(Math.sqrt(h));}
+function bearing(a,b){const r=x=>x*Math.PI/180;const y=Math.sin(r(b.lon-a.lon))*Math.cos(r(b.lat));const x=Math.cos(r(a.lat))*Math.sin(r(b.lat))-Math.sin(r(a.lat))*Math.cos(r(b.lat))*Math.cos(r(b.lon-a.lon));return (Math.atan2(y,x)*180/Math.PI+360)%360;}
+const dirName=b=>['N','NO','O','ZO','Z','ZW','W','NW'][Math.round(b/45)%8];
+const fmtKm=d=>d<1?Math.round(d*1000)+' m':(d<100?d.toFixed(1).replace('.',','):Math.round(d))+' km';
+const hasPos=p=>p&&isFinite(+p.lat)&&isFinite(+p.lon)&&!(+p.lat===0&&+p.lon===0);
+const myPos=()=>S&&S.me&&hasPos(S.me.pos)?S.me.pos:null;
+function distTxt(p){ const m=myPos(); if(!m||!hasPos(p)) return ''; return fmtKm(km(m,p))+' '+dirName(bearing(m,p)); }
+const SRCNAME={gps:'GPS',radio:'GPS van de radio',vast:'vaste locatie',fixed:'vaste locatie',manual:'vaste locatie',beacon:'baken via radio'};
+const srcName=s=>SRCNAME[s]||s||'locatie';
+
+/* ================= navigatie ================= */
+const VIEWS=[['vandaag','Vandaag'],['berichten','Berichten'],['osint','OSINT'],['radar','Radar'],['koppelen','Koppelen'],['beheer','Beheer'],['logboek','Logboek'],['instellingen','Instellingen']];
+const MORE=['koppelen','beheer','logboek','instellingen'];
+function msgUnread(){ if(!S) return 0; let n=+S.alleUnread||0; contacts().forEach(c=>n+=+c.unread||0); groups().forEach(g=>n+=+g.unread||0); return n; }
+const osintUnread=()=>S&&S.osint?(+S.osint.unread||0):0;
+function renderNav(){
+  const u=msgUnread(), o=osintUnread(), p=arr(S&&S.pending).length;
+  const badge=k=>k==='berichten'&&u?u:k==='osint'&&o?o:k==='beheer'&&p?p:0;
+  put('nav',VIEWS.map(([k,t],i)=>(i===5?'<div class="sec">BEHEER</div>':'')+`<button type="button" data-act="go" data-v="${k}" ${view===k?'aria-current="page"':''}>${ic(k)}<span>${t}</span>${badge(k)?`<span class="n">${badge(k)}</span>`:''}</button>`).join(''));
+  const tabs=[['vandaag','Vandaag'],['berichten','Berichten'],['osint','OSINT'],['radar','Radar'],['meer','Meer']];
+  const moreBadge=MORE.reduce((a,k)=>a+badge(k),0);
+  put('tabbar',tabs.map(([k,t])=>{ const b=k==='meer'?moreBadge:badge(k); return `<button type="button" data-act="go" data-v="${k}" ${(view===k||(k==='meer'&&MORE.includes(view)))?'aria-current="page"':''}>${ic(k)}${t}${b?`<span class="n">${b}</span>`:''}</button>`; }).join(''));
+}
+function go(v,opt){
+  if(v==='meer'){ openMore(); return; }
+  if(!VIEWS.some(x=>x[0]===v)) v='vandaag';
+  const changed=view!==v; view=v;
+  try{ history.replaceState(null,'','#'+v); }catch(e){}
+  document.querySelectorAll('.view').forEach(e=>e.classList.toggle('on',e.id==='v-'+v));
+  if(changed){ const vv=$('v-'+v); if(vv) vv.scrollTop=0; }
+  if(v==='instellingen') fillSettings();
+  if(v==='beheer'&&opt&&opt.tab) admTab=opt.tab;
+  renderAll(); poll(true);
+}
+function openMore(){
+  ov(`<span class="lbl">Meer</span><div style="display:grid;gap:8px;margin-top:14px">
+    ${MORE.map(k=>`<button class="btn ghost" type="button" data-act="go" data-v="${k}" style="justify-content:flex-start">${ic(k)}${VIEWS.find(x=>x[0]===k)[1]}</button>`).join('')}
+    <button class="btn ghost" type="button" data-act="search" style="justify-content:flex-start"><svg class="i" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4.2-4.2"/></svg>Zoeken</button>
+    <button class="btn" type="button" data-close style="margin-top:8px">Sluiten</button></div>`);
+}
+
+/* ================= overlay ================= */
+function ov(html){ $('ovp').innerHTML=html; $('ov').classList.add('on'); }
+function closeOv(){ $('ov').classList.remove('on'); $('ovp').innerHTML=''; }
+$('ov').addEventListener('click',e=>{ if(e.target===$('ov')||e.target.closest('[data-close]')) closeOv(); });
+function confirmDlg(title,text,yes,fn,label){
+  ov(`<span class="lbl">${esc(label||'Bevestigen')}</span><h1 class="s">${esc(title)}</h1><p class="lead">${esc(text)}</p><div class="row"><button class="btn" type="button" id="cfYes">${esc(yes)}</button><button class="btn ghost" type="button" data-close>Annuleer</button></div>`);
+  $('cfYes').onclick=()=>{ closeOv(); fn(); }; setTimeout(()=>$('cfYes').focus(),30);
+}
+document.addEventListener('keydown',e=>{ if(e.key==='Escape') closeOv(); if((e.metaKey||e.ctrlKey)&&e.key.toLowerCase()==='k'){ e.preventDefault(); openSearch(); } });
+
+/* ================= kop: verbinding, SOS ================= */
+function renderChrome(){
+  // zijbalk: echte status, geen schakelaars
+  const st=starlinkOk(), rd=radioOk(), r=S&&S.radio||{};
+  const row=(cls,name,x)=>`<div><i class="dot ${cls}"></i>${name}<span class="x">${esc(x)}</span></div>`;
+  put('conn',`<span class="lbl" style="color:var(--sideMuted)">Verbindingen</span>`+
+    row(conn?'on':'off','Station',conn?'verbonden':'weg')+
+    row(S?(st?'on':'off'):'off','Starlink',!S?'—':st?'online':'niet bereikbaar')+
+    row(S?(rd?(r.canSend===false?'half':'on'):'off'):'off','Radio',!S?'—':rd?(r.region||'verbonden'):'niet aangesloten')+
+    row(S&&S.bridge&&st&&rd?'on':'off','Brug',!S?'—':S.bridge?(st&&rd?'actief':'aan, wacht'):'uit'));
+  if(S&&S.me){ $('meName').textContent=S.me.name||'Dit station'; $('meAv').textContent=initials(S.me.name); $('meSub').textContent=(S.me.role==='beheerder'||!S.me.role?'Beheerder':S.me.role)+' · '+(S.me.id||''); }
+  // balken bovenaan
+  let h='';
+  if(!conn) h+=`<div class="bar off">${ic('alert')}<span><b style="font-weight:500">Geen verbinding met je eigen station.</b> Draait AEROCX Blackout nog op de computer? We proberen het elke 2 seconden opnieuw. Wat je ziet, is de laatst bekende toestand.</span></div>`;
+  const sos=S&&S.sos;
+  if(sos&&sos.active){ const a=arr(sos.acks).map(nameOf).filter(x=>x&&x!=='?');
+    h+=`<div class="bar mine"><b>SOS ACTIEF</b><span>sinds ${hhmm(sos.start)} · ${a.length?'Gezien door '+esc(a.join(', ')):'Verzonden. Wacht op bevestiging…'}</span><button class="btn sm" type="button" data-act="sosStop">SOS beëindigen</button></div>`; }
+  arr(S&&S.incomingSos).forEach(x=>{ const d=distTxt(x.pos);
+    h+=`<div class="insos" role="alert"><span class="tag">SOS</span><div><b>${esc(x.fromName||nameOf(x.from))} heeft hulp nodig</b><span>${hhmm(x.ts)}${d?' · '+esc(d)+' van jou':''}${hasPos(x.pos)?` · positie ${(+x.pos.lat).toFixed(4)}, ${(+x.pos.lon).toFixed(4)}`:''}${x.body?' · '+esc(x.body):''}</span></div>
+      <div class="row"><button class="btn sm" type="button" data-act="sosSeen" data-id="${esc(x.id)}">Ik heb het gezien</button><button class="btn ghost sm" type="button" data-act="sosOpen" data-id="${esc(x.from||'')}">Bericht sturen</button>${hasPos(x.pos)&&myPos()?`<button class="btn ghost sm" type="button" data-act="sosRadar" data-id="${esc(x.from||'')}">Radar</button>`:''}</div></div>`; });
+  put('bars',h);
+  const on=!!(sos&&sos.active);
+  document.querySelectorAll('.sos').forEach(b=>{ b.classList.toggle('active',on); b.querySelector('.t').textContent=on?'SOS ACTIEF':'SOS'; });
+  const inc=arr(S&&S.incomingSos).length;
+  document.title=(inc?'SOS · ':'')+(msgUnread()?'('+msgUnread()+') ':'')+'AEROCX | Blackout';
+  if(inc>lastInc&&(!navigator.userActivation||navigator.userActivation.hasBeenActive)){ try{ navigator.vibrate&&navigator.vibrate([300,150,300,150,300]); }catch(e){} beep(); }
+  lastInc=inc;
+}
+let lastInc=0, audioCtx=null;
+function beep(){ try{ audioCtx=audioCtx||new (window.AudioContext||window.webkitAudioContext)(); const o=audioCtx.createOscillator(), g=audioCtx.createGain(); o.frequency.value=880; g.gain.value=.08; o.connect(g); g.connect(audioCtx.destination); o.start(); setTimeout(()=>{ o.frequency.value=660; },220); setTimeout(()=>o.stop(),520); }catch(e){} }
+function sosClick(){
+  if(!S) return;
+  if(S.sos&&S.sos.active){ conv='alle'; chatOpen=true; go('berichten'); return; }
+  const p=myPos(), share=S.me&&S.me.share;
+  ov(`<span class="lbl">SOS</span><h1 class="s">Noodbericht versturen?</h1><p class="lead">Gaat meteen naar al je contacten, met voorrang, ook over de radio en via bruggen.${p&&share?' Je positie gaat mee.':' Je locatie wordt niet gedeeld.'} Je kunt het daarna weer beëindigen.</p><div class="row"><button class="btn" type="button" id="sosYes">Verstuur SOS</button><button class="btn ghost" type="button" data-close>Annuleer</button></div>`);
+  $('sosYes').onclick=async()=>{ closeOv(); const r=await act('/api/sos',{action:'start'}); if(r){ toast('SOS verstuurd naar al je contacten'); conv='alle'; chatOpen=true; go('berichten'); } };
+}
+
+/* ================= vandaag ================= */
+let ctTab='alle';
+function greetWord(){ const h=new Date().getHours(); return h<6?'Goedenacht':h<12?'Goedemorgen':h<18?'Goedemiddag':'Goedenavond'; }
+function renderToday(){
+  $('today').textContent=new Date(nowMs()).toLocaleDateString('nl-BE',{weekday:'long',day:'numeric',month:'long'});
+  if(!S) return;
+  const cs=contacts(), n=routeCounts(), reach=cs.length-n.none, fn=first(S.me.name);
+  let g;
+  if(S.sos&&S.sos.active) g=`${fn}, je SOS is verstuurd.`;
+  else if(!cs.length) g=`${greetWord()} ${fn}, voeg je eerste contact toe.`;
+  else if(reach===cs.length) g=`${greetWord()} ${fn}, ${cs.length===1?'je contact is':'alle '+cs.length+' contacten zijn'} bereikbaar.`;
+  else g=`${greetWord()} ${fn}, ${reach} van ${cs.length} contacten ${reach===1?'is':'zijn'} bereikbaar.`;
+  $('greet').textContent=g;
+  const st=starlinkOk(), rd=radioOk(), r=S.radio||{}, lan=lanOk();
+  const mode=st?(rd?'Starlink en radio':'Alleen Starlink'):(rd?'Alleen radio':(lan?'Alleen wifi in huis':'Geen verbinding'));
+  const modeIc=st?'sat':rd?'radio':lan?'wifi':'alert';
+  const pend=arr(S.pending).length, imp=S.osint?+S.osint.important||0:0;
+  const chip=!st&&rd?'Blackout-modus: berichten gaan via radio en bruggen':!st&&!rd?'Berichten wachten tot er een weg is':pend?plural(pend,'verzoek wacht','verzoeken wachten'):'Klaar om te versturen';
+  const radioTxt=rd?`radio ${r.region||''}${r.channelName?', kanaal '+r.channelName:''}`.replace(/\s+,/,','):'geen radio aangesloten';
+  put('heroCard',`<div class="top"><span class="lbl">NU · ${hhmm(nowMs())}</span><span class="chip">${esc(chip)}</span></div>
+    <div class="row" style="gap:18px;flex-wrap:nowrap"><span class="bigicon">${ic(modeIc)}</span><div><h2>${mode}</h2><div class="sub">${st?'IPv6 via je schotel':'Starlink niet bereikbaar'} · ${esc(radioTxt)}${S.bridge&&st&&rd?' · brug actief':''}</div></div></div>
+    <div class="acts"><button class="btn" type="button" data-act="openConv" data-c="alle">${ic('send')}Nieuw bericht</button><button class="btn ghost" type="button" data-act="go" data-v="radar">Radar</button><button class="btn ghost" type="button" data-act="go" data-v="osint">OSINT${imp?` · ${imp} belangrijk`:''}</button></div>
+    <div class="note">Valt een weg weg, dan kiest de app vanzelf de volgende. Berichten die nergens heen kunnen, wachten tot er weer een weg is.</div>`);
+  const pct=cs.length?reach/cs.length:0, C2=2*Math.PI*40;
+  put('reachCard',`<span class="lbl">Bereikbaarheid</span><div class="ringrow" style="margin-top:16px"><svg class="ring" viewBox="0 0 100 100"><circle class="bgc" cx="50" cy="50" r="40"/><circle class="fg" cx="50" cy="50" r="40" stroke-dasharray="${(C2*pct).toFixed(1)} ${C2.toFixed(1)}" transform="rotate(-90 50 50)"/><text x="50" y="56" text-anchor="middle">${reach}/${cs.length}</text></svg><div><b style="font:500 18px var(--sans);color:var(--ink)">${!cs.length?'Nog niemand':n.none?n.none+' wacht'+(n.none===1?'':'en'):'Iedereen bereikbaar'}</b><p class="muted" style="margin:4px 0 0;font-size:14px">${!cs.length?'Ga naar Koppelen om iemand toe te voegen.':n.none?'Ze krijgen je berichten zodra er een weg is.':'Via de beste weg die nu beschikbaar is.'}</p></div></div>
+    <div class="bars">${[['Direct',n.direct],['Radio',n.radio],['Brug',n.bridge]].map(([l,k])=>`<div><i><b style="width:${cs.length?Math.round(100*k/cs.length):0}%"></b></i>${l} · ${k}</div>`).join('')}</div>`);
+  const its=osintData?arr(osintData.items):null;
+  const cnt=f=>its?its.filter(f).length:'–';
+  put('osintCard',`<span class="lbl">OSINT</span><div class="kv2" style="margin-top:8px"><div><span>Waarschuwingen</span><b>${cnt(o=>o.sev>=2)}</b></div><div><span>Mesh-berichten</span><b>${cnt(o=>o.src==='mesh')}</b></div><div><span>Luchtverkeer</span><b>${cnt(o=>o.src==='adsb')}</b></div></div>`);
+  const tabs=[['alle','Alle',cs.length],['direct','Starlink en wifi',n.direct],['radio','Radio en brug',n.radio+n.bridge],['none','Wacht',n.none]];
+  put('ctTabs',tabs.map(([k,t,c])=>`<button type="button" data-act="ctTab" data-t="${k}" aria-pressed="${ctTab===k}">${t}<span class="n">${c}</span></button>`).join(''));
+  const inTab=c=>{ const k=routeOf(c).k; return ctTab==='alle'||(ctTab==='direct'&&(k==='star'||k==='lan'||k==='relay'))||(ctTab==='radio'&&(k==='radio'||k==='bridge'))||(ctTab==='none'&&k==='none'); };
+  const rows=cs.filter(inTab);
+  put('ctRows',rows.map(c=>{ const r=routeOf(c), gs=groups().filter(g=>arr(g.members).includes(c.id)).map(g=>g.name), d=distTxt(c.pos);
+    return `<tr data-open data-act="openConv" data-c="${esc(c.id)}"><td><div class="who"><span class="av">${esc(initials(c.name))}<i class="dot ${dotOf(r.k)}"></i></span><div><b>${esc(c.name)}${c.unread?` <span class="chip amber" style="padding:2px 7px;font-size:11.5px;vertical-align:2px">${c.unread} nieuw</span>`:''}</b><span>${esc(gs.join(' · ')||(c.introducedBy?'voorgesteld via '+c.introducedBy:'geen groep'))}</span></div></div></td><td><span class="chip ${r.k==='none'||r.k==='bridge'?'amber':''}">${ic(routeIc(r.k),14)}${esc(r.t)}</span></td><td class="mono hide-m" style="font-size:13px">${d?esc(d):'<span class="faint">—</span>'}</td><td class="hide-m muted" style="font-size:14px">${esc(ago(c.lastSeen))}</td><td style="text-align:right;white-space:nowrap"><button class="iconbtn" type="button" data-act="openConv" data-c="${esc(c.id)}" aria-label="Bericht aan ${esc(c.name)}">${ic('chat')}</button><button class="iconbtn" type="button" data-act="toRadar" data-c="${esc(c.id)}" aria-label="Toon ${esc(c.name)} op de radar">${ic('radar')}</button></td></tr>`; }).join('')
+    ||`<tr><td colspan="5" class="muted">${cs.length?'Niemand in deze lijst.':'Nog geen contacten. <button class="btn sm" type="button" data-act="go" data-v="koppelen" style="margin-left:8px">Iemand toevoegen</button>'}</td></tr>`);
+}
+
+/* ================= berichten ================= */
+let cvFilter=pref('cvFilter')||'alle';
+function convList(){
+  let list=convs?convs.map(c=>Object.assign({},c,{cid:convIdOf(c)})):null;
+  if(!list){ // nog niet geladen: bouw uit de state
+    list=[{cid:'alle',id:'alle',kind:'alle',name:'Iedereen',unread:S?S.alleUnread:0}]
+      .concat(groups().map(g=>({cid:'g:'+g.id,id:'g:'+g.id,kind:'groep',name:g.name,unread:g.unread,members:arr(g.members).length})))
+      .concat(contacts().map(c=>({cid:c.id,id:c.id,kind:'direct',name:c.name,unread:c.unread,route:c.route})));
+  }
+  return list;
+}
+function renderConvs(){
+  const list=convList().filter(cv=>cvFilter==='alle'||(cvFilter==='groepen'&&(cv.kind==='groep'||cv.kind==='alle'))||(cvFilter==='direct'&&cv.kind==='direct'));
+  const all=convList(), cnt=k=>all.filter(cv=>k==='groepen'?cv.kind!=='direct':cv.kind==='direct').length;
+  put('cvFilter',[['alle','Alle',all.length],['groepen','Groepen',cnt('groepen')],['direct','Direct',cnt('direct')]].map(([k,t,n])=>`<button type="button" data-act="cvFilter" data-f="${k}" aria-pressed="${cvFilter===k}">${t}<span class="n">${n}</span></button>`).join(''));
+  put('convList',list.map(cv=>{
+    const l=cv.last, u=+cv.unread||0, c=cv.kind==='direct'?C(cv.cid):null;
+    const av=cv.kind==='direct'?`<span class="av">${esc(initials(cv.name))}<i class="dot ${dotOf((c?routeOf(c):(cv.route||{})).k)}"></i></span>`:`<span class="av grp">${cv.kind==='alle'?ic('users'):esc(initials(cv.name))}</span>`;
+    let prev;
+    if(l){ const mine=l.from==='me'||(S&&S.me&&l.from===S.me.id)||l.mine; prev=(mine?'Jij: ':(cv.kind!=='direct'&&l.fromName?first(l.fromName)+': ':''))+(l.body||'Foto'); }
+    else prev=cv.kind==='direct'?(c?routeOf(c).t:(cv.route&&cv.route.t)||''):cv.kind==='groep'?plural(+cv.members||0,'lid','leden'):'Gaat naar al je contacten';
+    return `<div class="cv ${conv===cv.cid?'sel':''}" data-act="openConv" data-c="${esc(cv.cid)}">${av}<span class="nm">${esc(cv.name)}</span><span class="tm">${l?esc(msgTime(l.ts)):''}</span><span class="ls">${esc(prev)}</span>${u?`<span class="u">${u}</span>`:'<span></span>'}</div>`;
+  }).join('')||'<p class="empty">Niets in deze lijst.</p>');
+}
+function convMeta(){
+  if(conv==='alle'){ const cs=contacts().filter(c=>!c.blocked), n=routeCounts(); const p=[]; if(n.direct) p.push(n.direct+' via Starlink of wifi'); if(n.radio) p.push(n.radio+' via radio'); if(n.bridge) p.push(n.bridge+' via brug'); if(n.none) p.push(n.none+' wacht');
+    return {title:'Iedereen',route:`${plural(cs.length,'persoon','personen')}${p.length?' · '+p.join(' · '):''}`,kind:'alle'}; }
+  if(isGroupConv(conv)){ const g=G(conv); if(!g){ const cv=convList().find(x=>x.cid===conv); return {title:cv?cv.name:'Groep',route:'',kind:'groep'}; }
+    const ms=arr(g.members).map(C).filter(Boolean), w=ms.filter(c=>!reachable(c)).length;
+    return {title:g.name,route:`${plural(ms.length+1,'lid','leden')} met jou${w?' · '+w+' wacht'+(w===1?'':'en'):''}${g.mine?' · jij beheert deze groep':''}`,kind:'groep',g}; }
+  const c=C(conv); if(c) return {title:c.name,route:routeOf(c).t+(c.blocked?'':' · laatst gezien '+ago(c.lastSeen)),kind:'direct',c};
+  return {title:'Gesprek',route:'',kind:'direct'};
+}
+function recipients(){ if(conv==='alle') return contacts().filter(c=>!c.blocked); if(isGroupConv(conv)){ const g=G(conv); return g?arr(g.members).map(C).filter(Boolean):[]; } const c=C(conv); return c?[c]:[]; }
+function renderThread(){
+  const m=convMeta();
+  $('tTitle').textContent=m.title; $('tRoute').textContent=m.route;
+  const ti=$('tInfo'); ti.hidden=m.kind==='alle'; ti.textContent=m.kind==='groep'?'Leden':'Info';
+  const blocked=m.c&&m.c.blocked;
+  $('txt').disabled=!!blocked; $('sendBtn').disabled=!!blocked; $('txt').placeholder=blocked?'Je hebt dit contact geblokkeerd':'Schrijf een bericht…';
+  const rs=recipients(), radioOnly=rs.some(c=>{ const k=routeOf(c).k; return k==='radio'||k==='bridge'; });
+  put('cHint',radioOnly?"Foto's gaan alleen over Starlink en wifi. Wie nu alleen via radio bereikbaar is, krijgt enkel de tekst.":'');
+  const list=arr(msgCache[conv]);
+  const box=$('msgs');
+  const nearBottom=box.scrollHeight-box.scrollTop-box.clientHeight<80;
+  const ob=outbox.filter(o=>o.conv===conv);
+  const group=m.kind!=='direct';
+  let h=list.map(x=>msgHtml(x,group)).join('')+ob.map(o=>outHtml(o)).join('');
+  if(!list.length&&!ob.length) h=msgCache[conv]===undefined?'<div class="sysm">Berichten laden…</div>':`<div class="sysm">${m.kind==='direct'?'Nog geen berichten. Zeg hallo.':m.kind==='groep'?'Nog geen berichten in deze groep.':'Nog geen berichten. Wat je hier schrijft, gaat naar al je contacten.'}</div>`;
+  const changed=put(box,h);
+  if(changed&&(nearBottom||box._conv!==conv||box._force)){ box.scrollTop=box.scrollHeight; }
+  box._conv=conv; box._force=false; box._stick=box.scrollHeight-box.scrollTop-box.clientHeight<80;
+}
+function msgHtml(x,group){
+  if(x.sys) return `<div class="sysm">${esc(x.body)}</div>`;
+  const mine=!!x.mine;
+  let st='';
+  if(mine){ const a=+x.acked||0, t=+x.total||0; st=t===0?'nog geen ontvangers':a>=t?'✓✓ ontvangen'+(t>1?` (${a})`:''):a?`✓✓ ${a} van ${t}`:'onderweg'; }
+  let img='';
+  if(x.img){ const s=x.img.status;
+    img=s==='ok'?`<img src="/api/blob/${encodeURIComponent(x.img.id)}" alt="Foto" loading="lazy" data-act="bigImg">`:s==='mislukt'?'<div class="ph">Foto kon niet ontvangen worden</div>':'<div class="ph">Foto komt binnen…</div>'; }
+  const who=!mine&&group?`<div class="who2">${esc(x.fromName||nameOf(x.from))}</div>`:'';
+  const tag=x.sos?'<div class="who2">SOS</div>':x.osint?'<div class="who2">Gedeeld uit OSINT</div>':'';
+  const via=x.via?`<span class="via ${esc(x.via)}">${esc(VIA[x.via]||x.via)}</span>`:'';
+  return `<div class="m ${mine?'mine':''} ${x.sos?'sosm':''} ${x.osint?'osm':''}">${who}${tag}${img}${esc(x.body||'')}<div class="meta"><span>${esc(msgTime(x.ts))}</span>${via}${st?`<span>· ${st}</span>`:''}</div></div>`;
+}
+function outHtml(o){
+  return `<div class="m mine ${o.state==='fout'?'fail':''}">${o.img?`<img src="${o.img}" alt="Foto">`:''}${esc(o.body||'')}<div class="meta"><span>${esc(hhmm(o.ts))}</span><span>· ${o.state==='fout'?`niet verstuurd: ${esc(o.err||'')} <button class="retry" type="button" data-act="retry" data-id="${o.tmp}">opnieuw</button> <button class="retry" type="button" data-act="dropOut" data-id="${o.tmp}">weg</button>`:'versturen…'}</span></div></div>`;
+}
+async function loadConvs(){ try{ const r=await api('/api/convs'); if(Array.isArray(r)) convs=r; }catch(e){} }
+async function loadMsgs(c){ try{ const r=await api('/api/messages?conv='+encodeURIComponent(c)); msgCache[c]=arr(r); }catch(e){ if(msgCache[c]===undefined&&!e.offline&&!e.login) msgCache[c]=[]; } }
+function openConv(c){
+  conv=c; pref('conv',c); chatOpen=true; $('chat').classList.add('open'); $('msgs')._force=true;
+  if(view!=='berichten') go('berichten'); else { renderAll(); poll(true); }
+  setTimeout(()=>{ if(window.matchMedia('(min-width:861px)').matches) try{$('txt').focus({preventScroll:true});}catch(e){} },50);
+}
+async function sendOut(o){
+  o.state='bezig'; renderThread();
+  try{
+    const body={conv:o.conv,body:o.body}; if(o.img) body.img=o.img.replace(/^data:image\/\w+;base64,/,''); if(o.osint) body.osint=true;
+    await api('/api/send',body);
+    await loadMsgs(o.conv); outbox=outbox.filter(x=>x!==o); $('msgs')._force=true; renderThread(); poll(true);
+  }catch(e){ if(e.login){ o.state='fout'; o.err='pincode nodig'; } else { o.state='fout'; o.err=e.offline?'geen verbinding met je station':e.message; } renderThread(); if(!e.login) toast(e.message,true); }
+}
+function queueSend(c,body,img,osint){
+  const o={tmp:'t'+Date.now()+Math.random().toString(16).slice(2,6),conv:c,body:body||'',img:img||null,osint:!!osint,ts:nowMs(),state:'bezig'};
+  outbox.push(o); if(c===conv){ $('msgs')._force=true; renderThread(); } sendOut(o); return o;
+}
+function sendTyped(){ const t=$('txt').value.trim(); if(!t) return; $('txt').value=''; autoGrow(); queueSend(conv,t); }
+function autoGrow(){ const t=$('txt'); t.style.height='46px'; t.style.height=Math.min(140,Math.max(46,t.scrollHeight+2))+'px'; }
+$('txt').addEventListener('keydown',e=>{ if(e.key==='Enter'&&!e.shiftKey&&!e.isComposing){ e.preventDefault(); sendTyped(); } });
+$('txt').addEventListener('input',autoGrow);
+$('msgs').addEventListener('load',e=>{ const b=$('msgs'); if(e.target.tagName==='IMG'&&b._stick) b.scrollTop=b.scrollHeight; },true);
+$('msgs').addEventListener('scroll',()=>{ const b=$('msgs'); b._stick=b.scrollHeight-b.scrollTop-b.clientHeight<80; },{passive:true});
+
+/* foto's: verkleinen tot ≤ 1280 px en ≤ 200 kB JPEG */
+function loadImg(file){ return new Promise((res,rej)=>{ const u=URL.createObjectURL(file); const i=new Image(); i.onload=()=>{ URL.revokeObjectURL(u); res(i); }; i.onerror=()=>{ URL.revokeObjectURL(u); rej(new Error('Deze afbeelding kon niet geopend worden.')); }; i.src=u; }); }
+async function shrink(file){
+  const img=await loadImg(file); const W=img.naturalWidth||img.width, H=img.naturalHeight||img.height;
+  let max=1280, q=.82;
+  for(let i=0;i<14;i++){
+    const s=Math.min(1,max/Math.max(W,H)), cv=document.createElement('canvas'); cv.width=Math.max(1,Math.round(W*s)); cv.height=Math.max(1,Math.round(H*s));
+    const ctx=cv.getContext('2d'); ctx.fillStyle='#fff'; ctx.fillRect(0,0,cv.width,cv.height); ctx.drawImage(img,0,0,cv.width,cv.height);
+    const data=cv.toDataURL('image/jpeg',q), bytes=Math.floor((data.length-data.indexOf(',')-1)*3/4);
+    if(bytes<=200*1024) return {data,bytes};
+    if(q>.55) q-=.1; else { max=Math.round(max*.8); q=.75; }
+  }
+  throw new Error('Deze foto kon niet klein genoeg gemaakt worden.');
+}
+$('photoIn').addEventListener('change',async e=>{
+  const f=e.target.files&&e.target.files[0]; e.target.value=''; if(!f) return;
+  try{ const r=await shrink(f); const t=$('txt').value.trim(); $('txt').value=''; autoGrow(); queueSend(conv,t,r.data); toast(`Foto verkleind tot ${Math.round(r.bytes/1024)} kB. Gaat alleen over Starlink en wifi.`); }
+  catch(err){ toast(err.message||'Deze afbeelding kon niet geopend worden.',true); }
+});
+
+/* groepen */
+function groupDialog(g){
+  const isNew=!g, canEdit=isNew||g.mine||(S.policy&&S.policy.openGroups);
+  const cs=contacts().filter(c=>!c.blocked||(g&&arr(g.members).includes(c.id)));
+  const roles=(g&&g.roles)||{};
+  if(g&&!canEdit){
+    ov(`<span class="lbl">Groep</span><h1 class="s">${esc(g.name)}</h1><p class="lead">Beheerd door ${esc(nameOf(g.owner))}. Alleen die persoon kan leden toevoegen of verwijderen.</p><div>${arr(g.members).map(id=>`<div class="chk" style="cursor:default"><span class="av" style="width:32px;height:32px;font-size:12px">${esc(initials(nameOf(id)))}</span><span style="flex:1">${esc(nameOf(id))}</span><span class="role ${esc(roles[id]||'lid')}">${esc(roleName(roles[id]||'lid'))}</span></div>`).join('')}</div>
+      <div class="row" style="margin-top:16px"><button class="btn ghost" type="button" id="gLeave">Verlaat groep</button><button class="btn" type="button" data-close>Sluiten</button></div>`);
+    $('gLeave').onclick=()=>confirmDlg(`${g.name} verlaten?`,'Je krijgt geen berichten van deze groep meer. Wil je terug, dan moet de beheerder je opnieuw toevoegen.','Verlaat groep',async()=>{ if(await act('/api/group',{action:'leave',id:g.id},'Groep verlaten')){ conv='alle'; renderAll(); } });
+    return;
+  }
+  ov(`<span class="lbl">${isNew?'Nieuwe groep':'Groep'}</span><h1 class="s">${isNew?'Groep maken':esc(g.name)}</h1>
+    <label class="lbl" for="gName">Naam</label><input type="text" id="gName" value="${esc(g?g.name:'')}" placeholder="bv. Buurt" style="margin:8px 0 16px" maxlength="40">
+    <span class="lbl">Leden en hun rol in de groep</span><div style="margin:6px 0 14px" id="gMem">${cs.length?cs.map(c=>`<label class="chk"><input type="checkbox" value="${esc(c.id)}" ${g&&arr(g.members).includes(c.id)?'checked':''}><span style="flex:1;min-width:0">${esc(c.name)}<br><span class="muted" style="font-size:13px">${esc(routeOf(c).t)}</span></span><select class="rsel" data-role="${esc(c.id)}" aria-label="Rol van ${esc(c.name)}">${ROLES.map(([k,t])=>`<option value="${k}" ${(roles[c.id]||'lid')===k?'selected':''}>${t}</option>`).join('')}</select></label>`).join(''):'<p class="muted">Voeg eerst contacten toe via Koppelen.</p>'}</div>
+    <p class="muted" style="margin:0 0 16px;font-size:14px">Leden die elkaar nog niet kennen, worden via de groep aan elkaar voorgesteld. Groepsberichten gaan ook over de radio. Wie <i>alleen lezen</i> heeft, kan niets in de groep sturen.</p>
+    <div class="row"><button class="btn" id="gSave" type="button">${isNew?'Maak groep':'Bewaar'}</button>${!isNew?'<button class="btn ghost" id="gDel" type="button">Verwijder groep</button>':''}<button class="btn ghost" type="button" data-close>Annuleer</button></div>`);
+  $('gMem').addEventListener('click',e=>{ if(e.target.tagName==='SELECT') e.preventDefault(); });
+  $('gSave').onclick=async()=>{
+    const name=$('gName').value.trim(); const mem=[...$('ovp').querySelectorAll('.chk input:checked')].map(i=>i.value);
+    if(!name){ toast('Geef de groep een naam',true); return; } if(!mem.length){ toast('Kies minstens één lid',true); return; }
+    const rl={}; mem.forEach(id=>{ const s=$('ovp').querySelector(`select[data-role="${CSS.escape(id)}"]`); rl[id]=s?s.value:'lid'; });
+    const b=isNew?{action:'create',name,members:mem,roles:rl}:{action:'update',id:g.id,name,members:mem,roles:rl};
+    const r=await act('/api/group',b,isNew?`Groep “${name}” gemaakt`:'Groep bewaard');
+    if(r){ closeOv(); if(isNew&&r.id){ convs=null; openConv('g:'+r.id); } }
+  };
+  if(!isNew) $('gDel').onclick=()=>confirmDlg(`${g.name} verwijderen?`,'De groep verdwijnt voor alle leden. Berichten die al verstuurd zijn, blijven bij hen staan.','Verwijder groep',async()=>{ if(await act('/api/group',{action:'delete',id:g.id},'Groep verwijderd')){ if(conv==='g:'+g.id) conv='alle'; renderAll(); } });
+}
+function contactDialog(c){
+  const r=routeOf(c), d=distTxt(c.pos);
+  ov(`<span class="lbl">Contact</span><h1 class="s">${esc(c.name)}</h1>
+    <div class="kv"><span>Weg</span><span>${esc(r.t)}</span><span>Laatst</span><span>${esc(ago(c.lastSeen))}</span>${c.cardName&&c.cardName!==c.name?`<span>Noemt zich</span><span>${esc(c.cardName)}</span>`:''}${c.introducedBy?`<span>Voorgesteld</span><span>via ${esc(c.introducedBy)}</span>`:''}${c.radioSeen?`<span>Radio</span><span class="mono" style="font-size:13px">${esc(ago(c.radioSeen))} · ${c.radioRssi} dBm · SNR ${Number(c.radioSnr||0).toFixed(1)} dB</span>`:''}${d?`<span>Afstand</span><span class="mono" style="font-size:13px">${esc(d)}</span>`:''}<span>Rol</span><span>${esc(roleName(c.role||'lid'))}</span></div>
+    <label class="lbl" for="cName">Naam bij jou</label><div class="row" style="margin-top:8px"><input type="text" id="cName" value="${esc(c.name)}" style="flex:1;min-width:160px" maxlength="40"><button class="btn sm" type="button" id="cRen">Hernoem</button></div>
+    <div class="row" style="margin-top:18px"><button class="btn ghost sm" type="button" id="cGroups">Groepen</button><button class="btn ghost sm" type="button" id="cBlock">${c.blocked?'Deblokkeer':'Blokkeer'}</button><button class="btn ghost sm" type="button" id="cDel">${ic('trash')}Verwijder</button><button class="btn sm" type="button" data-close style="margin-left:auto">Sluiten</button></div>`);
+  $('cRen').onclick=async()=>{ const n=$('cName').value.trim(); if(!n) return; if(await act('/api/contact',{action:'rename',id:c.id,name:n},'Naam bewaard')) closeOv(); };
+  $('cGroups').onclick=()=>memberGroups(c);
+  $('cBlock').onclick=()=>{ closeOv(); toggleBlock(c); };
+  $('cDel').onclick=()=>{ closeOv(); removeContact(c); };
+}
+function toggleBlock(c){
+  if(c.blocked){ act('/api/contact',{action:'unblock',id:c.id},`${c.name} is niet meer geblokkeerd`); return; }
+  confirmDlg(`${c.name} blokkeren?`,`${c.name} krijgt geen berichten meer van jou en wat ${c.name} stuurt, wordt niet meer verwerkt of doorgegeven. Je kunt dit later ongedaan maken.`,'Blokkeer',()=>act('/api/contact',{action:'block',id:c.id},`${c.name} is geblokkeerd`),'Blokkeren');
+}
+function removeContact(c){
+  confirmDlg(`${c.name} verwijderen?`,`${c.name} verdwijnt uit je contacten en uit je groepen. Wil je later weer contact, dan scan je opnieuw elkaars QR-code.`,'Verwijder',async()=>{ if(await act('/api/contact',{action:'remove',id:c.id},`${c.name} verwijderd`)){ if(conv===c.id) conv='alle'; renderAll(); } },'Verwijderen');
+}
+
+/* ================= OSINT ================= */
+const SRC_IC={mesh:'radio',adsb:'plane',meteo:'weer',weather:'weer',meteoalarm:'weer',gdacs:'ramp',emsc:'ramp',quake:'ramp',news:'nieuws',vrt:'nieuws',rss:'nieuws',alert:'alert',grid:'stroom'};
+const srcIcon=s=>{ const i=arr(osintData&&osintData.sources).find(x=>x.id===s); return (i&&i.icon&&IC[i.icon])?i.icon:(SRC_IC[s]||(/^feed|^rss/.test(s)?'nieuws':'osint')); };
+let oFilter=pref('oFilter')||'alles', oSel=null;
+const OF=[['alles','Alles'],['waarschuwingen','Waarschuwingen'],['trefwoorden','Trefwoorden'],['mesh','Mesh'],['adsb','Luchtverkeer'],['internet','Internetbronnen']];
+function srcInfo(id){ const s=arr(osintData&&osintData.sources).find(x=>x.id===id); return s||{id,name:id,tag:id,offline:id==='mesh'||id==='adsb'}; }
+function oMatch(o,f){ f=f||oFilter; const s=srcInfo(o.src);
+  if(f==='waarschuwingen') return o.sev>=2; if(f==='trefwoorden') return arr(o.hit).length>0;
+  if(f==='mesh') return o.src==='mesh'; if(f==='adsb') return o.src==='adsb'; if(f==='internet') return !s.offline; return true; }
+/* alleen http(s) als link tonen */
+const safeUrl=u=>typeof u==='string'&&/^https?:\/\/[^\s]/i.test(u.trim());
+/* trefwoorden markeren: de ruwe tekst splitsen op de trefwoorden en elk stuk apart escapen */
+function mark(text){ text=String(text==null?'':text);
+  const ws=arr(osintData&&osintData.words).map(w=>String(w||'')).filter(Boolean).sort((a,b)=>b.length-a.length);
+  if(!ws.length) return esc(text);
+  const re=new RegExp('('+ws.map(w=>w.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')).join('|')+')','gi');
+  return text.split(re).map((p,i)=>i%2?'<span class="hit">'+esc(p)+'</span>':esc(p)).join(''); }
+function setOsint(r){ if(r&&typeof r==='object'&&Array.isArray(r.items)) osintData={items:arr(r.items),sources:arr(r.sources),words:arr(r.words)}; }
+async function loadOsint(){ try{ setOsint(await api('/api/osint')); }catch(e){} }
+async function osintPost(b){ try{ const r=await api('/api/osint',b); if(r&&Array.isArray(r.items)) setOsint(r); else await loadOsint(); renderOsint(); poll(true); return true; }catch(e){ if(!e.login) toast(e.message,true); $('oSources')._h=''; await loadOsint(); renderOsint(); return false; } }
+function renderOsint(){
+  if(!osintData){ put('oList','<p class="empty">Meldingen laden…</p>'); put('oDetail','<span class="lbl">Details</span>'); return; }
+  const all=osintData.items;
+  const items=all.filter(o=>oMatch(o)).sort((a,b)=>(arr(b.hit).length>0)-(arr(a.hit).length>0)||T(b.ts)-T(a.ts));
+  if(!oSel||!all.find(x=>x.id===oSel)){ const top=items.slice().sort((a,b)=>b.sev-a.sev||T(b.ts)-T(a.ts))[0]; oSel=top?top.id:null; }
+  $('oReadAll').hidden=!all.some(o=>!o.read);
+  put('oFilters',OF.map(([k,t])=>`<button type="button" data-act="oFilter" data-f="${k}" aria-pressed="${oFilter===k}">${t}<span class="n">${all.filter(o=>oMatch(o,k)).length}</span></button>`).join(''));
+  put('oList',items.length?items.map(o=>{ const s=srcInfo(o.src), live=s.active!==false&&s.on!==false;
+    return `<article class="oi ${oSel===o.id?'sel':''}" data-act="oSel" data-id="${esc(o.id)}"><span class="av s${+o.sev||1}">${ic(srcIcon(o.src))}</span><div style="min-width:0"><div class="src">${o.read?'':'<span class="new">Nieuw</span>'}<span>${esc(s.name)}</span>${o.area?`<span>· ${esc(o.area)}</span>`:''}${o.sev>=3?'<span class="chip ink" style="padding:3px 8px;font-size:12px">Waarschuwing</span>':''}${arr(o.hit).length?'<span class="chip amber" style="padding:3px 8px;font-size:12px">Trefwoord</span>':''}${!live?'<span class="faint">· bron nu niet actief, laatst bekend</span>':''}</div><h4>${mark(o.title)}</h4>${o.body?`<p>${mark(o.body)}</p>`:''}</div><div class="rt">${esc(hhmm(o.ts))}<br>${esc(ago(o.ts))}</div></article>`; }).join('')
+    :`<p class="empty">${all.length?'Niets met deze filter.':'Nog geen meldingen. De bronnen rechts tonen wat er gevolgd wordt.'}</p>`);
+  const o=all.find(x=>x.id===oSel);
+  put('oDetail',o?(()=>{ const s=srcInfo(o.src); return `<span class="lbl">${esc(s.tag||s.name)} · ${esc(s.name)}</span><h3>${esc(o.title)}</h3>${o.body?`<p style="margin:0;color:var(--text);white-space:pre-wrap">${esc(o.body)}</p>`:''}
+    <div class="kv"><span>Tijd</span><span class="mono">${esc(dmy(o.ts))}</span><span>Gebied</span><span>${esc(o.area||'—')}</span><span>Ernst</span><span>${['','laag','middel','hoog'][+o.sev]||'—'}</span><span>Weg</span><span>${s.offline?'ontvangen zonder internet':'via internet'}</span>${arr(o.hit).length?`<span>Trefwoord</span><span>${esc(o.hit.join(', '))}</span>`:''}${safeUrl(o.link)?`<span>Bron</span><span><a href="${esc(o.link)}" target="_blank" rel="noopener noreferrer">${esc(o.link.replace(/^https?:\/\//i,'').slice(0,60))}</a></span>`:''}</div>
+    <div class="row"><button class="btn sm" type="button" data-act="oShare">Deel met groep</button><button class="btn ghost sm" type="button" data-act="oHide">Verberg</button></div>`; })()
+    :`<span class="lbl">Details</span><p class="muted" style="margin:8px 0 0;font-size:14.5px">Kies een melding om de details te zien en ze met een groep te delen.</p>`);
+  put('oWords',osintData.words.map(w=>`<span class="word">${esc(w)}<button type="button" data-act="wordDel" data-w="${esc(w)}" aria-label="Verwijder ${esc(w)}">×</button></span>`).join('')||'<span class="muted" style="font-size:14px">Nog geen trefwoorden.</span>');
+  put('oSources',osintData.sources.map(s=>{ const on=s.on!==false, act2=on&&s.active!==false;
+    const st=[esc(s.desc||'')]; if(on&&s.status) st.push(`<b>${esc(s.status)}</b>`); if(s.lastOk) st.push('laatst ok '+esc(ago(s.lastOk))); if(on&&s.lastErr) st.push('fout: '+esc(s.lastErr)); if(s.offline) st.push('werkt zonder internet');
+    const custom=s.custom||/^feed[:-]/.test(s.id||'');
+    return `<div class="srcrow"><i class="dot ${act2?'on':'off'}"></i><span class="nm">${esc(s.name)}</span><span style="grid-row:1/3;grid-column:3;display:flex;gap:6px;align-items:center">${custom?`<button class="iconbtn" type="button" data-act="feedDel" data-id="${esc(s.id)}" data-url="${esc(s.url||'')}" aria-label="Verwijder ${esc(s.name)}" style="width:28px;height:28px">×</button>`:''}<label class="tg"><input type="checkbox" data-chg="oSource" data-id="${esc(s.id)}" ${on?'checked':''} aria-label="${esc(s.name)} aan of uit"></label></span><span class="st">${st.filter(Boolean).join(' · ')}</span></div>`; }).join('')||'<p class="muted" style="font-size:14px;margin:6px 0 0">Geen bronnen gevonden.</p>');
+}
+function shareOsint(o){
+  const s=srcInfo(o.src);
+  ov(`<span class="lbl">Delen</span><h1 class="s">Deel met</h1><p class="lead">${esc(o.title)}</p>
+    <div>${[{id:'alle',name:'Iedereen'}].concat(groups().map(g=>({id:'g:'+g.id,name:g.name}))).map((g,i)=>`<label class="chk"><input type="radio" name="shg" value="${esc(g.id)}" ${i===0?'checked':''}><span>${esc(g.name)}</span></label>`).join('')}</div>
+    <div class="row" style="margin-top:16px"><button class="btn" id="shGo" type="button">Deel</button><button class="btn ghost" type="button" data-close>Annuleer</button></div>`);
+  $('shGo').onclick=()=>{ const c=$('ovp').querySelector('input[name=shg]:checked').value; closeOv();
+    queueSend(c,`${s.tag||s.name}: ${o.title}${o.body?'\n'+o.body:''}${o.area?'\n'+o.area:''}`,null,true);
+    toast('Gedeeld met '+(c==='alle'?'iedereen':(G(c)||{name:'de groep'}).name)); };
+}
+
+/* ================= radar ================= */
+let rSel=null; const RADIO_KM=12;
+function renderRadar(){
+  const me=myPos(), cs=contacts(), withPos=cs.filter(c=>hasPos(c.pos)), noPos=cs.filter(c=>!hasPos(c.pos));
+  const sl=!!(S&&S.me&&S.me.share); $('shareLoc').checked=sl;
+  const sosFrom=arr(S&&S.incomingSos).map(x=>x.from);
+  if(!me){
+    put('radarBox',`<div class="noloc"><b>Je eigen positie is nog niet bekend</b>Stel een vaste locatie in bij Instellingen, of sluit een radio met GPS aan. Daarna zie je hier afstand en richting tot je contacten.<div class="row" style="justify-content:center;margin-top:16px"><button class="btn sm" type="button" data-act="go" data-v="instellingen">Naar Instellingen</button></div></div>`);
+  } else {
+    const maxKm=Math.max(15,...withPos.map(c=>km(me,c.pos)))*1.08, R=d=>Math.sqrt(d/maxKm)*268;
+    let h=`<svg id="radarSvg" viewBox="-300 -300 600 600" role="img" aria-label="Positie van je contacten ten opzichte van jou"><defs><linearGradient id="half" x1="0" y1="0" x2="1" y2="1"><stop offset=".5" class="stopA"/><stop offset=".5" class="stopB"/></linearGradient></defs>`;
+    if(radioOk()) h+=`<circle class="rr" r="${R(RADIO_KM).toFixed(1)}"/>`;
+    h+=`<line class="ax" x1="-285" y1="0" x2="285" y2="0"/><line class="ax" x1="0" y1="-285" x2="0" y2="285"/>`;
+    [1,5,10,25,50,100,250,500].filter(r=>r<=maxKm).forEach(r=>{ h+=`<circle class="ring2" r="${R(r).toFixed(1)}"/><text class="t1" x="${(R(r)*.7071+4).toFixed(1)}" y="${(R(r)*.7071+13).toFixed(1)}">${r} km</text>`; });
+    if(radioOk()) h+=`<text class="t1" x="${(-R(RADIO_KM)*.7071-6).toFixed(1)}" y="${(-R(RADIO_KM)*.7071-6).toFixed(1)}" text-anchor="end">radiobereik ±${RADIO_KM} km</text>`;
+    [['N',0,-288],['O',290,5],['Z',0,298],['W',-290,5]].forEach(([t,x,y])=>h+=`<text class="t3" x="${x}" y="${y}" text-anchor="middle">${t}</text>`);
+    withPos.forEach(c=>{ const d=km(me,c.pos), b=bearing(me,c.pos), br=b*Math.PI/180, x=Math.sin(br)*R(d), y=-Math.cos(br)*R(d), k=routeOf(c).k, left=x>170;
+      const cls=sosFrom.includes(c.id)?'sosp':k==='none'?'off':dotOf(k)==='on'?'on':'half';
+      h+=`<g data-act="rSel" data-c="${esc(c.id)}" style="cursor:pointer"><line class="ln ${rSel===c.id?'sel':''}" x1="0" y1="0" x2="${x.toFixed(1)}" y2="${y.toFixed(1)}"/><circle class="pt ${cls}" cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${sosFrom.includes(c.id)?9:7}"/><text class="t2" x="${(x+(left?-12:12)).toFixed(1)}" y="${(y+4).toFixed(1)}" ${left?'text-anchor="end"':''}>${esc(c.name)}</text><text class="t3" x="${(x+(left?-12:12)).toFixed(1)}" y="${(y+18).toFixed(1)}" ${left?'text-anchor="end"':''}>${esc(fmtKm(d))} ${dirName(b)}</text></g>`; });
+    h+=`<rect class="mep" x="-9" y="-9" width="18" height="18" rx="5"/><text class="t2" x="13" y="-11" style="letter-spacing:2px;font-size:11px">JIJ</text></svg>`;
+    put('radarBox',h);
+  }
+  const sorted=withPos.slice().sort((a,b)=>me?km(me,a.pos)-km(me,b.pos):0);
+  put('rList',sorted.map(c=>{ const r=routeOf(c); return `<div class="rrow ${rSel===c.id?'sel':''}" data-act="rSel" data-c="${esc(c.id)}"><span class="nm"><i class="dot ${dotOf(r.k)}"></i>${esc(c.name)}${sosFrom.includes(c.id)?' <span class="chip amber" style="padding:2px 7px;font-size:11.5px">SOS</span>':''}</span><span class="d">${me?esc(fmtKm(km(me,c.pos))+' · '+dirName(bearing(me,c.pos))):''}</span><span class="s">${esc(srcName(c.pos.src))} · ${esc(ago(c.pos.ts||c.lastSeen))} · ${esc(r.t)}</span></div>`; }).join('')
+    +(noPos.length?`<div class="rrow" style="cursor:default"><span class="s" style="grid-column:1/3">Zonder gedeelde locatie: ${esc(noPos.map(c=>c.name).join(', '))}</span></div>`:'')
+    ||'<p class="empty">Nog geen contacten.</p>');
+}
+
+/* ================= koppelen ================= */
+let foundCode=null;
+function renderKoppelen(){
+  if(!S) return;
+  const code=S.me.code||'';
+  const v=code.length+':'+code.slice(-12);
+  put('qrBox',code?`<img src="/api/qr.png?me=1&v=${encodeURIComponent(v)}" alt="Mijn QR-code" width="250" height="250">`:'<span class="muted">Geen code beschikbaar</span>');
+  $('qrName').textContent=S.me.name||''; $('qrId').textContent=S.me.id||''; $('qrCode').textContent=code;
+  put('pairGroups',groups().filter(g=>g.mine||(S.policy&&S.policy.openGroups)).map(g=>`<label class="chk"><input type="checkbox" value="${esc(g.id)}" class="pg2" data-keep><span style="flex:1">${esc(g.name)}</span><span class="muted" style="font-size:13px">${plural(arr(g.members).length,'lid','leden')}</span></label>`).join('')||'<p class="muted" style="margin:0">Nog geen groepen die jij beheert.</p>');
+  put('kReqs',arr(S.pending).length?`<div class="card"><div class="chead"><h3>Wil verbinden</h3><span class="r">${arr(S.pending).length} wacht${arr(S.pending).length===1?'':'en'}</span></div>${reqsHtml()}</div>`:'');
+  put('kInv',`<div class="card cpad">${inviteFormHtml('k')}</div>${invitesTableHtml()}`);
+}
+function nameFromCode(code){
+  code=String(code||'').replace(/\s+/g,'');
+  const u8=s=>{ let b=s.replace(/-/g,'+').replace(/_/g,'/'); while(b.length%4) b+='='; const r=atob(b); const a=new Uint8Array(r.length); for(let i=0;i<r.length;i++) a[i]=r.charCodeAt(i); return a; };
+  let m=code.match(/AXB2I?:([A-Za-z0-9_-]+)/);
+  if(m){ try{ const raw=u8(m[1]); if(raw.length>138){ const n=raw[137]; if(n>0&&138+n<=raw.length){ const t=new TextDecoder('utf-8',{fatal:true}).decode(raw.slice(138,138+n)); if(t&&!/[\x00-\x1f]/.test(t)) return t; } } }catch(e){} return null; }
+  m=code.match(/AEROCX-BLACKOUT:([A-Za-z0-9_-]+)/);
+  if(m){ try{ return JSON.parse(new TextDecoder().decode(u8(m[1]))).n||null; }catch(e){} }
+  return null;
+}
+const isCode=t=>/AXB2I?:|AEROCX-BLACKOUT:/.test(String(t||''));
+async function addContact(code,name,how){
+  const gs=[...document.querySelectorAll('.pg2:checked')].map(i=>i.value);
+  let r; try{ r=await api('/api/contact',{action:'add',code,name}); }catch(e){ if(!e.login) toast(e.message,true); return false; }
+  const id=r&&r.id;
+  if(id){ for(const g of gs){ const gr=G(g); if(!gr) continue; const mem=arr(gr.members).includes(id)?arr(gr.members):arr(gr.members).concat(id); try{ await api('/api/group',{action:'update',id:gr.id,members:mem,roles:gr.roles||{}}); }catch(e){ toast(`Toevoegen aan ${gr.name} lukte niet: ${e.message}`,true); } } }
+  toast(`${name||'Contact'} toegevoegd via ${how}. Laat de ander ook jouw code toevoegen.`);
+  document.querySelectorAll('.pg2:checked').forEach(i=>i.checked=false);
+  convs=null; await poll(true);
+  if(id) openConv(id);
+  return true;
+}
+async function scanFile(f){
+  const box=$('found'); box.hidden=false; box.innerHTML='<span class="muted">QR-code zoeken…</span>';
+  try{
+    const img=await loadImg(f); let res=null; const W=img.naturalWidth||img.width, H=img.naturalHeight||img.height;
+    if(!window.jsQR){ box.innerHTML='<span>De QR-lezer is nog niet geladen. Probeer het zo meteen opnieuw.</span>'; return; }
+    for(const max of [1000,700,1500,2200]){ const s=Math.min(1,max/Math.max(W,H)), cv=document.createElement('canvas'); cv.width=Math.round(W*s); cv.height=Math.round(H*s); const ctx=cv.getContext('2d'); ctx.drawImage(img,0,0,cv.width,cv.height); const d=ctx.getImageData(0,0,cv.width,cv.height); res=window.jsQR(d.data,d.width,d.height,{inversionAttempts:'attemptBoth'}); if(res) break; }
+    if(!res){ box.innerHTML='<span>Geen QR-code gevonden. Probeer een scherpere foto, recht van voren en met de hele code in beeld.</span>'; return; }
+    const txt=res.data;
+    if(!isCode(txt)){ box.innerHTML=`<span>Dit is geen AEROCX Blackout-code.</span><p class="mono muted" style="margin:6px 0 0;word-break:break-all;font-size:12px">${esc(txt.slice(0,160))}</p>`; return; }
+    foundCode=txt; const nm=nameFromCode(txt)||'';
+    box.innerHTML=`<span class="lbl">${/AXB2I:/.test(txt)?'Uitnodiging gevonden':'Gevonden'}</span><h3>${esc(nm||'Nieuw contact')}</h3><div class="row"><input type="text" id="fName" value="${esc(nm)}" placeholder="Naam" style="flex:1;min-width:140px" maxlength="40"><button class="btn" type="button" data-act="foundAdd">Toevoegen</button></div>`;
+  }catch(err){ box.innerHTML='<span>Deze afbeelding kon niet gelezen worden.</span>'; }
+}
+$('scanIn').addEventListener('change',e=>{ const f=e.target.files&&e.target.files[0]; e.target.value=''; if(f) scanFile(f); });
+
+/* verzoeken en uitnodigingen (gedeeld door Koppelen en Beheer) */
+const ROLES=[['beheerder','Beheerder'],['lid','Lid'],['lezer','Alleen lezen']];
+const roleName=r=>(ROLES.find(x=>x[0]===r)||['','Lid'])[1];
+const roleSel=(sel,attr)=>`<select class="rsel" ${attr}>${ROLES.map(([k,t])=>`<option value="${k}" ${sel===k?'selected':''}>${t}</option>`).join('')}</select>`;
+const SRCP={lan:'zelfde wifi-netwerk',ip:'via internet',internet:'via internet',radio:'via radio',mesh:'via radio',invite:'met een uitnodiging'};
+function reqsHtml(){
+  return arr(S.pending).map(p=>`<div class="req"><span class="av">${esc(initials(p.name))}</span><div><b>${esc(p.name||'Onbekend')}</b><span>${p.source==='groep'?esc(p.note||'voorgesteld via een groep')+' · '+esc(ago(p.seen)):`${esc(SRCP[p.source]||p.source||'wil verbinden')} · ${esc(ago(p.seen))}${p.note?' · '+esc(p.note):''}`}</span></div><div class="row">${roleSel(p.source==='lan'?'lid':'lid',`data-reqrole="${esc(p.id)}" aria-label="Rol voor ${esc(p.name)}"`)}<button class="btn sm" type="button" data-act="reqOk" data-id="${esc(p.id)}">Toelaten</button><button class="btn ghost sm" type="button" data-act="reqNo" data-id="${esc(p.id)}">Weigeren</button></div></div>`).join('')||'<p class="empty">Geen openstaande verzoeken.</p>';
+}
+let lastInvite=null;
+function inviteFormHtml(p){
+  const li=lastInvite&&arr(S.invites).find(i=>i.id===lastInvite.id&&!i.used);
+  return `<div class="invite"><div class="qr">${li?`<img src="/api/qr.png?invite=${encodeURIComponent(li.id)}" alt="QR-code van de uitnodiging" data-act="invBig" data-id="${esc(li.id)}" style="cursor:zoom-in">`:'De QR-code van je uitnodiging verschijnt hier.'}</div><div><h3 style="margin:0 0 6px;font:500 19px var(--sans);color:var(--ink)">Nodig iemand uit</h3><p class="muted" style="margin:0 0 14px;font-size:14.5px">Een uitnodiging zet de rol en de groepen al klaar. Wie ze scant, staat meteen goed, zonder dat jij nog iets moet doen. Eén keer te gebruiken.</p>
+    <div class="row"><input type="text" id="${p}InvName" placeholder="Naam (optioneel)" style="flex:1;min-width:150px" maxlength="40">${roleSel('lid',`id="${p}InvRole" aria-label="Rol"`)}<select class="rsel" id="${p}InvExp" aria-label="Geldig"><option value="1">1 dag geldig</option><option value="7" selected>7 dagen geldig</option><option value="30">30 dagen geldig</option></select></div>
+    <div style="margin-top:10px">${groups().filter(g=>g.mine).map(g=>`<label class="chk"><input type="checkbox" class="${p}invg" value="${esc(g.id)}"><span style="flex:1">${esc(g.name)}</span><span class="muted" style="font-size:13px">${plural(arr(g.members).length,'lid','leden')}</span></label>`).join('')}</div>
+    <div class="row" style="margin-top:12px"><button class="btn" type="button" data-act="invMake" data-p="${p}">Maak uitnodiging</button>${li&&lastInvite.code?`<button class="btn ghost sm" type="button" data-act="invCopy">Kopieer code</button>`:''}</div></div></div>`;
+}
+function invitesTableHtml(){
+  const inv=arr(S.invites);
+  return `<div class="card" style="margin-top:16px"><div class="chead"><h3>Uitnodigingen</h3><span class="r">${inv.filter(i=>!i.used&&T(i.exp)>nowMs()).length} open</span></div><div class="tw"><table><thead><tr><th></th><th>Voor</th><th>Rol</th><th class="hide-m">Groepen</th><th>Geldig tot</th><th></th></tr></thead><tbody>${inv.length?inv.map(i=>{ const dead=i.used||T(i.exp)<nowMs();
+    return `<tr><td style="width:60px">${dead?'':`<img class="qrmini" src="/api/qr.png?invite=${encodeURIComponent(i.id)}" alt="QR" data-act="invBig" data-id="${esc(i.id)}">`}</td><td><b style="font-weight:500">${esc(i.name||'Iedereen met de code')}</b></td><td><span class="role ${esc(i.role)}">${esc(roleName(i.role))}</span></td><td class="hide-m muted" style="font-size:14px">${esc(arr(i.groups).map(id=>(G(id)||{name:'?'}).name).join(' · ')||'—')}</td><td class="mono" style="font-size:13px">${i.used?'gebruikt':T(i.exp)<nowMs()?'verlopen':esc(dayOnly(i.exp))}</td><td style="text-align:right">${i.used?'':`<button class="btn ghost sm" type="button" data-act="invRevoke" data-id="${esc(i.id)}">Intrekken</button>`}</td></tr>`; }).join(''):'<tr><td colspan="6" class="muted">Nog geen uitnodigingen gemaakt.</td></tr>'}</tbody></table></div></div>`;
+}
+
+/* ================= logboek ================= */
+function renderLogboek(){
+  if(!S) return;
+  const st=starlinkOk(), rd=radioOk(), n=routeCounts(), r=S.radio||{};
+  $('statusLead').textContent=st?(rd?'Starlink en radio werken. Wie geen Starlink heeft, bereik je via de radio of via een brug.':'Alleen Starlink. Sluit een radio aan om ook buren zonder Starlink te bereiken.'):(rd?'Geen Starlink: alles loopt via de radio. Wie buiten bereik is, krijgt je bericht zodra er een weg is.':'Geen Starlink en geen radio. Berichten wachten tot er weer een verbinding is.');
+  put('kpis',[['Starlink of wifi',n.direct,'rechtstreeks'],['Via radio',n.radio,'LoRa-mesh'],['Via brug',n.bridge,'Starlink naar radio'],['Wacht',n.none,'nu niet bereikbaar'],['Radio',rd?(+r.rx||0):'—',rd?`ontvangen · ${+r.tx||0} verzonden`:'niet aangesloten']].map(([l,v,x])=>`<div class="kpi"><span class="lbl">${l}</span><b>${v}</b><span class="x">${x}</span></div>`).join(''));
+  put('nodes',contacts().map(c=>{ const rr=routeOf(c), d=distTxt(c.pos); return `<tr data-open data-act="openConv" data-c="${esc(c.id)}"><td><div class="who"><span class="av">${esc(initials(c.name))}<i class="dot ${dotOf(rr.k)}"></i></span><b>${esc(c.name)}</b></div></td><td><span class="chip ${rr.k==='none'?'amber':''}">${esc(rr.t)}</span></td><td class="mono" style="font-size:13px">${c.radioSeen?esc(c.radioRssi+' dBm'):'—'}</td><td class="mono hide-m" style="font-size:13px">${d?esc(d):'—'}</td><td class="hide-m muted" style="font-size:14px">${esc(ago(c.lastSeen))}</td></tr>`; }).join('')||'<tr><td colspan="5" class="muted">Nog geen contacten.</td></tr>');
+  put('log',arr(S.log).map(l=>`<div><span class="t">${esc(hhmm(l.t))}</span><span><span class="k">${esc(l.k)}</span>${esc(l.x)}</span></div>`).join('')||'<p class="empty">Nog niets gebeurd.</p>');
+}
+
+/* ================= instellingen ================= */
+let settingsFilled=false;
+function fillSettings(){
+  if(!S) { settingsFilled=false; return; }
+  settingsFilled=true;
+  $('myName').value=S.me.name||'';
+  const p=S.me.pos; $('myLoc').value=hasPos(p)&&(p.src==='vast'||p.src==='fixed'||p.src==='manual'||!p.src)?`${(+p.lat).toFixed(5)}, ${(+p.lon).toFixed(5)}`:($('myLoc').value||'');
+  const rs=S.radioSettings||{}, r=S.radio||{}, ch=(rs.channel===null||rs.channel===undefined)?'':String(rs.channel);
+  $('rMode').value=rs.mode||'auto'; $('rTarget').value=rs.target||'';
+  $('rCh').innerHTML=`<option value="">Kanaal: automatisch</option>`+[0,1,2,3,4,5,6,7].map(i=>{ const c=arr(r.channels).find(x=>x.index===i); if(arr(r.channels).length&&(!c||c.role===0)&&String(i)!==ch) return ''; return `<option value="${i}">Kanaal ${i}${c&&c.name?' · '+esc(c.name):(c&&c.role===1?' · primair':'')}</option>`; }).join('');
+  $('rCh').value=ch; radioModeUI();
+}
+function radioModeUI(){ const m=$('rMode').value, t=$('rTarget'); t.style.display=m==='off'?'none':''; t.placeholder=m==='tcp'?'IP-adres van de radio, bv. 192.168.1.40':'USB-poort (leeg = automatisch)';
+  $('rHint').textContent=m==='tcp'?'De radio moet wifi hebben en in hetzelfde netwerk zitten (Meshtastic-app → Netwerk → wifi aan).':m==='auto'?'Laat de poort leeg, tenzij je meerdere USB-toestellen hebt.':'De radio wordt niet gebruikt.'; }
+function renderSettings(){
+  if(!S) return;
+  if(!settingsFilled) fillSettings();
+  const p=S.me.pos;
+  $('locTxt').textContent=hasPos(p)?`Huidige positie: ${(+p.lat).toFixed(4)}, ${(+p.lon).toFixed(4)} (${srcName(p.src)}).`:'Nog geen positie bekend.';
+  $('shareLoc2').checked=!!S.me.share;
+  const r=S.radio||{};
+  put('radioTxt',r.connected?`<b style="color:var(--ink);font-weight:500">Verbonden</b> met ${esc(r.longName||'radio')} <span class="mono" style="font-size:13px">${esc(r.nodeId||'')}</span> via ${esc(r.transport||'USB')} · regio ${esc(r.region||'?')}${r.preset?' · '+esc(r.preset):''} · kanaal ${esc(r.channelUsed)}${r.channelName?' ('+esc(r.channelName)+')':''} · ${+r.tx||0} verzonden, ${+r.rx||0} ontvangen${r.lastRx?', laatst '+esc(ago(r.lastRx)):''}${r.queue?' · '+r.queue+' in de wachtrij':''}.${r.canSend===false?' <b style="color:var(--amber);font-weight:400">Zenden lukt nog niet: kies een kanaal.</b>':''}${r.error?`<br><span style="color:var(--amber)">${esc(r.error)}</span>`:''}`
+    :`Geen radio verbonden. Sluit een Meshtastic-radio aan met een USB-kabel; de app zoekt hem vanzelf.${r.error?`<br><span style="color:var(--amber)">${esc(r.error)}</span>`:''}${arr(r.ports).length?`<br><span class="mono" style="font-size:12.5px">USB-poorten: ${esc(r.ports.join(', '))}</span>`:''}`);
+  $('bridgeOn').checked=!!S.bridge;
+  const adsb=arr(osintData&&osintData.sources).find(s=>s.id==='adsb');
+  $('sdrTxt').textContent=S.sdr||(adsb&&adsb.active)?'Status: ontvanger gevonden.':(adsb&&adsb.status?'Status: '+adsb.status+'.':'Status: geen ontvanger gevonden op deze computer.');
+  $('sdrOn').checked=adsb?adsb.on!==false:true; $('sdrOn').disabled=!adsb;
+  $('autoStart').checked=!!S.autostart;
+  $('autoTxt').textContent=S.autostart?'Aan: de app start bij het aanmelden en draait op de achtergrond. Open hem via http://localhost:8474.':'Uit: de app start alleen als je hem zelf opent.';
+  $('autoStart').disabled=!S.local; if(!S.local) $('autoTxt').textContent+=' Dit kun je alleen op de computer zelf wijzigen.';
+  const last=S.backup&&S.backup.last;
+  $('bkTxt').textContent=last?`Laatste back-up: ${dmy(last)}.`:'Nog geen back-up gemaakt. Doe het nu, zolang alles werkt.';
+  put('padCard',S.local?`<h3>iPad of telefoon</h3><p>Verbind het toestel met dezelfde wifi, open Safari en ga naar een van deze adressen. Typ daarna de pincode. Tip: in Safari Deel → Zet op beginscherm, voor een app-icoon.</p><div class="urls">${arr(S.urls).map(esc).join('<br>')||'Geen adres gevonden'}</div><span class="lbl" style="display:block;margin-top:16px">Pincode</span><div class="pin">${esc(S.pin||'—')}</div>`
+    :`<h3>Dit toestel</h3><p style="margin:0">Dit toestel is gekoppeld aan het station op de computer. De pincode staat daar bij Instellingen.</p>`);
+  put('aboutKv',`<span>Versie</span><span class="mono" style="font-size:13px">${esc(S.version||'')}</span><span>Station</span><span class="mono" style="font-size:13px">${esc(S.me.id||'')}</span><span>Adressen</span><span class="mono" style="font-size:12.5px;overflow-wrap:anywhere">${arr(S.me.addrs).map(esc).join('<br>')||'geen'}</span><span>Starlink</span><span>${starlinkOk()?'IPv6 actief, bereikbaar via Starlink':'geen IPv6 gevonden'}</span>`);
+  $('quitBtn').disabled=!S.local; $('quitTxt').textContent=S.local?'Stopt AEROCX Blackout op deze computer. Je ontvangt dan geen berichten meer tot je het weer opent.':'Afsluiten kan alleen op de computer zelf.';
+}
+async function makeBackup(){
+  const pass=$('bkPass').value; $('bkErr').textContent='';
+  if(pass.length<12){ $('bkErr').textContent='Kies een wachtzin van minstens 12 tekens.'; return; }
+  const pin=await askPin('Een back-up maken'); if(pin===null) return;
+  try{
+    const r=await api('/api/backup',{pass,pin},{raw:true}); const blob=await r.blob();
+    let fn=''; const cd=r.headers.get('content-disposition')||''; const m=cd.match(/filename\*?=(?:UTF-8'')?"?([^";]+)"?/i); if(m) fn=decodeURIComponent(m[1]);
+    if(!fn) fn='aerocx-blackout-backup-'+new Date().toISOString().slice(0,10)+'.axb';
+    const u=URL.createObjectURL(blob), a=document.createElement('a'); a.href=u; a.download=fn; document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(u),4000);
+    $('bkPass').value=''; toast('Back-up gemaakt: '+fn+'. Zet hem op een USB-stick.'); poll(true);
+  }catch(e){ if(!e.login) $('bkErr').textContent=e.message; }
+}
+async function restoreBackup(){
+  const f=$('rsFile').files&&$('rsFile').files[0], pass=$('rsPass').value; $('bkErr').textContent='';
+  if(!f){ $('bkErr').textContent='Kies eerst het back-upbestand.'; return; }
+  if(!pass){ $('bkErr').textContent='Typ de wachtzin van de back-up.'; return; }
+  confirmDlg('Back-up terugzetten?','Je sleutels, contacten, groepen en instellingen worden vervangen door die uit de back-up. Berichten op dit toestel blijven staan.','Herstel',async()=>{
+    const pin=await askPin('Een back-up terugzetten'); if(pin===null) return;
+    const fd=new FormData(); fd.append('file',f,f.name); fd.append('pass',pass); if(pin) fd.append('pin',pin);
+    try{ await api('/api/restore',fd); $('rsPass').value=''; $('rsFile').value=''; $('rsName').textContent='Geen bestand gekozen'; toast('Back-up teruggezet'); convs=null; msgCache={}; settingsFilled=false; poll(true); }
+    catch(e){ if(!e.login) $('bkErr').textContent=e.message; }
+  },'Herstellen');
+}
+$('rsFile').addEventListener('change',()=>{ const f=$('rsFile').files[0]; $('rsName').textContent=f?f.name:'Geen bestand gekozen'; });
+
+/* ================= beheer ================= */
+const PERMS=[['send','Berichten sturen','1-op-1 en in groepen'],['alle','Kanaal Iedereen','naar alle leden tegelijk'],['sos','SOS versturen','noodbericht met voorrang'],['groups','Groepen maken','en leden toevoegen'],['invite','Mensen uitnodigen','eigen QR-code laten scannen'],['osint','OSINT delen','meldingen doorsturen'],['bridge','Brug gebruiken','berichten via Starlink naar radio']];
+let admTab=pref('admTab')||'gebruikers';
+function renderBeheer(){
+  if(!S) return;
+  const cs=contacts(), act2=cs.filter(c=>!c.blocked), bl=cs.filter(c=>c.blocked), pend=arr(S.pending), dev=arr(S.devices), inv=arr(S.invites);
+  put('admKpis',[['Leden',act2.length+1,'inclusief jij'],['Beheerders',1+act2.filter(c=>c.role==='beheerder').length,'kunnen rollen wijzigen'],['Verzoeken',pend.length,'wachten op jou'],['Toestellen',dev.length,'op dit station'],['Geblokkeerd',bl.length,'krijgen niets meer']].map(([l,n,x])=>`<div class="kpi"><span class="lbl">${l}</span><b>${n}</b><span class="x">${x}</span></div>`).join(''));
+  const tabs=[['gebruikers','Gebruikers',cs.length+1],['verzoeken','Verzoeken',pend.length],['groepen','Groepen',groups().length],['uitnodigen','Uitnodigen',inv.filter(i=>!i.used&&T(i.exp)>nowMs()).length],['toestellen','Toestellen',dev.length],['rollen','Rollen en rechten',''],['netwerk','Beleid',''],['logboek','Beheerlogboek','']];
+  put('admTabs',tabs.map(([k,t,n])=>`<button type="button" data-act="admTab" data-t="${k}" aria-pressed="${admTab===k}">${t}${n!==''?`<span class="n">${n}</span>`:''}</button>`).join(''));
+  let h='';
+  if(admTab==='gebruikers'){
+    const rows=[`<tr><td><div class="who"><span class="av grp">${esc(initials(S.me.name))}</span><div><b>${esc(S.me.name)} (jij)</b><span class="mono" style="font-size:12px">${esc(S.me.id)}</span></div></div></td><td><span class="role beheerder">Beheerder</span></td><td class="hide-m muted" style="font-size:14px">${esc(groups().filter(g=>g.mine).map(g=>g.name).join(' · ')||'—')}</td><td class="hide-m"><span class="chip">dit station</span></td><td></td></tr>`]
+      .concat(cs.map(c=>{ const r=routeOf(c), gs=groups().filter(g=>arr(g.members).includes(c.id)).map(g=>g.name);
+        return `<tr><td><div class="who"><span class="av">${esc(initials(c.name))}<i class="dot ${dotOf(r.k)}"></i></span><div><b>${esc(c.name)}</b><span>${esc(ago(c.lastSeen))}${c.introducedBy?' · via '+esc(c.introducedBy):''}</span></div></div></td>
+        <td>${c.blocked?'<span class="role geblokkeerd">Geblokkeerd</span>':roleSel(c.role||'lid',`data-chg="role" data-id="${esc(c.id)}" aria-label="Rol van ${esc(c.name)}"`)}</td>
+        <td class="hide-m muted" style="font-size:14px">${esc(gs.join(' · ')||'—')}</td>
+        <td class="hide-m"><span class="chip ${r.k==='none'?'amber':''}">${esc(r.t)}</span></td>
+        <td style="text-align:right;white-space:nowrap"><button class="iconbtn show-m" type="button" data-act="contactInfo" data-id="${esc(c.id)}" aria-label="Meer over ${esc(c.name)}">${ic('meer')}</button><button class="btn ghost sm hide-m" type="button" data-act="memGroups" data-id="${esc(c.id)}">Groepen</button> <button class="btn ghost sm hide-m" type="button" data-act="block" data-id="${esc(c.id)}">${c.blocked?'Deblokkeer':'Blokkeer'}</button> <button class="iconbtn hide-m" type="button" data-act="delContact" data-id="${esc(c.id)}" aria-label="Verwijder ${esc(c.name)}" title="Verwijder">${ic('trash')}</button></td></tr>`; }));
+    h=`<div class="card"><div class="chead"><h3>Gebruikers</h3><span class="r">Een geblokkeerde gebruiker krijgt niets meer en wat hij stuurt, wordt niet meer doorgegeven.</span></div><div class="tw"><table><thead><tr><th>Naam</th><th>Rol</th><th class="hide-m">Groepen</th><th class="hide-m">Bereikbaar</th><th></th></tr></thead><tbody>${rows.join('')}</tbody></table></div></div>`;
+  }
+  if(admTab==='verzoeken') h=`<div class="card"><div class="chead"><h3>Wil zich aansluiten</h3><label class="tg r" style="margin-left:auto">Zelfde wifi vanzelf toelaten<input type="checkbox" data-chg="policy" data-k="autoLan" ${S.policy&&S.policy.autoLan?'checked':''}></label></div><p class="muted" style="margin:0;padding:0 20px 12px;font-size:14px">${S.policy&&S.policy.autoLan?'Iemand met AEROCX Blackout op hetzelfde wifi-netwerk wordt nu vanzelf als contact toegelaten.':'Iemand met AEROCX Blackout op hetzelfde wifi-netwerk verschijnt hier als verzoek. Jij beslist of je hem toelaat.'}</p>${reqsHtml()}</div>`;
+  if(admTab==='groepen') h=`<div class="card"><div class="chead"><h3>Groepen</h3><button class="btn sm" type="button" data-act="newGroup" style="margin-left:auto">${ic('plus')}Nieuwe groep</button></div><div class="tw"><table><thead><tr><th>Naam</th><th>Leden</th><th class="hide-m">Beheerd door</th><th></th></tr></thead><tbody>${groups().map(g=>`<tr><td><div class="who"><span class="av grp">${esc(initials(g.name))}</span><b>${esc(g.name)}</b></div></td><td class="muted" style="font-size:14px">${esc(arr(g.members).map(nameOf).join(', ')||'—')}</td><td class="hide-m">${g.mine?'<span class="chip ink">jij</span>':esc(nameOf(g.owner))}</td><td style="text-align:right;white-space:nowrap"><button class="btn ghost sm" type="button" data-act="openConv" data-c="g:${esc(g.id)}">Berichten</button> <button class="btn ghost sm" type="button" data-act="editGroup" data-id="${esc(g.id)}">${g.mine?'Bewerk':'Leden'}</button></td></tr>`).join('')||'<tr><td colspan="4" class="muted">Nog geen groepen.</td></tr>'}</tbody></table></div></div>`;
+  if(admTab==='uitnodigen') h=`<div class="card cpad">${inviteFormHtml('b')}</div>${invitesTableHtml()}`;
+  if(admTab==='toestellen') h=`<div class="card"><div class="chead"><h3>Toestellen op dit station</h3><span class="r">iPads en telefoons die met de pincode meekijken en berichten sturen.</span></div>${dev.map(d=>`<div class="req"><span class="av">${ic(/ipad|iphone|android|telefoon|tablet/i.test(d.name||'')?'device':'laptop')}</span><div><b>${esc(d.name||'Toestel')}</b><span>${esc(d.how||'')}${d.how?' · ':''}${d.self?'dit toestel, nu actief':'laatst '+esc(ago(d.seen))}</span></div><div class="row">${d.self?'<span class="chip">dit toestel</span>':`<button class="btn ghost sm" type="button" data-act="devRevoke" data-id="${esc(d.id)}" data-n="${esc(d.name||'Toestel')}">Toegang intrekken</button>`}</div></div>`).join('')||'<p class="empty">Nog geen andere toestellen gekoppeld.</p>'}</div>
+    <div class="card cpad" style="margin-top:16px"><h3 style="margin:0 0 6px;font:500 18px var(--sans);color:var(--ink)">Pincode voor nieuwe toestellen</h3><p class="muted" style="margin:0 0 14px">${S.local?`Huidige pincode: <span class="pinv">${esc(S.pin||'—')}</span>. `:''}Met een nieuwe pincode worden alle andere gekoppelde toestellen afgemeld; zij typen daarna de nieuwe pincode.</p><button class="btn sm" type="button" data-act="newPin">${ic('key')}Nieuwe pincode</button></div>`;
+  if(admTab==='rollen'){ const pm=S.perms||{};
+    h=`<div class="card"><div class="chead"><h3>Wat mag elke rol?</h3><span class="r">Jij als eigenaar mag altijd alles.</span></div><div class="tw"><table class="matrix"><thead><tr><th>Recht</th>${ROLES.map(([,t])=>`<th>${t}</th>`).join('')}</tr></thead><tbody>${PERMS.map(([p,t,s])=>`<tr><td><b>${t}</b><span>${s}</span></td>${ROLES.map(([r])=>`<td><label class="tg" style="justify-content:center"><input type="checkbox" data-chg="perm" data-r="${r}" data-p="${p}" ${(pm[r]||{})[p]?'checked':''} ${r==='beheerder'?'disabled':''} aria-label="${t} voor ${roleName(r)}"></label></td>`).join('')}</tr>`).join('')}</tbody></table></div></div>`; }
+  if(admTab==='netwerk'){ const po=S.policy||{}, kd=po.keyRot?Math.floor((nowMs()-T(po.keyRot))/86400e3):null;
+    h=`<div class="set" style="max-width:none">
+      <div class="card cpad"><h3>Groepssleutels vernieuwen</h3><p>${kd===null?'Nog nooit vernieuwd.':'Laatst vernieuwd '+(kd===0?'vandaag':kd===1?'gisteren':kd+' dagen geleden')+'.'} Doe dit nadat je iemand verwijderd of geblokkeerd hebt: wie de nieuwe sleutel niet krijgt, kan nieuwe groepsberichten niet meer lezen.</p><button class="btn sm" type="button" data-act="rotKeys">${ic('key')}Vernieuw alle sleutels</button></div>
+      <div class="card cpad"><h3>Berichten bewaren</h3><p>Hoelang berichten op dit station blijven staan.</p><div class="seg">${[[7,'7 dagen'],[30,'30 dagen'],[365,'1 jaar'],[0,'altijd']].map(([d,t])=>`<button type="button" data-act="keepDays" data-d="${d}" aria-pressed="${(+po.keepDays||0)===d}">${t}</button>`).join('')}</div></div>
+      <div class="card cpad"><h3>Toelaten en groepen</h3><label class="tg">Mensen op hetzelfde wifi-netwerk vanzelf toelaten<input type="checkbox" data-chg="policy" data-k="autoLan" ${po.autoLan?'checked':''}></label><p class="muted" style="margin:6px 0 0;font-size:14px">Staat dit uit (standaard), dan verschijnt iemand op hetzelfde wifi-netwerk bij Beheer → Verzoeken en laat jij hem zelf toe.</p><label class="tg" style="margin-top:12px">Leden mogen zelf iemand aan een groep toevoegen<input type="checkbox" data-chg="policy" data-k="openGroups" ${po.openGroups?'checked':''}></label></div></div>`; }
+  if(admTab==='logboek') h=`<div class="card"><div class="chead"><h3>Beheerlogboek</h3><span class="r">Wie wat wijzigde aan rollen, groepen en toegang.</span></div><div class="log wide" style="max-height:none">${arr(S.audit).map(a=>`<div><span class="t">${esc(dmy(a.t))}</span><span>${esc(a.x)}</span></div>`).join('')||'<p class="empty">Nog niets gewijzigd.</p>'}</div></div>`;
+  put('adm',h);
+}
+function memberGroups(c){
+  const gs=groups().filter(g=>g.mine||(S.policy&&S.policy.openGroups));
+  ov(`<span class="lbl">Groepen</span><h1 class="s">${esc(c.name)}</h1><div>${gs.map(g=>`<label class="chk"><input type="checkbox" value="${esc(g.id)}" ${arr(g.members).includes(c.id)?'checked':''}><span style="flex:1">${esc(g.name)}</span><span class="muted" style="font-size:13px">${plural(arr(g.members).length,'lid','leden')}</span></label>`).join('')||'<p class="muted">Je beheert nog geen groepen.</p>'}</div><div class="row" style="margin-top:16px"><button class="btn" id="mgSave" type="button">Bewaar</button><button class="btn ghost" type="button" data-close>Annuleer</button></div>`);
+  $('mgSave').onclick=async()=>{ const sel=[...$('ovp').querySelectorAll('input:checked')].map(i=>i.value); closeOv(); let ok=true;
+    for(const g of gs){ const has=arr(g.members).includes(c.id), want=sel.includes(g.id); if(has===want) continue;
+      const mem=want?arr(g.members).concat(c.id):arr(g.members).filter(x=>x!==c.id);
+      try{ await api('/api/group',{action:'update',id:g.id,name:g.name,members:mem,roles:g.roles||{}}); }catch(e){ ok=false; if(!e.login) toast(`${g.name}: ${e.message}`,true); } }
+    if(ok) toast('Groepen van '+c.name+' bewaard'); poll(true); };
+}
+function policyBody(patch){ const po=Object.assign({autoLan:false,keepDays:30,openGroups:false},S.policy||{},patch); return {action:'policy',autoLan:!!po.autoLan,keepDays:+po.keepDays||0,openGroups:!!po.openGroups}; }
+
+/* ================= zoeken ================= */
+function openSearch(){
+  ov(`<div class="row" style="flex-wrap:nowrap"><svg class="i" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4.2-4.2"/></svg><input type="text" id="sq" placeholder="Zoek een contact, groep of scherm…" autocomplete="off"></div><div class="sres" id="sres"></div>`);
+  const all=()=>[{t:'Iedereen',s:'alle contacten',k:'c:alle',i:'users'}].concat(groups().map(g=>({t:g.name,s:plural(arr(g.members).length,'lid','leden'),k:'c:g:'+g.id,i:'berichten'}))).concat(contacts().map(c=>({t:c.name,s:routeOf(c).t,k:'c:'+c.id,i:'user'}))).concat(VIEWS.map(([k,t])=>({t,s:'scherm',k:'v:'+k,i:k})));
+  let sel=0;
+  const draw=()=>{ const q=$('sq').value.toLowerCase().trim(); const r=all().filter(x=>!q||x.t.toLowerCase().includes(q)).slice(0,9); sel=Math.max(0,Math.min(sel,r.length-1));
+    $('sres').innerHTML=r.map((x,i)=>`<button type="button" data-k="${esc(x.k)}" class="${i===sel?'act':''}"><span class="av" style="width:34px;height:34px">${ic(x.i)}</span><span><b style="font:500 15px var(--sans);color:var(--ink);display:block">${esc(x.t)}</b><span class="muted" style="font-size:13px">${esc(x.s)}</span></span></button>`).join('')||'<p class="muted">Niets gevonden.</p>'; return r; };
+  const pick=k=>{ closeOv(); if(k.startsWith('v:')) go(k.slice(2)); else openConv(k.slice(2)); };
+  $('sres').onclick=e=>{ const b=e.target.closest('button[data-k]'); if(b) pick(b.dataset.k); };
+  $('sq').oninput=()=>{ sel=0; draw(); };
+  $('sq').onkeydown=e=>{ const r=draw(); if(e.key==='ArrowDown'){ e.preventDefault(); sel=Math.min(sel+1,r.length-1); draw(); } else if(e.key==='ArrowUp'){ e.preventDefault(); sel=Math.max(sel-1,0); draw(); } else if(e.key==='Enter'&&r[sel]) pick(r[sel].k); };
+  draw(); setTimeout(()=>$('sq').focus(),30);
+}
+
+/* ================= klikken en wijzigen (één plek) ================= */
+function copyText(t,msg){
+  const done=()=>toast(msg||'Gekopieerd');
+  if(navigator.clipboard&&window.isSecureContext){ navigator.clipboard.writeText(t).then(done,()=>fallback()); return; }
+  fallback();
+  function fallback(){ const ta=document.createElement('textarea'); ta.value=t; ta.setAttribute('readonly',''); ta.style.position='fixed'; ta.style.opacity='0'; document.body.appendChild(ta); ta.select(); ta.setSelectionRange(0,t.length);
+    let ok=false; try{ ok=document.execCommand('copy'); }catch(e){} ta.remove(); if(ok) done(); else ov(`<span class="lbl">Kopieer handmatig</span><h1 class="s">Je code</h1><p class="lead">Selecteer de code hieronder en kopieer hem.</p><textarea rows="5" class="mono" style="font-size:12.5px" readonly onclick="this.select()">${esc(t)}</textarea><div class="row" style="margin-top:12px"><button class="btn" type="button" data-close>Sluiten</button></div>`); }
+}
+const A={
+  go:el=>{ closeOv(); go(el.dataset.v); },
+  search:()=>openSearch(),
+  sos:()=>sosClick(),
+  sosStop:()=>confirmDlg('SOS beëindigen?','Je contacten krijgen een bericht dat alles weer onder controle is.','Beëindig SOS',()=>act('/api/sos',{action:'stop'},'SOS beëindigd'),'SOS'),
+  sosSeen:el=>act('/api/sos',{action:'seen',id:el.dataset.id},'Bevestigd. De afzender ziet dat je het gezien hebt.'),
+  sosOpen:el=>{ const id=el.dataset.id; openConv(id&&C(id)?id:'alle'); },
+  sosRadar:el=>{ rSel=el.dataset.id; go('radar'); },
+  login:()=>login(),
+  openConv:(el,e)=>{ if(e&&e.target.closest('[data-act]')!==el) return; openConv(el.dataset.c); },
+  toRadar:el=>{ rSel=el.dataset.c; go('radar'); },
+  ctTab:el=>{ ctTab=el.dataset.t; renderToday(); },
+  cvFilter:el=>{ cvFilter=el.dataset.f; pref('cvFilter',cvFilter); renderConvs(); },
+  back:()=>{ chatOpen=false; $('chat').classList.remove('open'); $('v-berichten').classList.remove('open'); },
+  send:()=>sendTyped(),
+  retry:el=>{ const o=outbox.find(x=>x.tmp===el.dataset.id); if(o) sendOut(o); },
+  dropOut:el=>{ outbox=outbox.filter(x=>x.tmp!==el.dataset.id); renderThread(); },
+  bigImg:el=>ov(`<img class="bigimg" src="${esc(el.getAttribute('src'))}" alt="Foto"><div class="row" style="margin-top:14px;justify-content:flex-end"><button class="btn" type="button" data-close>Sluiten</button></div>`),
+  newGroup:()=>groupDialog(null),
+  editGroup:el=>{ const g=G(el.dataset.id); if(g) groupDialog(g); },
+  convInfo:()=>{ const m=convMeta(); if(m.g) groupDialog(m.g); else if(m.c) contactDialog(m.c); },
+  oFilter:el=>{ oFilter=el.dataset.f; pref('oFilter',oFilter); renderOsint(); },
+  oSel:el=>{ oSel=el.dataset.id; const o=osintData&&osintData.items.find(x=>x.id===oSel); if(o&&!o.read){ o.read=true; osintPost({action:'read',id:o.id}); } renderOsint(); renderNav(); },
+  oShare:()=>{ const o=osintData&&osintData.items.find(x=>x.id===oSel); if(o) shareOsint(o); },
+  oHide:async()=>{ const id=oSel; if(!id) return; osintData.items=osintData.items.filter(x=>x.id!==id); oSel=null; renderOsint(); await osintPost({action:'hide',id}); },
+  oReadAll:async()=>{ if(osintData) osintData.items.forEach(o=>o.read=true); renderOsint(); if(await osintPost({action:'readall'})) toast('Alles gelezen'); },
+  wordAdd:async()=>{ const w=$('oWordIn').value.trim(); if(!w) return; $('oWordIn').value=''; await osintPost({action:'word-add',word:w}); },
+  wordDel:el=>osintPost({action:'word-del',word:el.dataset.w}),
+  feedAdd:async()=>{ const u=$('oFeedIn').value.trim(); if(!/^https?:\/\/\S+\.\S+/.test(u)){ toast('Typ een volledig adres dat begint met https://',true); return; } if(await osintPost({action:'feed-add',url:u})){ $('oFeedIn').value=''; toast('Nieuwsfeed toegevoegd'); } },
+  feedDel:el=>confirmDlg('Nieuwsfeed verwijderen?','Meldingen uit deze feed komen niet meer binnen.','Verwijder',()=>osintPost({action:'feed-del',id:el.dataset.id}),'OSINT'),
+  rSel:el=>{ rSel=el.dataset.c; renderRadar(); },
+  qrBig:()=>ov(`<div style="background:#fff;padding:12px;display:flex;justify-content:center;border:1px solid var(--line);border-radius:16px"><img src="/api/qr.png?me=1" alt="Mijn QR-code" style="width:min(78vw,380px);height:auto;image-rendering:pixelated;display:block"></div><div class="row" style="justify-content:space-between;margin-top:14px"><b style="font:500 17px var(--sans);color:var(--ink)">${esc(S.me.name)}</b><button class="btn" type="button" data-close>Sluiten</button></div>`),
+  copyCode:()=>{ if(S&&S.me.code) copyText(S.me.code,'Code gekopieerd. Stuur hem naar de ander.'); },
+  pasteAdd:async()=>{ const code=$('pasteCode').value.trim(); $('pasteErr').textContent=''; if(!isCode(code)){ $('pasteErr').textContent='Dit is geen AEROCX Blackout-code. Een code begint met AXB2: of AEROCX-BLACKOUT:.'; return; }
+    const nm=$('pasteName').value.trim()||nameFromCode(code)||''; if(await addContact(code,nm,'code')){ $('pasteCode').value=''; $('pasteName').value=''; } },
+  foundAdd:async()=>{ if(!foundCode) return; const nm=($('fName')&&$('fName').value.trim())||nameFromCode(foundCode)||''; if(await addContact(foundCode,nm,'QR-code')){ $('found').hidden=true; foundCode=null; } },
+  reqOk:async el=>{ const id=el.dataset.id, s=document.querySelector(`select[data-reqrole="${CSS.escape(id)}"]`), p=arr(S.pending).find(x=>x.id===id);
+    await act('/api/contact',{action:'accept',id,role:s?s.value:'lid'},`${p?p.name:'Contact'} toegelaten`); },
+  reqNo:el=>act('/api/contact',{action:'dismiss',id:el.dataset.id},'Verzoek geweigerd'),
+  invMake:async el=>{ const p=el.dataset.p, name=$(p+'InvName').value.trim(), role=$(p+'InvRole').value, days=+$(p+'InvExp').value, gs=[...document.querySelectorAll('.'+p+'invg:checked')].map(i=>i.value);
+    try{ const r=await api('/api/admin',{action:'invite',name,role,groups:gs,days,exp:nowMs()+days*86400e3}); lastInvite={id:r&&r.id,code:r&&r.code}; $(p+'InvName').value='';
+      await poll(true); if(!lastInvite.id){ const n=arr(S.invites)[0]; if(n) lastInvite.id=n.id; } renderAll(); toast('Uitnodiging klaar: laat de QR-code scannen'); }
+    catch(e){ if(!e.login) toast(e.message,true); } },
+  invCopy:()=>{ if(lastInvite&&lastInvite.code) copyText(lastInvite.code,'Uitnodigingscode gekopieerd'); },
+  invBig:el=>{ const i=arr(S.invites).find(x=>x.id===el.dataset.id)||{};
+    ov(`<span class="lbl">Uitnodiging</span><h1 class="s">${esc(i.name||'Iedereen met de code')}</h1><p class="lead">${esc(roleName(i.role))}${arr(i.groups).length?' · '+esc(i.groups.map(id=>(G(id)||{name:'?'}).name).join(', ')):''} · geldig tot ${esc(i.exp?dayOnly(i.exp):'—')}</p><div style="background:#fff;padding:12px;display:flex;justify-content:center;border:1px solid var(--line);border-radius:16px"><img src="/api/qr.png?invite=${encodeURIComponent(el.dataset.id)}" alt="QR-code van de uitnodiging" style="width:min(78vw,360px);height:auto;image-rendering:pixelated;display:block"></div><div class="row" style="margin-top:14px;justify-content:flex-end"><button class="btn" type="button" data-close>Sluiten</button></div>`); },
+  invRevoke:el=>confirmDlg('Uitnodiging intrekken?','Wie de code nog niet gebruikt heeft, kan er niet meer mee aansluiten.','Trek in',()=>act('/api/admin',{action:'revokeInvite',id:el.dataset.id},'Uitnodiging ingetrokken'),'Uitnodiging'),
+  admTab:el=>{ admTab=el.dataset.t; pref('admTab',admTab); renderBeheer(); },
+  contactInfo:el=>{ const c=C(el.dataset.id); if(c) contactDialog(c); },
+  memGroups:el=>{ const c=C(el.dataset.id); if(c) memberGroups(c); },
+  block:el=>{ const c=C(el.dataset.id); if(c) toggleBlock(c); },
+  delContact:el=>{ const c=C(el.dataset.id); if(c) removeContact(c); },
+  devRevoke:el=>confirmDlg(`${el.dataset.n} afmelden?`,'Dit toestel moet daarna opnieuw de pincode typen om mee te kijken.','Trek toegang in',async()=>{ const pin=await askPin('Een toestel afmelden'); if(pin===null) return; act('/api/admin',{action:'revokeDevice',id:el.dataset.id,pin},`${el.dataset.n} is afgemeld`); },'Toestel'),
+  newPin:()=>confirmDlg('Nieuwe pincode maken?','Alle andere gekoppelde toestellen worden afgemeld en hebben daarna de nieuwe pincode nodig.','Maak nieuwe pincode',async()=>{ const pin=await askPin('Een nieuwe pincode maken'); if(pin===null) return; const r=await act('/api/admin',{action:'newpin',pin}); if(r) toast(r.pin?'Nieuwe pincode: '+r.pin:'Nieuwe pincode gemaakt'); },'Pincode'),
+  rotKeys:()=>confirmDlg('Alle groepssleutels vernieuwen?','Elke groep krijgt een nieuwe sleutel, die naar de huidige leden gaat. Wie verwijderd of geblokkeerd is, kan nieuwe groepsberichten niet meer lezen.','Vernieuw',()=>act('/api/admin',{action:'rotateKeys'},'Nieuwe sleutels verstuurd naar alle leden'),'Sleutels'),
+  keepDays:el=>act('/api/admin',policyBody({keepDays:+el.dataset.d}),'Bewaard'),
+  saveMe:async()=>{ const n=$('myName').value.trim(), raw=$('myLoc').value.trim(); let ok=true;
+    if(n&&n!==S.me.name){ try{ await api('/api/contact',{action:'myname',name:n}); }catch(e){ ok=false; if(!e.login) toast(e.message,true); } }
+    if(raw){ const m=raw.replace(/;/g,',').split(/[,\s]+/).filter(Boolean).map(x=>parseFloat(x.replace(/,/g,'.')));
+      if(m.length!==2||m.some(isNaN)||Math.abs(m[0])>90||Math.abs(m[1])>180){ toast('Typ de locatie als breedte, lengte, bv. 50.8798, 4.7005',true); return; }
+      try{ await api('/api/location',{lat:m[0],lon:m[1]}); }catch(e){ ok=false; if(!e.login) toast(e.message,true); } }
+    if(ok) toast('Bewaard'); settingsFilled=false; await poll(true); fillSettings(); },
+  saveRadio:async()=>{ const ch=$('rCh').value; const r=await act('/api/radio',{mode:$('rMode').value,target:$('rTarget').value.trim(),channel:ch===''?null:parseInt(ch,10)},'Radio-instellingen bewaard'); if(r) setTimeout(fillSettings,300); },
+  backup:()=>makeBackup(),
+  restore:()=>restoreBackup(),
+  quit:()=>confirmDlg('AEROCX Blackout afsluiten?','Je ontvangt geen berichten meer tot je het programma weer opent. Automatisch starten zet het bij de volgende aanmelding weer aan.','Sluit af',async()=>{ try{ await api('/api/quit',{}); }catch(e){ if(!e.offline){ toast(e.message,true); return; } } stopped=true; $('stopped').classList.add('on'); },'Afsluiten')
+};
+document.addEventListener('click',e=>{
+  const el=e.target.closest('[data-act]'); if(!el) return;
+  const fn=A[el.dataset.act]; if(!fn) return;
+  if(el.tagName==='LABEL'||el.tagName==='SELECT'||el.tagName==='INPUT') return;
+  if(el.tagName==='TR'&&e.target.closest('button,select,input,a')) return;
+  e.preventDefault(); fn(el,e);
+});
+const CH={
+  share:async el=>{ const on=el.checked; el.blur(); if(await act('/api/location',{share:on},on?'Je locatie wordt gedeeld':'Je locatie wordt niet meer gedeeld')===null) el.checked=!on; },
+  bridge:async el=>{ const on=el.checked; el.blur(); if(await act('/api/admin',{action:'policy',...policyBody({}),bridge:on},on?'Dit station werkt als brug':'Brugfunctie uit')===null) el.checked=!on; },
+  sdr:async el=>{ const on=el.checked; el.blur(); if(await osintPost({action:'source',id:'adsb',on})) toast(on?'Luchtverkeer aan':'Luchtverkeer uit'); else el.checked=!on; },
+  autostart:async el=>{ const on=el.checked; el.blur(); const pin=await askPin('Automatisch starten wijzigen'); if(pin===null||await act('/api/autostart',{on,pin},on?'Start voortaan automatisch':'Start niet meer automatisch')===null) el.checked=!on; },
+  rmode:()=>radioModeUI(),
+  oSource:el=>{ el.blur(); osintPost({action:'source',id:el.dataset.id,on:el.checked}); },
+  role:async el=>{ const c=C(el.dataset.id), v=el.value; el.blur(); if(await act('/api/contact',{action:'role',id:el.dataset.id,role:v},`${c?c.name:'Contact'}: ${roleName(v).toLowerCase()}`)===null) renderBeheer(); },
+  policy:async el=>{ const on=el.checked; el.blur(); if(await act('/api/admin',policyBody({[el.dataset.k]:on}),'Bewaard')===null) el.checked=!on; },
+  perm:async el=>{ const pm=JSON.parse(JSON.stringify(S.perms||{})); (pm[el.dataset.r]=pm[el.dataset.r]||{})[el.dataset.p]=el.checked; el.blur(); if(await act('/api/admin',{action:'perms',perms:pm},'Rechten bewaard')===null) el.checked=!el.checked; }
+};
+document.addEventListener('change',e=>{ const el=e.target.closest('[data-chg]'); if(!el) return; const fn=CH[el.dataset.chg]; if(fn) fn(el,e); });
+document.addEventListener('keydown',e=>{ if(e.key==='Enter'&&e.target.id==='oWordIn'){ e.preventDefault(); A.wordAdd(); } if(e.key==='Enter'&&e.target.id==='fName'){ e.preventDefault(); A.foundAdd(); } if(e.key==='Enter'&&e.target.id==='bkPass'){ e.preventDefault(); makeBackup(); } });
+
+/* ================= tekenen en ophalen ================= */
+function renderAll(){
+  renderNav(); renderChrome();
+  if(!S) return;
+  if(view==='vandaag') renderToday();
+  if(view==='berichten'){ renderConvs(); renderThread(); $('chat').classList.toggle('open',chatOpen); $('v-berichten').classList.toggle('open',chatOpen); }
+  if(view==='osint') renderOsint();
+  if(view==='radar') renderRadar();
+  if(view==='koppelen') renderKoppelen();
+  if(view==='logboek') renderLogboek();
+  if(view==='instellingen') renderSettings();
+  if(view==='beheer') renderBeheer();
+}
+const wide=()=>window.matchMedia('(min-width:861px)').matches;
+let stopped=false, pollAgain=false;
+async function poll(force){
+  if(stopped) return;
+  if(busy){ if(force) pollAgain=true; return; }
+  busy=true; tick++;
+  try{
+    const s=await api('/api/state');
+    if(s&&s.me){ S=s; skew=T(s.now)?T(s.now)-Date.now():0; hideLogin(); }
+    const jobs=[];
+    if(view==='berichten'){ jobs.push(loadConvs()); if(wide()||chatOpen) jobs.push(loadMsgs(conv)); }
+    if(view==='osint'||(view==='vandaag'&&(!osintData||tick%5===0))||(view==='instellingen'&&!osintData)) jobs.push(loadOsint());
+    await Promise.all(jobs);
+    if(view==='berichten'&&convs&&conv!=='alle'&&!convList().some(c=>c.cid===conv)&&!C(conv)&&!G(conv)) conv='alle';
+  }catch(e){ /* offline of pincode: wordt getoond */ }
+  finally{ busy=false; }
+  renderAll();
+  if(pollAgain){ pollAgain=false; setTimeout(()=>poll(),0); }
+}
+const h0=(location.hash||'').slice(1);
+if(h0==='radio'){ go('instellingen'); setTimeout(()=>{ const el=$('rMode'); if(el) el.closest('.card').scrollIntoView(); },400); }
+else go(VIEWS.some(v=>v[0]===h0)?h0:'vandaag');
+window.addEventListener('hashchange',()=>{ const v=(location.hash||'').slice(1); if(v!==view&&VIEWS.some(x=>x[0]===v)) go(v); });
+setInterval(poll,2000);
+document.addEventListener('visibilitychange',()=>{ if(!document.hidden) poll(true); });
+})();
+</script>
+</body>
+</html>

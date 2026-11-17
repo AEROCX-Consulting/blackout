@@ -1,0 +1,58 @@
+AEROCX Blackout - voor de Mac (zonder installatieprogramma)
+==========================================================
+
+Starten
+1. Zet deze map op een vaste plek, bijvoorbeeld in je thuismap of in Apps.
+2. Dubbelklik op "Start AEROCX Blackout.command".
+3. Je browser opent vanzelf op http://localhost:8474.
+
+Zegt je Mac dat het bestand niet geopend kan worden?
+- Klik met de rechtermuisknop (of Control + klik) op "Start AEROCX Blackout.command" en kies Open,
+  en daarna nog eens Open.
+- Lukt dat niet (macOS 15 of nieuwer): open Systeeminstellingen > Privacy en beveiliging, scrol naar
+  beneden en klik bij AEROCX Blackout op "Open toch". Dubbelklik daarna opnieuw.
+- Dat is omdat de app (nog) niet bij Apple geregistreerd is. Het is eenmalig.
+- Vraagt de Mac om verbindingen of apparaten in je lokale netwerk toe te staan: klik op Sta toe.
+
+Het venster van Terminal vraagt of de app voortaan vanzelf moet starten als je je aanmeldt.
+Typ j en druk op Enter. Daarna mag je het venster sluiten: de app blijft draaien.
+Automatisch starten weer uitzetten kan in de app, bij Instellingen.
+
+Je gegevens en sleutels staan in ~/Library/Application Support/AEROCX Blackout.
+
+Wat het is
+- Elke computer met AEROCX Blackout is een eigen knooppunt. Er is geen server, geen account en geen cloud.
+- Berichten gaan rechtstreeks van computer naar computer: over Starlink (IPv6), over je eigen wifi,
+  of over een LoRa-radio (Meshtastic) als het internet helemaal weg is.
+- Tussen de computers met de app is alles versleuteld. Alleen de ontvanger kan een bericht lezen,
+  ook als een contact het onderweg doorgeeft.
+- Een bericht wordt opnieuw verstuurd (tot 7 dagen) tot de ontvanger het bevestigt.
+
+Contacten toevoegen (doe het nu, zolang alles werkt)
+1. Open in de app "Koppelen" en toon je code of QR-code.
+2. De andere persoon voegt jouw code toe, en jij de zijne. Dat moet aan beide kanten.
+3. Een zwarte stip betekent: die persoon is nu bereikbaar.
+   Computers met de app op dezelfde wifi zien elkaar vanzelf, maar alleen als verzoek:
+   pas als je het verzoek toelaat, wordt het een contact.
+
+iPad of telefoon
+- Zet het toestel op dezelfde wifi als de computer waarop de app draait.
+- Open het adres dat je in de app ziet bij "Koppelen" (bv. http://192.168.1.20:8474) en typ de pincode.
+- Tip: Deel > Zet op beginscherm. De computer moet wel aan blijven.
+- Let op: tussen je iPad of telefoon en de computer gaat alles over gewone HTTP, niet versleuteld.
+  Wie op hetzelfde wifi-netwerk meekijkt, kan de pincode en je berichten zien.
+  Gebruik dit alleen op je eigen, beveiligde wifi.
+
+Goed om te weten
+- De app gebruikt deze poorten: UDP 47474 (berichten), TCP 8474 (het scherm in je browser),
+  UDP 47475 (zoeken op je eigen wifi).
+- Maak in de app een back-up (Instellingen > Back-up). Bewaar die op een USB-stick.
+- Locatie delen staat standaard uit. Zet je het aan, dan gaat je locatie alleen versleuteld naar je contacten.
+- Op de computer zelf (http://localhost:8474) vraagt de app geen pincode. Heeft de computer meerdere
+  gebruikers, dan kan elke gebruiker van die computer de app bedienen.
+- Er is geen automatische update. Voor een nieuwe versie haal je de nieuwste versie op
+  https://blackout.aerocx.be/ en installeer je die opnieuw. Je gegevens blijven bewaard.
+- Starlink zelf heeft nog altijd het netwerk van SpaceX nodig. Valt Starlink uit, dan neemt de radio
+  het over voor wie een Meshtastic-radio heeft.
+
+Meer uitleg en de nieuwste versie: https://blackout.aerocx.be/

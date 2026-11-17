@@ -1,0 +1,86 @@
+# Bij elke push en pull request: controleren en testen.
+name: CI
+
+on:
+  push:
+    branches: ["**"]
+    tags-ignore: ["v*"]
+  pull_request:
+
+permissions:
+  contents: read
+
+env:
+  GOTOOLCHAIN: local
+  CGO_ENABLED: "0"
+
+jobs:
+  test:
+    name: go vet en go test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
+      - uses: actions/setup-go@924ae3a1cded613372ab5595356fb5720e22ba16 # v6.5.0
+        with:
+          go-version-file: go.mod
+      - name: gofmt
+        run: |
+          out="$(gofmt -l .)"
+          if [ -n "$out" ]; then echo "::error::niet opgemaakt met gofmt:"; echo "$out"; exit 1; fi
+      - run: go vet ./...
+      - run: go test ./...
+
+  build:
+    name: Bouwen voor ${{ matrix.goos }}/${{ matrix.goarch }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - {goos: darwin, goarch: arm64}
+          - {goos: darwin, goarch: amd64}
+          - {goos: windows, goarch: amd64}
+          - {goos: linux, goarch: arm64}
+          - {goos: linux, goarch: amd64}
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
+      - uses: actions/setup-go@924ae3a1cded613372ab5595356fb5720e22ba16 # v6.5.0
+        with:
+          go-version-file: go.mod
+      - name: go build
+        env:
+          GOOS: ${{ matrix.goos }}
+          GOARCH: ${{ matrix.goarch }}
+        run: go build -trimpath -o /tmp/aerocx-blackout .
+      - name: Mac-startprogramma
+        if: matrix.goos == 'darwin'
+        working-directory: packaging/macos/launcher
+        env:
+          GOOS: darwin
+          GOARCH: ${{ matrix.goarch }}
+        run: go vet . && go build -o /tmp/launcher .
+
+  scripts:
+    name: Scripts controleren
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
+      - name: shellcheck
+        run: |
+          shellcheck scripts/*.sh packaging/portable/linux/start.sh \
+            "packaging/portable/mac/Start AEROCX Blackout.command" \
+            packaging/macos/scripts/preinstall packaging/macos/scripts/postinstall packaging/linux/postinst
+      - name: install.ps1 (alleen ASCII, PSScriptAnalyzer)
+        shell: pwsh
+        run: |
+          if (Select-String -Path scripts/install.ps1 -Pattern '[^\x00-\x7F]') { throw "install.ps1 moet ASCII blijven" }
+          Install-Module PSScriptAnalyzer -Force -Scope CurrentUser
+          $r = Invoke-ScriptAnalyzer -Path scripts/install.ps1 -Severity Error
+          $r | Format-Table -AutoSize
+          if ($r) { throw "PSScriptAnalyzer vond fouten" }
+      - name: .deb proefbouw
+        run: |
+          printf '#!/bin/sh\necho test\n' >/tmp/fake-bin
+          scripts/build-deb.sh amd64 /tmp/fake-bin 0.0.0-ci /tmp/deb
+          dpkg-deb -I /tmp/deb/aerocx-blackout_amd64.deb
+          dpkg-deb -c /tmp/deb/aerocx-blackout_amd64.deb

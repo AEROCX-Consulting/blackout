@@ -1,0 +1,429 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom" xmlns:cap="urn:oasis:names:tc:emergency:cap:1.2">
+  <link rel="hub" href="https://pubsubhubbub.appspot.com/"/>
+  <link type="application/atom+xml" rel="self" href="https://feeds.meteoalarm.org/feeds/meteoalarm-legacy-atom-belgium"/>
+  <link type="text/html" rel="alternate" href="https://meteoalarm.org"/>
+  <rights>Copyright © 2026 MeteoAlarm.Org. Licensed under terms equivalent to CC BY 4.0, with additional requirements for redistributing outlined in our Terms and Conditions.</rights>
+  <generator>MeteoAlarm Producer Server</generator>
+  <logo>https://feeds.meteoalarm.org/images/logo.svg</logo>
+  <author>
+    <name>meteoalarm.org</name>
+    <uri>https://meteoalarm.org</uri>
+    <email>meteoalarm@geosphere.at</email>
+  </author>
+  <id>tag:meteoalarm.org,2021-02-19:BE</id>
+  <title>MeteoAlarm - Alerting Europe for Extreme Weather</title>
+  <updated>2026-11-17T12:35:02.038668Z</updated>
+  <entry>
+    <cap:geocode>
+      <valueName>NUTS2</valueName>
+      <value>BE25</value>
+    </cap:geocode>
+    <link title="West Flanders" href="https://meteoalarm.org?geocode=EMMA_ID:BE009" hreflang="en"/>
+    <cap:areaDesc>West Flanders</cap:areaDesc>
+    <cap:event>Yellow warning for wind</cap:event>
+    <cap:sent>2026-11-17T04:30:00+00:00</cap:sent>
+    <cap:expires>2026-11-17T20:00:00+00:00</cap:expires>
+    <cap:onset>2026-11-17T08:00:00+00:00</cap:onset>
+    <cap:certainty>Likely</cap:certainty>
+    <cap:severity>Moderate</cap:severity>
+    <cap:urgency>Expected</cap:urgency>
+    <cap:scope>Public</cap:scope>
+    <cap:message_type>Alert</cap:message_type>
+    <cap:status>Actual</cap:status>
+    <cap:identifier>2.49.0.0.56.0.BE.20261117042519.1619246</cap:identifier>
+    <link type="application/cap+xml" href="https://feeds.meteoalarm.org/api/v1/warnings/feeds-belgium/989e0da2-b69a-45f0-9613-d340c61e0b59"/>
+    <link title="Belgium" rel="related" href="https://meteoalarm.org?region=BE" hreflang="en"/>
+    <author>
+      <name>meteoalarm.org</name>
+      <uri>https://meteoalarm.org</uri>
+    </author>
+    <published>2026-11-17T04:30:00Z</published>
+    <id>https://feeds.meteoalarm.org/api/v1/warnings/feeds-belgium/989e0da2-b69a-45f0-9613-d340c61e0b59?index_info=2&amp;index_area=0&amp;index_geocode=0</id>
+    <title>Yellow Wind Warning issued for Belgium - West Flanders</title>
+    <updated>2026-11-17T04:30:00Z</updated>
+  </entry>
+  <entry>
+    <cap:geocode>
+      <valueName>EMMA_ID</valueName>
+      <value>BE801</value>
+    </cap:geocode>
+    <link title="Coastal zone" href="https://meteoalarm.org?geocode=EMMA_ID:BE801" hreflang="en"/>
+    <cap:areaDesc>Coastal zone</cap:areaDesc>
+    <cap:event>Yellow warning for wind</cap:event>
+    <cap:sent>2026-11-17T04:30:00+00:00</cap:sent>
+    <cap:expires>2026-11-17T20:00:00+00:00</cap:expires>
+    <cap:onset>2026-11-17T08:00:00+00:00</cap:onset>
+    <cap:certainty>Likely</cap:certainty>
+    <cap:severity>Moderate</cap:severity>
+    <cap:urgency>Expected</cap:urgency>
+    <cap:scope>Public</cap:scope>
+    <cap:message_type>Alert</cap:message_type>
+    <cap:status>Actual</cap:status>
+    <cap:identifier>2.49.0.0.56.0.BE.20261117042519.1619245</cap:identifier>
+    <link type="application/cap+xml" href="https://feeds.meteoalarm.org/api/v1/warnings/feeds-belgium/d40fc995-ab60-4479-9f64-b7d8f1d800bb"/>
+    <link title="Belgium" rel="related" href="https://meteoalarm.org?region=BE" hreflang="en"/>
+    <author>
+      <name>meteoalarm.org</name>
+      <uri>https://meteoalarm.org</uri>
+    </author>
+    <published>2026-11-17T04:30:00Z</published>
+    <id>https://feeds.meteoalarm.org/api/v1/warnings/feeds-belgium/d40fc995-ab60-4479-9f64-b7d8f1d800bb?index_info=2&amp;index_area=0&amp;index_geocode=0</id>
+    <title>Yellow Wind Warning issued for Belgium - Coastal zone</title>
+    <updated>2026-11-17T04:30:00Z</updated>
+  </entry>
+  <entry>
+    <cap:geocode>
+      <valueName>NUTS2</valueName>
+      <value>BE25</value>
+    </cap:geocode>
+    <link title="West Flanders" href="https://meteoalarm.org?geocode=EMMA_ID:BE009" hreflang="en"/>
+    <cap:areaDesc>West Flanders</cap:areaDesc>
+    <cap:event>Green warning for wind</cap:event>
+    <cap:sent>2026-11-16T13:40:00+00:00</cap:sent>
+    <cap:expires>2026-11-17T20:00:00+00:00</cap:expires>
+    <cap:effective>2026-11-17T04:30:00+00:00</cap:effective>
+    <cap:onset>2026-11-17T04:30:00+00:00</cap:onset>
+    <cap:certainty>Likely</cap:certainty>
+    <cap:severity>Moderate</cap:severity>
+    <cap:urgency>Future</cap:urgency>
+    <cap:scope>Public</cap:scope>
+    <cap:message_type>Update</cap:message_type>
+    <cap:status>Actual</cap:status>
+    <cap:identifier>2.49.0.0.56.0.BE.20261117053000.1619248</cap:identifier>
+    <link type="application/cap+xml" href="https://feeds.meteoalarm.org/api/v1/warnings/feeds-belgium/09618ae9-6da2-437b-bd3d-c327add2de30"/>
+    <link title="Belgium" rel="related" href="https://meteoalarm.org?region=BE" hreflang="en"/>
+    <author>
+      <name>meteoalarm.org</name>
+      <uri>https://meteoalarm.org</uri>
+    </author>
+    <published>2026-11-16T13:40:00Z</published>
+    <id>https://feeds.meteoalarm.org/api/v1/warnings/feeds-belgium/09618ae9-6da2-437b-bd3d-c327add2de30?index_info=2&amp;index_area=0&amp;index_geocode=0</id>
+    <title>Green Wind Warning issued for Belgium - West Flanders</title>
+    <updated>2026-11-16T13:40:00Z</updated>
+  </entry>
+  <entry>
+    <cap:geocode>
+      <valueName>EMMA_ID</valueName>
+      <value>BE801</value>
+    </cap:geocode>
+    <link title="Coastal zone" href="https://meteoalarm.org?geocode=EMMA_ID:BE801" hreflang="en"/>
+    <cap:areaDesc>Coastal zone</cap:areaDesc>
+    <cap:event>Green warning for wind</cap:event>
+    <cap:sent>2026-11-16T13:40:00+00:00</cap:sent>
+    <cap:expires>2026-11-17T20:00:00+00:00</cap:expires>
+    <cap:effective>2026-11-17T04:30:00+00:00</cap:effective>
+    <cap:onset>2026-11-17T04:30:00+00:00</cap:onset>
+    <cap:certainty>Likely</cap:certainty>
+    <cap:severity>Moderate</cap:severity>
+    <cap:urgency>Future</cap:urgency>
+    <cap:scope>Public</cap:scope>
+    <cap:message_type>Update</cap:message_type>
+    <cap:status>Actual</cap:status>
+    <cap:identifier>2.49.0.0.56.0.BE.20261117053000.1619247</cap:identifier>
+    <link type="application/cap+xml" href="https://feeds.meteoalarm.org/api/v1/warnings/feeds-belgium/7fd91cc4-43f8-4da1-999c-4295d47b7935"/>
+    <link title="Belgium" rel="related" href="https://meteoalarm.org?region=BE" hreflang="en"/>
+    <author>
+      <name>meteoalarm.org</name>
+      <uri>https://meteoalarm.org</uri>
+    </author>
+    <published>2026-11-16T13:40:00Z</published>
+    <id>https://feeds.meteoalarm.org/api/v1/warnings/feeds-belgium/7fd91cc4-43f8-4da1-999c-4295d47b7935?index_info=2&amp;index_area=0&amp;index_geocode=0</id>
+    <title>Green Wind Warning issued for Belgium - Coastal zone</title>
+    <updated>2026-11-16T13:40:00Z</updated>
+  </entry>
+  <entry>
+    <cap:geocode>
+      <valueName>NUTS2</valueName>
+      <value>BE35</value>
+    </cap:geocode>
+    <link title="Namur" href="https://meteoalarm.org?geocode=EMMA_ID:BE006" hreflang="en"/>
+    <cap:areaDesc>Namur</cap:areaDesc>
+    <cap:event>Yellow warning for rain</cap:event>
+    <cap:sent>2026-11-17T04:25:00+00:00</cap:sent>
+    <cap:expires>2026-11-18T05:00:00+00:00</cap:expires>
+    <cap:onset>2026-11-17T04:00:00+00:00</cap:onset>
+    <cap:certainty>Likely</cap:certainty>
+    <cap:severity>Moderate</cap:severity>
+    <cap:urgency>Immediate</cap:urgency>
+    <cap:scope>Public</cap:scope>
+    <cap:message_type>Alert</cap:message_type>
+    <cap:status>Actual</cap:status>
+    <cap:identifier>2.49.0.0.56.0.BE.20261117042414.1619242</cap:identifier>
+    <link type="application/cap+xml" href="https://feeds.meteoalarm.org/api/v1/warnings/feeds-belgium/9001a234-7208-4bfc-8a0b-640324818ce3"/>
+    <link title="Belgium" rel="related" href="https://meteoalarm.org?region=BE" hreflang="en"/>
+    <author>
+      <name>meteoalarm.org</name>
+      <uri>https://meteoalarm.org</uri>
+    </author>
+    <published>2026-11-17T04:25:00Z</published>
+    <id>https://feeds.meteoalarm.org/api/v1/warnings/feeds-belgium/9001a234-7208-4bfc-8a0b-640324818ce3?index_info=2&amp;index_area=0&amp;index_geocode=0</id>
+    <title>Yellow Rain Warning issued for Belgium - Namur</title>
+    <updated>2026-11-17T04:25:00Z</updated>
+  </entry>
+  <entry>
+    <cap:geocode>
+      <valueName>NUTS2</valueName>
+      <value>BE34</value>
+    </cap:geocode>
+    <link title="Luxembourg" href="https://meteoalarm.org?geocode=EMMA_ID:BE001" hreflang="en"/>
+    <cap:areaDesc>Luxembourg</cap:areaDesc>
+    <cap:event>Yellow warning for rain</cap:event>
+    <cap:sent>2026-11-17T04:25:00+00:00</cap:sent>
+    <cap:expires>2026-11-18T05:00:00+00:00</cap:expires>
+    <cap:onset>2026-11-17T04:00:00+00:00</cap:onset>
+    <cap:certainty>Likely</cap:certainty>
+    <cap:severity>Moderate</cap:severity>
+    <cap:urgency>Immediate</cap:urgency>
+    <cap:scope>Public</cap:scope>
+    <cap:message_type>Alert</cap:message_type>
+    <cap:status>Actual</cap:status>
+    <cap:identifier>2.49.0.0.56.0.BE.20261117042414.1619243</cap:identifier>
+    <link type="application/cap+xml" href="https://feeds.meteoalarm.org/api/v1/warnings/feeds-belgium/7c3123f3-245d-4aba-9006-bbd3b26e2394"/>
+    <link title="Belgium" rel="related" href="https://meteoalarm.org?region=BE" hreflang="en"/>
+    <author>
+      <name>meteoalarm.org</name>
+      <uri>https://meteoalarm.org</uri>
+    </author>
+    <published>2026-11-17T04:25:00Z</published>
+    <id>https://feeds.meteoalarm.org/api/v1/warnings/feeds-belgium/7c3123f3-245d-4aba-9006-bbd3b26e2394?index_info=2&amp;index_area=0&amp;index_geocode=0</id>
+    <title>Yellow Rain Warning issued for Belgium - Luxembourg</title>
+    <updated>2026-11-17T04:25:00Z</updated>
+  </entry>
+  <entry>
+    <cap:geocode>
+      <valueName>NUTS2</valueName>
+      <value>BE32</value>
+    </cap:geocode>
+    <link title="Hainaut" href="https://meteoalarm.org?geocode=EMMA_ID:BE005" hreflang="en"/>
+    <cap:areaDesc>Hainaut</cap:areaDesc>
+    <cap:event>Yellow warning for rain</cap:event>
+    <cap:sent>2026-11-17T04:25:00+00:00</cap:sent>
+    <cap:expires>2026-11-18T05:00:00+00:00</cap:expires>
+    <cap:onset>2026-11-17T04:00:00+00:00</cap:onset>
+    <cap:certainty>Likely</cap:certainty>
+    <cap:severity>Moderate</cap:severity>
+    <cap:urgency>Immediate</cap:urgency>
+    <cap:scope>Public</cap:scope>
+    <cap:message_type>Alert</cap:message_type>
+    <cap:status>Actual</cap:status>
+    <cap:identifier>2.49.0.0.56.0.BE.20261117042414.1619240</cap:identifier>
+    <link type="application/cap+xml" href="https://feeds.meteoalarm.org/api/v1/warnings/feeds-belgium/daa5a5cb-c357-439e-a92d-f4f78b22bb91"/>
+    <link title="Belgium" rel="related" href="https://meteoalarm.org?region=BE" hreflang="en"/>
+    <author>
+      <name>meteoalarm.org</name>
+      <uri>https://meteoalarm.org</uri>
+    </author>
+    <published>2026-11-17T04:25:00Z</published>
+    <id>https://feeds.meteoalarm.org/api/v1/warnings/feeds-belgium/daa5a5cb-c357-439e-a92d-f4f78b22bb91?index_info=2&amp;index_area=0&amp;index_geocode=0</id>
+    <title>Yellow Rain Warning issued for Belgium - Hainaut</title>
+    <updated>2026-11-17T04:25:00Z</updated>
+  </entry>
+  <entry>
+    <cap:geocode>
+      <valueName>NUTS2</valueName>
+      <value>BE22</value>
+    </cap:geocode>
+    <link title="Limburg" href="https://meteoalarm.org?geocode=EMMA_ID:BE007" hreflang="en"/>
+    <cap:areaDesc>Limburg</cap:areaDesc>
+    <cap:event>Yellow warning for rain</cap:event>
+    <cap:sent>2026-11-17T04:25:00+00:00</cap:sent>
+    <cap:expires>2026-11-18T05:00:00+00:00</cap:expires>
+    <cap:onset>2026-11-17T04:00:00+00:00</cap:onset>
+    <cap:certainty>Likely</cap:certainty>
+    <cap:severity>Moderate</cap:severity>
+    <cap:urgency>Immediate</cap:urgency>
+    <cap:scope>Public</cap:scope>
+    <cap:message_type>Alert</cap:message_type>
+    <cap:status>Actual</cap:status>
+    <cap:identifier>2.49.0.0.56.0.BE.20261117042414.1619238</cap:identifier>
+    <link type="application/cap+xml" href="https://feeds.meteoalarm.org/api/v1/warnings/feeds-belgium/814bd2f7-7def-4fd6-8f2e-02af041eeb7d"/>
+    <link title="Belgium" rel="related" href="https://meteoalarm.org?region=BE" hreflang="en"/>
+    <author>
+      <name>meteoalarm.org</name>
+      <uri>https://meteoalarm.org</uri>
+    </author>
+    <published>2026-11-17T04:25:00Z</published>
+    <id>https://feeds.meteoalarm.org/api/v1/warnings/feeds-belgium/814bd2f7-7def-4fd6-8f2e-02af041eeb7d?index_info=2&amp;index_area=0&amp;index_geocode=0</id>
+    <title>Yellow Rain Warning issued for Belgium - Limburg</title>
+    <updated>2026-11-17T04:25:00Z</updated>
+  </entry>
+  <entry>
+    <cap:geocode>
+      <valueName>NUTS2</valueName>
+      <value>BE33</value>
+    </cap:geocode>
+    <link title="Liège" href="https://meteoalarm.org?geocode=EMMA_ID:BE008" hreflang="en"/>
+    <cap:areaDesc>Liège</cap:areaDesc>
+    <cap:event>Yellow warning for rain</cap:event>
+    <cap:sent>2026-11-17T04:25:00+00:00</cap:sent>
+    <cap:expires>2026-11-18T05:00:00+00:00</cap:expires>
+    <cap:onset>2026-11-17T04:00:00+00:00</cap:onset>
+    <cap:certainty>Likely</cap:certainty>
+    <cap:severity>Moderate</cap:severity>
+    <cap:urgency>Immediate</cap:urgency>
+    <cap:scope>Public</cap:scope>
+    <cap:message_type>Alert</cap:message_type>
+    <cap:status>Actual</cap:status>
+    <cap:identifier>2.49.0.0.56.0.BE.20261117042414.1619241</cap:identifier>
+    <link type="application/cap+xml" href="https://feeds.meteoalarm.org/api/v1/warnings/feeds-belgium/e4c61f53-a35d-4d80-a2b9-ec88d7ba2496"/>
+    <link title="Belgium" rel="related" href="https://meteoalarm.org?region=BE" hreflang="en"/>
+    <author>
+      <name>meteoalarm.org</name>
+      <uri>https://meteoalarm.org</uri>
+    </author>
+    <published>2026-11-17T04:25:00Z</published>
+    <id>https://feeds.meteoalarm.org/api/v1/warnings/feeds-belgium/e4c61f53-a35d-4d80-a2b9-ec88d7ba2496?index_info=2&amp;index_area=0&amp;index_geocode=0</id>
+    <title>Yellow Rain Warning issued for Belgium - Liège</title>
+    <updated>2026-11-17T04:25:00Z</updated>
+  </entry>
+  <entry>
+    <cap:geocode>
+      <valueName>EMMA_ID</valueName>
+      <value>BE004</value>
+    </cap:geocode>
+    <link title="Brabant" href="https://meteoalarm.org?geocode=EMMA_ID:BE004" hreflang="en"/>
+    <cap:areaDesc>Brabant</cap:areaDesc>
+    <cap:event>Yellow warning for rain</cap:event>
+    <cap:sent>2026-11-17T04:25:00+00:00</cap:sent>
+    <cap:expires>2026-11-18T05:00:00+00:00</cap:expires>
+    <cap:onset>2026-11-17T04:00:00+00:00</cap:onset>
+    <cap:certainty>Likely</cap:certainty>
+    <cap:severity>Moderate</cap:severity>
+    <cap:urgency>Immediate</cap:urgency>
+    <cap:scope>Public</cap:scope>
+    <cap:message_type>Alert</cap:message_type>
+    <cap:status>Actual</cap:status>
+    <cap:identifier>2.49.0.0.56.0.BE.20261117042414.1619239</cap:identifier>
+    <link type="application/cap+xml" href="https://feeds.meteoalarm.org/api/v1/warnings/feeds-belgium/bcf10174-95ce-4152-9b3c-0740c1f45701"/>
+    <link title="Belgium" rel="related" href="https://meteoalarm.org?region=BE" hreflang="en"/>
+    <author>
+      <name>meteoalarm.org</name>
+      <uri>https://meteoalarm.org</uri>
+    </author>
+    <published>2026-11-17T04:25:00Z</published>
+    <id>https://feeds.meteoalarm.org/api/v1/warnings/feeds-belgium/bcf10174-95ce-4152-9b3c-0740c1f45701?index_info=2&amp;index_area=0&amp;index_geocode=0</id>
+    <title>Yellow Rain Warning issued for Belgium - Brabant</title>
+    <updated>2026-11-17T04:25:00Z</updated>
+  </entry>
+  <entry>
+    <cap:geocode>
+      <valueName>NUTS2</valueName>
+      <value>BE34</value>
+    </cap:geocode>
+    <link title="Luxembourg" href="https://meteoalarm.org?geocode=EMMA_ID:BE001" hreflang="en"/>
+    <cap:areaDesc>Luxembourg</cap:areaDesc>
+    <cap:event>Green warning for rain</cap:event>
+    <cap:sent>2026-11-16T20:10:00+00:00</cap:sent>
+    <cap:expires>2026-11-17T12:00:00+00:00</cap:expires>
+    <cap:effective>2026-11-17T04:25:00+00:00</cap:effective>
+    <cap:onset>2026-11-17T04:25:00+00:00</cap:onset>
+    <cap:certainty>Likely</cap:certainty>
+    <cap:severity>Moderate</cap:severity>
+    <cap:urgency>Immediate</cap:urgency>
+    <cap:scope>Public</cap:scope>
+    <cap:message_type>Update</cap:message_type>
+    <cap:status>Actual</cap:status>
+    <cap:identifier>2.49.0.0.56.0.BE.20261117052500.1619244</cap:identifier>
+    <link type="application/cap+xml" href="https://feeds.meteoalarm.org/api/v1/warnings/feeds-belgium/115fde04-5914-460a-8cd3-dc3aae87abd7"/>
+    <link title="Belgium" rel="related" href="https://meteoalarm.org?region=BE" hreflang="en"/>
+    <author>
+      <name>meteoalarm.org</name>
+      <uri>https://meteoalarm.org</uri>
+    </author>
+    <published>2026-11-16T20:10:00Z</published>
+    <id>https://feeds.meteoalarm.org/api/v1/warnings/feeds-belgium/115fde04-5914-460a-8cd3-dc3aae87abd7?index_info=2&amp;index_area=0&amp;index_geocode=0</id>
+    <title>Green Rain Warning issued for Belgium - Luxembourg</title>
+    <updated>2026-11-16T20:10:00Z</updated>
+  </entry>
+  <entry>
+    <cap:geocode>
+      <valueName>NUTS2</valueName>
+      <value>BE34</value>
+    </cap:geocode>
+    <link title="Luxembourg" href="https://meteoalarm.org?geocode=EMMA_ID:BE001" hreflang="en"/>
+    <cap:areaDesc>Luxembourg</cap:areaDesc>
+    <cap:event>Green warning for rain</cap:event>
+    <cap:sent>2026-11-16T13:40:00+00:00</cap:sent>
+    <cap:expires>2026-11-17T11:00:00+00:00</cap:expires>
+    <cap:effective>2026-11-16T20:10:00+00:00</cap:effective>
+    <cap:onset>2026-11-16T20:10:00+00:00</cap:onset>
+    <cap:certainty>Likely</cap:certainty>
+    <cap:severity>Moderate</cap:severity>
+    <cap:urgency>Immediate</cap:urgency>
+    <cap:scope>Public</cap:scope>
+    <cap:message_type>Update</cap:message_type>
+    <cap:status>Actual</cap:status>
+    <cap:identifier>2.49.0.0.56.0.BE.20261116211000.1619237</cap:identifier>
+    <link type="application/cap+xml" href="https://feeds.meteoalarm.org/api/v1/warnings/feeds-belgium/eb45683b-0648-4bdc-a5b3-b4462c4add46"/>
+    <link title="Belgium" rel="related" href="https://meteoalarm.org?region=BE" hreflang="en"/>
+    <author>
+      <name>meteoalarm.org</name>
+      <uri>https://meteoalarm.org</uri>
+    </author>
+    <published>2026-11-16T13:40:00Z</published>
+    <id>https://feeds.meteoalarm.org/api/v1/warnings/feeds-belgium/eb45683b-0648-4bdc-a5b3-b4462c4add46?index_info=2&amp;index_area=0&amp;index_geocode=0</id>
+    <title>Green Rain Warning issued for Belgium - Luxembourg</title>
+    <updated>2026-11-16T13:40:00Z</updated>
+  </entry>
+  <entry>
+    <cap:geocode>
+      <valueName>NUTS2</valueName>
+      <value>BE34</value>
+    </cap:geocode>
+    <link title="Luxembourg" href="https://meteoalarm.org?geocode=EMMA_ID:BE001" hreflang="en"/>
+    <cap:areaDesc>Luxembourg</cap:areaDesc>
+    <cap:event>Green warning for rain</cap:event>
+    <cap:sent>2026-11-16T11:50:00+00:00</cap:sent>
+    <cap:expires>2026-11-17T11:00:00+00:00</cap:expires>
+    <cap:effective>2026-11-16T13:40:00+00:00</cap:effective>
+    <cap:onset>2026-11-16T13:40:00+00:00</cap:onset>
+    <cap:certainty>Likely</cap:certainty>
+    <cap:severity>Moderate</cap:severity>
+    <cap:urgency>Immediate</cap:urgency>
+    <cap:scope>Public</cap:scope>
+    <cap:message_type>Update</cap:message_type>
+    <cap:status>Actual</cap:status>
+    <cap:identifier>2.49.0.0.56.0.BE.20261116144000.1619235</cap:identifier>
+    <link type="application/cap+xml" href="https://feeds.meteoalarm.org/api/v1/warnings/feeds-belgium/398218f5-6957-4800-b76a-22500581bf67"/>
+    <link title="Belgium" rel="related" href="https://meteoalarm.org?region=BE" hreflang="en"/>
+    <author>
+      <name>meteoalarm.org</name>
+      <uri>https://meteoalarm.org</uri>
+    </author>
+    <published>2026-11-16T11:50:00Z</published>
+    <id>https://feeds.meteoalarm.org/api/v1/warnings/feeds-belgium/398218f5-6957-4800-b76a-22500581bf67?index_info=2&amp;index_area=0&amp;index_geocode=0</id>
+    <title>Green Rain Warning issued for Belgium - Luxembourg</title>
+    <updated>2026-11-16T11:50:00Z</updated>
+  </entry>
+  <entry>
+    <cap:geocode>
+      <valueName>NUTS2</valueName>
+      <value>BE34</value>
+    </cap:geocode>
+    <link title="Luxembourg" href="https://meteoalarm.org?geocode=EMMA_ID:BE001" hreflang="en"/>
+    <cap:areaDesc>Luxembourg</cap:areaDesc>
+    <cap:event>Green warning for rain</cap:event>
+    <cap:sent>2026-11-16T06:25:00+00:00</cap:sent>
+    <cap:expires>2026-11-17T11:00:00+00:00</cap:expires>
+    <cap:effective>2026-11-16T11:50:00+00:00</cap:effective>
+    <cap:onset>2026-11-16T11:50:00+00:00</cap:onset>
+    <cap:certainty>Likely</cap:certainty>
+    <cap:severity>Moderate</cap:severity>
+    <cap:urgency>Expected</cap:urgency>
+    <cap:scope>Public</cap:scope>
+    <cap:message_type>Update</cap:message_type>
+    <cap:status>Actual</cap:status>
+    <cap:identifier>2.49.0.0.56.0.BE.20261116125000.1619231</cap:identifier>
+    <link type="application/cap+xml" href="https://feeds.meteoalarm.org/api/v1/warnings/feeds-belgium/771aa338-07f8-4b29-9258-6e3967a53c9c"/>
+    <link title="Belgium" rel="related" href="https://meteoalarm.org?region=BE" hreflang="en"/>
+    <author>
+      <name>meteoalarm.org</name>
+      <uri>https://meteoalarm.org</uri>
+    </author>
+    <published>2026-11-16T06:25:00Z</published>
+    <id>https://feeds.meteoalarm.org/api/v1/warnings/feeds-belgium/771aa338-07f8-4b29-9258-6e3967a53c9c?index_info=2&amp;index_area=0&amp;index_geocode=0</id>
+    <title>Green Rain Warning issued for Belgium - Luxembourg</title>
+    <updated>2026-11-16T06:25:00Z</updated>
+  </entry>
+</feed>

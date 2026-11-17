@@ -1,0 +1,59 @@
+AEROCX Blackout - voor Raspberry Pi en Linux (zonder installatie)
+=================================================================
+
+Starten
+1. Pak de zip uit:  unzip AEROCX-Blackout-linux-arm64.zip   (of dubbelklik erop)
+2. Start de app:    cd "AEROCX Blackout" && ./start.sh
+3. Met een scherm opent je browser vanzelf. Zonder scherm toont start.sh het adres
+   (bv. http://192.168.1.20:8474) dat je op een andere computer, iPad of telefoon opent.
+
+De pincode voor andere toestellen zie je in de app op de computer zelf (Instellingen), of met:
+  grep '"pin"' ~/.local/share/aerocx-blackout/blackout.json
+
+Automatisch starten bij het opstarten (ook zonder scherm):
+  ./aerocx-blackout -autostart=on
+  sudo loginctl enable-linger $USER      (alleen nodig op een Pi zonder scherm)
+
+Liever alles in één keer, met automatisch starten? Gebruik dan:
+  curl -fsSL https://blackout.aerocx.be/install.sh | sh
+Een nieuwe versie installeer je door diezelfde regel opnieuw uit te voeren (er is geen automatische update).
+
+Raspberry Pi: gebruik Raspberry Pi OS 64-bit (Pi 3, 4, 5 of Zero 2 W) en het arm64-bestand.
+Je gegevens en sleutels staan in ~/.local/share/aerocx-blackout.
+
+Wat het is
+- Elke computer met AEROCX Blackout is een eigen knooppunt. Er is geen server, geen account en geen cloud.
+- Berichten gaan rechtstreeks van computer naar computer: over Starlink (IPv6), over je eigen wifi,
+  of over een LoRa-radio (Meshtastic) als het internet helemaal weg is.
+- Tussen de computers met de app is alles versleuteld. Alleen de ontvanger kan een bericht lezen,
+  ook als een contact het onderweg doorgeeft.
+- Een bericht wordt opnieuw verstuurd (tot 7 dagen) tot de ontvanger het bevestigt.
+
+Contacten toevoegen (doe het nu, zolang alles werkt)
+1. Open in de app "Koppelen" en toon je code of QR-code.
+2. De andere persoon voegt jouw code toe, en jij de zijne. Dat moet aan beide kanten.
+3. Een zwarte stip betekent: die persoon is nu bereikbaar.
+   Computers met de app op dezelfde wifi zien elkaar vanzelf, maar alleen als verzoek:
+   pas als je het verzoek toelaat, wordt het een contact.
+
+iPad of telefoon
+- Zet het toestel op dezelfde wifi als de computer waarop de app draait.
+- Open het adres dat je in de app ziet bij "Koppelen" (bv. http://192.168.1.20:8474) en typ de pincode.
+- Tip: Deel > Zet op beginscherm. De computer moet wel aan blijven.
+- Let op: tussen je iPad of telefoon en de computer gaat alles over gewone HTTP, niet versleuteld.
+  Wie op hetzelfde wifi-netwerk meekijkt, kan de pincode en je berichten zien.
+  Gebruik dit alleen op je eigen, beveiligde wifi.
+
+Goed om te weten
+- De app gebruikt deze poorten: UDP 47474 (berichten), TCP 8474 (het scherm in je browser),
+  UDP 47475 (zoeken op je eigen wifi).
+- Maak in de app een back-up (Instellingen > Back-up). Bewaar die op een USB-stick.
+- Locatie delen staat standaard uit. Zet je het aan, dan gaat je locatie alleen versleuteld naar je contacten.
+- Op de computer zelf (http://localhost:8474) vraagt de app geen pincode. Heeft de computer meerdere
+  gebruikers, dan kan elke gebruiker van die computer de app bedienen.
+- Er is geen automatische update. Voor een nieuwe versie haal je de nieuwste versie op
+  https://blackout.aerocx.be/ en installeer je die opnieuw. Je gegevens blijven bewaard.
+- Starlink zelf heeft nog altijd het netwerk van SpaceX nodig. Valt Starlink uit, dan neemt de radio
+  het over voor wie een Meshtastic-radio heeft.
+
+Meer uitleg en de nieuwste versie: https://blackout.aerocx.be/

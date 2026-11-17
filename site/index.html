@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AEROCX Blackout downloaden</title>
+<meta name="description" content="Berichten sturen naar je eigen mensen, ook als het gewone internet wegvalt. Download AEROCX Blackout voor Mac, Windows en Raspberry Pi.">
+<link rel="icon" type="image/png" href="favicon.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<style>
+@font-face{font-family:"Jost";font-style:normal;font-weight:300;font-display:swap;src:url(fonts/jost-latin-300-normal.woff2) format("woff2")}
+@font-face{font-family:"Jost";font-style:normal;font-weight:400;font-display:swap;src:url(fonts/jost-latin-400-normal.woff2) format("woff2")}
+@font-face{font-family:"Jost";font-style:normal;font-weight:500;font-display:swap;src:url(fonts/jost-latin-500-normal.woff2) format("woff2")}
+@font-face{font-family:"IBM Plex Mono";font-style:normal;font-weight:400;font-display:swap;src:url(fonts/ibm-plex-mono-latin-400-normal.woff2) format("woff2")}
+:root{
+  --side:#0B0B0C; --side2:#161618; --sideLine:#2A2A2E; --sideText:#E4E4E7; --sideMuted:#8A8A91;
+  --bg:#F2F2F4; --card:#FFFFFF; --line:#E7E7EB; --line2:#DADADF;
+  --ink:#0B0B0C; --text:#2D2D32; --muted:#6E6E73; --faint:#9A9AA0; --soft:#F4F4F6;
+  --amberBg:#FBEFDF; --amber:#8A5A1E; --amberDarkBg:#3A2B15; --amberDark:#F4B967;
+  --sans:"Jost","Helvetica Neue",Arial,sans-serif; --mono:"IBM Plex Mono",Menlo,Consolas,monospace;
+  --rc:20px; --rb:12px; --rs:10px;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+html{background:var(--bg)}
+body{margin:0;color:var(--text);font:16px/1.55 var(--sans);-webkit-font-smoothing:antialiased}
+a{color:var(--ink)}
+button{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+.wrap{max-width:1040px;margin:0 auto;padding:28px 24px 56px}
+.lbl{font:400 11px/1 var(--mono);letter-spacing:.16em;text-transform:uppercase;color:var(--faint)}
+.mono{font-family:var(--mono)}
+
+/* kop */
+header.top{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:28px}
+.brand{display:flex;align-items:center;gap:14px;color:var(--ink);text-decoration:none}
+.brand svg{height:20px;width:auto;display:block}
+.brand .sub{font:400 11px/1 var(--mono);letter-spacing:.2em;color:var(--muted);padding-left:14px;border-left:1px solid var(--line2)}
+.toplinks{display:flex;gap:18px;font-size:15px}
+.toplinks a{color:var(--muted);text-decoration:none}
+.toplinks a:hover{color:var(--ink)}
+
+/* zwarte hoofdkaart */
+.hero{background:var(--side);color:var(--sideText);border-radius:var(--rc);padding:40px 44px 36px;display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:40px}
+.hero .lbl{color:var(--sideMuted)}
+.hero h1{font:300 40px/1.12 var(--sans);color:#fff;margin:14px 0 14px;letter-spacing:-.01em}
+.hero p.lead{margin:0 0 26px;color:#C9C9CE;font-size:17px;max-width:30em}
+.big{display:inline-flex;align-items:center;gap:12px;background:#fff;color:var(--ink);text-decoration:none;border:0;border-radius:var(--rb);padding:17px 26px;font:500 18px/1 var(--sans);cursor:pointer}
+.big:hover{background:#E9E9EC}
+.big svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.under{margin-top:12px;font-size:14px;color:var(--sideMuted)}
+.under a{color:var(--sideText)}
+.steps{list-style:none;margin:0;padding:0;counter-reset:s;align-self:center}
+.steps li{counter-increment:s;display:grid;grid-template-columns:38px 1fr;gap:14px;align-items:start;padding:14px 0;border-top:1px solid var(--sideLine);color:#E9E9EC;font-size:16.5px}
+.steps li:first-child{border-top:0}
+.steps li::before{content:counter(s);width:38px;height:38px;border-radius:50%;border:1px solid #3a3a40;display:flex;align-items:center;justify-content:center;font:400 14px/1 var(--mono);color:#fff}
+.steps li span{padding-top:7px}
+.steps .hint{display:block;color:var(--sideMuted);font-size:14px;margin-top:2px}
+
+.cmd{display:flex;align-items:stretch;border:1px solid #3a3a40;border-radius:var(--rb);background:var(--side2);overflow:hidden;max-width:100%}
+.cmd code{flex:1;min-width:0;padding:14px 16px;font:400 13.5px/1.55 var(--mono);color:#fff;white-space:pre-wrap;word-break:break-all;user-select:all;-webkit-user-select:all}
+.cmd button{flex:none;border:0;border-left:1px solid #3a3a40;background:transparent;color:#fff;padding:0 18px;cursor:pointer;font:400 14px/1 var(--sans)}
+.cmd button:hover{background:#222226}
+.light .cmd{border-color:var(--line2);background:var(--soft)}
+.light .cmd code{color:var(--ink)}
+.light .cmd button{border-left-color:var(--line2);color:var(--ink)}
+.light .cmd button:hover{background:#EAEAEE}
+
+/* waarschuwing */
+details.warn{margin-top:18px;background:var(--card);border:1px solid var(--line);border-radius:var(--rc);padding:0}
+details.warn summary{list-style:none;cursor:pointer;padding:20px 24px;display:flex;align-items:center;gap:12px;font-weight:500;color:var(--ink)}
+details.warn summary::-webkit-details-marker{display:none}
+details.warn summary::after{content:"+";margin-left:auto;font:400 20px/1 var(--mono);color:var(--muted)}
+details.warn[open] summary::after{content:"\2212"}
+.chip{display:inline-flex;align-items:center;padding:5px 10px;border-radius:999px;background:var(--amberBg);color:var(--amber);font:400 13px/1.2 var(--sans);white-space:nowrap}
+details.warn .body{padding:0 24px 22px;max-width:760px}
+details.warn p{margin:0 0 12px}
+details.warn ol{margin:0 0 12px;padding-left:22px}
+details.warn li{margin:4px 0}
+
+/* alternatieven */
+.alts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;margin-top:18px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--rc);padding:26px 26px 24px}
+.card h2{font:500 19px/1.3 var(--sans);color:var(--ink);margin:10px 0 8px}
+.card p{margin:0 0 14px;color:var(--text)}
+.card ol{margin:0 0 16px;padding-left:22px}
+.card li{margin:5px 0}
+.card .small{font-size:14px;color:var(--muted)}
+.btn{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--ink);background:var(--ink);color:#fff;padding:11px 18px;border-radius:var(--rb);font:400 15px/1 var(--sans);text-decoration:none;cursor:pointer}
+.btn:hover{opacity:.9}
+.btn.ghost{background:var(--card);color:var(--ink);border-color:var(--line2)}
+.btn.ghost:hover{border-color:var(--ink);opacity:1}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+
+/* andere systemen */
+.others{margin-top:30px}
+.sys{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px}
+.sys button{border:1px solid var(--line2);background:var(--card);border-radius:999px;padding:9px 16px;cursor:pointer;font-size:15px;color:var(--ink)}
+.sys button:hover{border-color:var(--ink)}
+.sys button[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:#fff}
+
+/* uitleg */
+.about{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px;margin-top:30px}
+.about .card h3{font:500 17px/1.3 var(--sans);color:var(--ink);margin:10px 0 6px}
+.about .card p{margin:0;font-size:15px}
+
+.honest{margin-top:18px}
+.honest h2{font:500 19px/1.3 var(--sans);color:var(--ink);margin:10px 0 6px}
+.honest ul{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));column-gap:32px}
+.honest li{padding:14px 0;border-top:1px solid var(--line);font-size:15px}
+.honest li b{color:var(--ink);font-weight:500}
+
+footer{margin-top:36px;padding-top:22px;border-top:1px solid var(--line2);font-size:14px;color:var(--muted)}
+footer .files{display:flex;flex-wrap:wrap;gap:6px 16px;margin:10px 0 18px}
+footer .files a{font:400 13px/1.6 var(--mono);color:var(--text)}
+footer p{margin:6px 0}
+
+@media (max-width:860px){
+  .hero{grid-template-columns:1fr;gap:26px;padding:30px 26px 26px}
+  .alts,.about,.honest ul{grid-template-columns:1fr}
+}
+@media (max-width:480px){
+  .wrap{padding:20px 14px 40px}
+  .hero{padding:26px 20px 22px}
+  .hero h1{font-size:30px}
+  .big{width:100%;justify-content:center;padding:17px 18px}
+  .brand .sub{display:none}
+  .toplinks{gap:14px;font-size:14px}
+  .card{padding:22px 20px 20px}
+  .cmd{flex-direction:column}
+  .cmd button{border-left:0;border-top:1px solid #3a3a40;padding:12px}
+  .light .cmd button{border-top-color:var(--line2)}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <a class="brand" href="./" aria-label="AEROCX Blackout">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 808.515 151.515" role="img" aria-label="AEROCX"><g transform="translate(0.000 0.000) scale(1.51515)"><g transform="translate(1.2000 -2.0300) scale(1.02326)"><defs><clipPath id="q1u"><rect x="-110" y="-140" width="320" height="188.61" transform="rotate(-19.0 50.0 50.0)"/></clipPath><clipPath id="q1l"><rect x="-110" y="51.39" width="320" height="280" transform="rotate(-19.0 50.0 50.0)"/></clipPath></defs><g clip-path="url(#q1u)"><path d="M 7.000,50.000 A 43.000,43.000 0 1 0 93.000,50.000 A 43.000,43.000 0 1 0 7.000,50.000 Z" fill="currentColor"/></g><g transform="translate(-4.59 1.58)" clip-path="url(#q1l)"><path d="M 7.000,50.000 A 43.000,43.000 0 1 0 93.000,50.000 A 43.000,43.000 0 1 0 7.000,50.000 Z" fill="currentColor"/></g></g></g><g fill="none" stroke="currentColor" stroke-width="8.600" stroke-linecap="butt" stroke-linejoin="miter" stroke-miterlimit="14"><path d="M 206.215,125.757 L 245.515,36.437 L 284.815,125.757"/><path d="M 218.535,97.757 L 272.495,97.757"/><path d="M 309.815,25.757 L 309.815,125.757"/><path d="M 305.515,30.057 L 375.515,30.057"/><path d="M 305.515,74.757 L 364.665,74.757"/><path d="M 305.515,121.457 L 375.515,121.457"/><path d="M 399.815,25.757 L 399.815,125.757"/><path d="M 399.815,30.057 L 447.865,30.057 A 23.350,23.350 0 0 1 447.865,76.757 L 399.815,76.757"/><path d="M 431.915,76.757 L 470.575,124.677"/><path d="M 543.515,30.057 A 45.700,45.700 0 1 1 543.505,30.057 Z"/><path d="M 689.895,110.767 A 45.700,45.700 0 1 1 689.895,40.747"/><path d="M 730.135,32.447 L 802.895,119.067"/><path d="M 802.895,32.447 L 730.135,119.067"/></g></svg>
+      <span class="sub">BLACKOUT</span>
+    </a>
+    <nav class="toplinks">
+      <a href="#hoe">Hoe het werkt</a>
+      <a href="#eerlijk">Eerlijk</a>
+      <a href="https://github.com/AEROCX-Consulting/blackout">Broncode</a>
+    </nav>
+  </header>
+
+  <main id="main">
+    <section class="hero" aria-labelledby="titel">
+      <div>
+        <div class="lbl" id="hero-lbl">Download</div>
+        <h1 id="titel">Berichten sturen, ook als het gewone internet wegvalt.</h1>
+        <p class="lead">Rechtstreeks van computer naar computer, over Starlink, je eigen wifi of een radio. Versleuteld tussen de computers, zonder server en zonder account. Gratis.</p>
+        <div id="primary">
+          <a class="big" href="https://github.com/AEROCX-Consulting/blackout/releases/latest">Alle downloads</a>
+        </div>
+        <div class="under" id="under"></div>
+      </div>
+      <ol class="steps" id="steps" aria-label="Zo installeer je het"></ol>
+    </section>
+
+    <details class="warn" id="warn">
+      <summary><span class="chip">Eerlijk</span> <span id="warn-title">Krijg je een waarschuwing bij het openen?</span></summary>
+      <div class="body" id="warn-body"></div>
+    </details>
+
+    <div class="alts" id="alts"></div>
+
+    <section class="others" aria-labelledby="ander">
+      <div class="lbl" id="ander">Ander systeem?</div>
+      <div class="sys" id="sys" role="group" aria-label="Kies je systeem">
+        <button type="button" data-sys="mac">Mac</button>
+        <button type="button" data-sys="windows">Windows</button>
+        <button type="button" data-sys="pi">Raspberry Pi</button>
+        <button type="button" data-sys="linux">Linux</button>
+        <button type="button" data-sys="mobile">iPhone, iPad, Android</button>
+      </div>
+    </section>
+
+    <section class="about" id="hoe" aria-label="Hoe het werkt">
+      <div class="card"><div class="lbl">Zonder server</div><h3>Rechtstreeks</h3><p>Elke computer met de app is zijn eigen knooppunt. Berichten gaan rechtstreeks naar je contacten. Er is geen account en geen cloud.</p></div>
+      <div class="card"><div class="lbl">Versleuteld</div><h3>Tussen de stations versleuteld</h3><p>Tussen de computers met de app is alles versleuteld. Alleen de ontvanger kan het bericht lezen, ook een contact dat het onderweg doorgeeft niet.</p></div>
+      <div class="card"><div class="lbl">Starlink en radio</div><h3>Als het internet wegvalt</h3><p>Werkt het gewone internet niet, dan gaat het over Starlink of je wifi thuis. Valt ook dat weg, dan over een Meshtastic-radio, binnen het bereik van de radio's.</p></div>
+    </section>
+
+    <section class="card honest" id="eerlijk" aria-labelledby="eerlijk-titel">
+      <div class="lbl">Eerlijk om te weten</div>
+      <h2 id="eerlijk-titel">Wat de app niet kan</h2>
+      <ul>
+        <li><b>Starlink blijft SpaceX nodig hebben.</b> De app maakt je onafhankelijk van alle andere internetdiensten, maar niet van het netwerk van Starlink zelf. Valt dat weg, dan werkt het alleen nog over wifi in de buurt en over de radio.</li>
+        <li><b>Je iPad of telefoon gebruikt gewone HTTP.</b> Die verbinding met je computer is niet versleuteld: wie op hetzelfde wifi-netwerk meekijkt, kan de pincode en je berichten zien. Gebruik het alleen op je eigen, beveiligde wifi. Tussen de computers onderling is alles wel versleuteld.</li>
+        <li><b>Op de computer zelf is er geen pincode.</b> Heeft je computer meerdere gebruikers, dan kan elke gebruiker van die computer de app openen en bedienen.</li>
+        <li><b>Contacten voeg je vooraf toe</b>, aan beide kanten, zolang alles nog werkt. Computers met de app op dezelfde wifi zien elkaar vanzelf, maar alleen als verzoek: jij beslist of je ze toelaat.</li>
+        <li><b>Locatie delen staat standaard uit.</b> Zet je het aan, dan gaat je locatie alleen versleuteld naar je contacten.</li>
+        <li><b>Geen automatische updates.</b> Een nieuwe versie installeer je door het bestand of de installatieregel opnieuw te gebruiken. Je gegevens blijven bewaard.</li>
+        <li><b>Geen vervanging van 112.</b> Dit is een hulpmiddel voor noodcommunicatie, zonder garantie, en geen vervanging van officiële waarschuwingen.</li>
+      </ul>
+    </section>
+  </main>
+
+  <footer>
+    <div class="lbl">Alle bestanden</div>
+    <div class="files" id="files"></div>
+    <p>Wil je zeker zijn dat een bestand niet veranderd is? De controlegetallen staan in <a href="https://github.com/AEROCX-Consulting/blackout/releases/latest/download/SHA256SUMS.txt">SHA256SUMS.txt</a>. Oudere versies en wat er nieuw is: <a href="https://github.com/AEROCX-Consulting/blackout/releases">alle versies</a>.</p>
+    <p>AEROCX Blackout is gemaakt door AEROCX Consulting Group CommV en is gratis (MIT-licentie). Wat de app wel en niet kan, staat bij <a href="#eerlijk">Eerlijk om te weten</a>.</p>
+  </footer>
+</div>
+
+<script>
+(function () {
+  "use strict";
+  var DL = "https://github.com/AEROCX-Consulting/blackout/releases/latest/download/";
+  var SITE = "https://blackout.aerocx.be/";
+  var ICON_DL = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11"/><path d="M7 10l5 5 5-5"/><path d="M5 20h14"/></svg>';
+  var ICON_COPY = 'Kopieer';
+
+  var MAC_WARN =
+    '<p>Zolang de app nog niet bij Apple geregistreerd is, zegt je Mac de eerste keer dat hij het bestand niet kan controleren. Dat is normaal en eenmalig.</p>' +
+    '<ol><li>Klik in de melding op <b>Gereed</b> (of <b>OK</b>).</li>' +
+    '<li>Open <b>Systeeminstellingen</b> &gt; <b>Privacy en beveiliging</b> en scrol naar beneden.</li>' +
+    '<li>Klik bij AEROCX Blackout op <b>Open toch</b> en typ je wachtwoord.</li></ol>' +
+    '<p>Op een oudere Mac (macOS 14 of ouder) gaat het sneller: klik met de rechtermuisknop op het bestand en kies <b>Open</b>.</p>' +
+    '<p>Vraagt je Mac daarna om verbindingen of apparaten in je lokale netwerk toe te staan? Klik op <b>Sta toe</b>. Anders kunnen andere computers en je iPad de app niet bereiken.</p>';
+  var WIN_WARN =
+    '<p>Zolang de app nog niet bij Microsoft geregistreerd is, toont Windows een blauw venster <b>Windows heeft uw pc beschermd</b>. Dat is normaal en eenmalig.</p>' +
+    '<ol><li>Klik op <b>Meer informatie</b>.</li><li>Klik op <b>Toch uitvoeren</b>.</li></ol>' +
+    '<p>Zegt je browser bij het downloaden dat het bestand niet vaak gedownload wordt? Kies dan bij het bestand <b>&hellip;</b> &gt; <b>Behouden</b>.</p>' +
+    '<p>Vraagt Windows Firewall of de app op het netwerk mag? Vink <b>Particuliere netwerken</b> aan en klik op <b>Toegang toestaan</b>.</p>';
+
+  var SYS = {
+    mac: {
+      lbl: "Download voor Mac",
+      button: "Download voor Mac", file: "AEROCX-Blackout-mac.pkg",
+      under: 'Voor elke Mac (Apple-chip en Intel), macOS 11 of nieuwer. Liever slepen naar Apps? <a href="' + DL + 'AEROCX-Blackout-mac.dmg">Download de .dmg</a>.',
+      steps: [
+        ["Open het gedownloade bestand", "Je vindt het in Downloads: AEROCX-Blackout-mac.pkg"],
+        ["Klik op Ga door tot Installeer", "Je Mac vraagt om je wachtwoord. Dat is normaal."],
+        ["De app opent vanzelf in je browser", "Ze start voortaan ook vanzelf als je je aanmeldt."]
+      ],
+      warnTitle: "Zegt je Mac dat hij het bestand niet kan controleren?",
+      warn: MAC_WARN,
+      zip: {
+        file: "AEROCX-Blackout-mac.zip",
+        steps: ["Download en pak uit: dubbelklik op de zip.", "Dubbelklik in de map op <b>Start AEROCX Blackout</b>.", "Je browser opent vanzelf."],
+        note: 'Weigert je Mac het bestand? Klik er met de rechtermuisknop op en kies <b>Open</b>. Lukt dat niet: <b>Systeeminstellingen</b> &gt; <b>Privacy en beveiliging</b> &gt; <b>Open toch</b>.'
+      },
+      cmd: {
+        line: "curl -fsSL " + SITE + "install-mac.sh | sh",
+        where: 'Open de app <b>Terminal</b> (druk op Cmd + spatie en typ Terminal). Plak de regel en druk op Enter.',
+        what: "De app komt in de map Apps in je thuismap, start vanzelf als je je aanmeldt en opent in je browser. Je krijgt geen waarschuwing."
+      }
+    },
+    windows: {
+      lbl: "Download voor Windows",
+      button: "Download voor Windows", file: "AEROCX-Blackout-Setup.exe",
+      under: "Voor Windows 10 en 11. Je hebt geen beheerdersrechten nodig.",
+      steps: [
+        ["Open het gedownloade bestand", "Je vindt het in Downloads: AEROCX-Blackout-Setup.exe"],
+        ["Klik op Installeren en daarna op Voltooien", "Er staat dan een snelkoppeling in Start en op je bureaublad."],
+        ["De app opent vanzelf in je browser", "Ze start voortaan ook vanzelf als je je aanmeldt."]
+      ],
+      warnTitle: "Toont Windows een blauw venster?",
+      warn: WIN_WARN,
+      zip: {
+        file: "AEROCX-Blackout-windows.zip",
+        steps: ["Download en pak uit: klik met de rechtermuisknop op de zip en kies <b>Alles uitpakken</b>.", "Dubbelklik in de map op <b>Start AEROCX Blackout</b>.", "Je browser opent vanzelf."],
+        note: 'Toont Windows een blauw venster? Klik op <b>Meer informatie</b> en daarna op <b>Toch uitvoeren</b>. Automatisch laten starten: dubbelklik op <b>Automatisch starten aan</b>.'
+      },
+      cmd: {
+        line: "irm " + SITE + "install.ps1 | iex",
+        where: 'Klik met de rechtermuisknop op de <b>Start</b>-knop en kies <b>Terminal</b> (of <b>Windows PowerShell</b>). Plak de regel en druk op Enter.',
+        what: "De app komt bij je eigen programma's, met een snelkoppeling in Start. Ze start vanzelf als je je aanmeldt en opent in je browser."
+      }
+    },
+    pi: {
+      lbl: "Installeren op een Raspberry Pi",
+      button: null,
+      cmdPrimary: "curl -fsSL " + SITE + "install.sh | sh",
+      under: "Voor Raspberry Pi 3, 4, 5 en Zero 2 W met Raspberry Pi OS (64-bit). Ook zonder scherm.",
+      steps: [
+        ["Open Terminal op je Pi", "Of verbind vanaf je computer met ssh."],
+        ["Plak de installatieregel en druk op Enter", "Gebruik je gewone gebruiker, zonder sudo."],
+        ["Open het adres dat verschijnt", "Op je computer, iPad of telefoon. Typ daar de pincode die je ziet."]
+      ],
+      warnTitle: "Werkt het niet?",
+      warn: '<p>Zegt het script dat je systeem <b>32-bit</b> is? Installeer dan Raspberry Pi OS (64-bit) met Raspberry Pi Imager. AEROCX Blackout werkt alleen op 64-bit.</p>' +
+        '<p>De app start voortaan vanzelf, ook zonder dat iemand aanmeldt. Verwijderen kan met dezelfde regel, met <span class="mono">sh -s -- --remove</span> op het einde in plaats van <span class="mono">sh</span>.</p>',
+      zip: {
+        file: "AEROCX-Blackout-linux-arm64.zip",
+        steps: ["Download en pak uit (dubbelklik op de zip, of <span class=\"mono\">unzip</span>).", "Start in de map <b>start.sh</b>.", "Met een scherm opent je browser vanzelf; anders zie je het adres."],
+        note: 'Liever een pakket? <a href="' + DL + 'aerocx-blackout_arm64.deb">aerocx-blackout_arm64.deb</a>'
+      }
+    },
+    linux: {
+      lbl: "Download voor Linux",
+      button: "Download voor Linux", file: "aerocx-blackout_amd64.deb",
+      under: 'Pakket voor Ubuntu, Debian en Linux Mint (pc, 64-bit). Een Raspberry Pi? <a href="#" data-go="pi">Kijk hier</a>.',
+      steps: [
+        ["Open het gedownloade bestand", "Het opent in de app Software (of App Center)."],
+        ["Klik op Installeren", "Typ je wachtwoord als daarom gevraagd wordt."],
+        ["Kies AEROCX Blackout in het menu", "De app opent in je browser."]
+      ],
+      warnTitle: "Automatisch laten starten?",
+      warn: '<p>Typ in Terminal: <span class="mono">systemctl --user enable --now aerocx-blackout</span>. Of gebruik de regel hieronder bij <b>Via één opdracht</b>: die doet het meteen voor je.</p>',
+      zip: {
+        file: "AEROCX-Blackout-linux-amd64.zip",
+        steps: ["Download en pak uit.", "Start in de map <b>start.sh</b>.", "Je browser opent vanzelf."],
+        note: ""
+      },
+      cmd: {
+        line: "curl -fsSL " + SITE + "install.sh | sh",
+        where: "Open <b>Terminal</b>, plak de regel en druk op Enter. Gebruik je gewone gebruiker, zonder sudo.",
+        what: "De app komt in je thuismap, start vanzelf en toont het adres en de pincode voor je andere toestellen."
+      }
+    },
+    mobile: {
+      lbl: "iPhone, iPad en Android",
+      button: null,
+      under: "",
+      steps: [
+        ["Laat de app draaien op een computer thuis", "Een Mac, Windows-pc of Raspberry Pi. Kies hieronder je systeem."],
+        ["Zet je toestel op dezelfde wifi", "Je eigen, beveiligde wifi: je telefoon of tablet verbindt met die computer, niet met internet."],
+        ["Open het adres en typ de pincode", "Het adres staat in de app bij Koppelen, bijvoorbeeld http://192.168.1.20:8474"]
+      ],
+      warnTitle: "Waarom is er geen app in de App Store?",
+      warn: '<p>Een telefoon of iPad kan geen eigen knooppunt zijn: hij laat apps niet de hele tijd op de achtergrond luisteren. Daarom draait AEROCX Blackout op een computer of Raspberry Pi, en gebruik je je telefoon of iPad via de browser.</p>' +
+        '<p>Tip: kies in Safari <b>Deel</b> &gt; <b>Zet op beginscherm</b>. Dan staat AEROCX Blackout als een app op je beginscherm. De computer moet wel aan blijven.</p>' +
+        '<p>Let op: je telefoon of iPad praat met de computer over gewone HTTP, niet versleuteld. Wie op hetzelfde wifi-netwerk meekijkt, kan de pincode en je berichten zien. Gebruik het dus alleen op je eigen, beveiligde wifi.</p>'
+    }
+  };
+
+  SYS.unknown = {
+    lbl: "Download",
+    button: null,
+    under: "Kies hieronder Mac, Windows, Raspberry Pi of Linux. Op een telefoon of iPad? Kies iPhone, iPad, Android.",
+    steps: [
+      ["Kies je systeem hieronder", "De juiste download verschijnt dan hier."],
+      ["Open het gedownloade bestand", "En volg de korte stappen."],
+      ["De app opent vanzelf in je browser", "Ze start voortaan ook vanzelf als je je aanmeldt."]
+    ],
+    warnTitle: "Krijg je een waarschuwing bij het openen?",
+    warn: "<p>Zolang de app nog niet bij Apple en Microsoft geregistreerd is, waarschuwt je computer de eerste keer. Kies je systeem hieronder: daar staat stap voor stap hoe je de app toch opent.</p>"
+  };
+
+  var FILES = ["AEROCX-Blackout-mac.pkg", "AEROCX-Blackout-mac.dmg", "AEROCX-Blackout-mac.zip", "install-mac.sh",
+    "AEROCX-Blackout-Setup.exe", "AEROCX-Blackout-windows.zip", "install.ps1",
+    "aerocx-blackout_arm64.deb", "aerocx-blackout_amd64.deb", "AEROCX-Blackout-linux-arm64.zip", "AEROCX-Blackout-linux-amd64.zip", "install.sh",
+    "aerocx-blackout-mac-universal", "aerocx-blackout-windows.exe", "aerocx-blackout-linux-arm64", "aerocx-blackout-linux-amd64", "SHA256SUMS.txt"];
+
+  function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return {"&": "&amp;", "<": "&lt;", ">": "&gt;", "\"": "&quot;"}[c]; }); }
+  function cmdBox(line) {
+    return '<div class="cmd"><code>' + esc(line) + '</code><button type="button" data-copy="' + esc(line) + '">' + ICON_COPY + '</button></div>';
+  }
+  var $ = function (id) { return document.getElementById(id); };
+
+  function detect() {
+    var ua = navigator.userAgent || "", p = navigator.platform || "";
+    if (/iPhone|iPod|iPad|Android/i.test(ua)) return "mobile";
+    if ((p === "MacIntel" || /Macintosh/.test(ua)) && navigator.maxTouchPoints > 1) return "mobile"; // iPad met "desktop"-weergave
+    if (/Mac/i.test(p) || /Macintosh/.test(ua)) return "mac";
+    if (/Win/i.test(p) || /Windows/.test(ua)) return "windows";
+    if (/CrOS/.test(ua)) return null;
+    if (/aarch64|armv|arm64/i.test(ua + " " + p)) return "pi";
+    if (/Linux/i.test(ua + " " + p)) return "linux";
+    return null;
+  }
+
+  var detected = detect();
+
+  function render(key, isDetected) {
+    var s = SYS[key];
+    $("hero-lbl").textContent = isDetected ? s.lbl + " · dit toestel" : s.lbl;
+    var prim = "";
+    if (s.button) {
+      prim = '<a class="big" href="' + DL + s.file + '">' + ICON_DL + esc(s.button) + "</a>";
+    } else if (s.cmdPrimary) {
+      prim = cmdBox(s.cmdPrimary);
+    } else {
+      prim = '<a class="big" href="#ander">Kies je systeem hieronder</a>';
+    }
+    $("primary").innerHTML = prim;
+    $("under").innerHTML = s.under;
+    $("steps").innerHTML = s.steps.map(function (st) {
+      return "<li><span>" + esc(st[0]) + '<span class="hint">' + esc(st[1]) + "</span></span></li>";
+    }).join("");
+    $("warn-title").textContent = s.warnTitle;
+    $("warn-body").innerHTML = s.warn;
+
+    var alts = "";
+    if (s.zip) {
+      alts += '<div class="card"><div class="lbl">Optie 2</div><h2>Liever zonder installatieprogramma?</h2>' +
+        "<ol>" + s.zip.steps.map(function (x) { return "<li>" + x + "</li>"; }).join("") + "</ol>" +
+        '<div class="row"><a class="btn ghost" href="' + DL + s.zip.file + '">' + ICON_DL.replace("<svg", '<svg width="16" height="16" style="stroke:currentColor;fill:none;stroke-width:1.8"') + "Download de zip</a></div>" +
+        (s.zip.note ? '<p class="small" style="margin-top:14px">' + s.zip.note + "</p>" : "") + "</div>";
+    }
+    if (s.cmd) {
+      alts += '<div class="card light"><div class="lbl">Optie 3</div><h2>Via één opdracht</h2>' +
+        "<p>" + s.cmd.where + "</p>" + cmdBox(s.cmd.line) + '<p class="small" style="margin-top:14px">' + s.cmd.what + "</p></div>";
+    }
+    if (key === "pi") {
+      alts += '<div class="card"><div class="lbl">Wat je nodig hebt</div><h2>Raspberry Pi klaarmaken</h2>' +
+        "<ol><li>Zet Raspberry Pi OS (64-bit) op een SD-kaart met Raspberry Pi Imager.</li><li>Zet in Imager meteen je wifi en ssh aan.</li><li>Sluit eventueel een Meshtastic-radio aan met een USB-kabel.</li></ol>" +
+        '<p class="small">Een Pi verbruikt maar zo&rsquo;n 5 watt: ideaal om dag en nacht te laten draaien, ook op een batterij.</p></div>';
+    }
+    if (key === "mobile") {
+      alts += '<div class="card"><div class="lbl">Op de computer</div><h2>Waar vind ik het adres?</h2>' +
+        "<p>Open AEROCX Blackout op de computer en ga naar <b>Koppelen</b>. Daar staan het adres en de pincode, en een QR-code die je met je camera kunt scannen.</p></div>" +
+        '<div class="card"><div class="lbl">Wat je nodig hebt</div><h2>Nog geen computer met de app?</h2>' +
+        '<p>Installeer eerst AEROCX Blackout op een computer of Raspberry Pi die thuis blijft staan.</p><div class="row">' +
+        '<button type="button" class="btn ghost" data-go="mac">Mac</button><button type="button" class="btn ghost" data-go="windows">Windows</button><button type="button" class="btn ghost" data-go="pi">Raspberry Pi</button></div></div>';
+    }
+    $("alts").innerHTML = alts;
+    $("alts").style.display = alts ? "" : "none";
+
+    Array.prototype.forEach.call(document.querySelectorAll("#sys button"), function (b) {
+      b.setAttribute("aria-pressed", b.getAttribute("data-sys") === key ? "true" : "false");
+      var base = b.getAttribute("data-label") || b.textContent;
+      b.setAttribute("data-label", base);
+      b.textContent = base + (b.getAttribute("data-sys") === detected ? " (dit toestel)" : "");
+    });
+  }
+
+  function choose(key, scroll) {
+    if (!SYS[key]) return;
+    render(key, key === detected);
+    if (scroll) window.scrollTo({top: 0, behavior: "smooth"});
+    if (history.replaceState) history.replaceState(null, "", "#" + key);
+  }
+
+  function copy(text, btn) {
+    function done(ok) {
+      var old = btn.textContent;
+      btn.textContent = ok ? "Gekopieerd" : "Selecteer en kopieer";
+      setTimeout(function () { btn.textContent = old; }, 1800);
+    }
+    if (navigator.clipboard && window.isSecureContext) {
+      navigator.clipboard.writeText(text).then(function () { done(true); }, function () { done(fallback()); });
+    } else {
+      done(fallback());
+    }
+    function fallback() {
+      var ta = document.createElement("textarea");
+      ta.value = text; ta.setAttribute("readonly", ""); ta.style.position = "fixed"; ta.style.opacity = "0";
+      document.body.appendChild(ta); ta.select();
+      var ok = false;
+      try { ok = document.execCommand("copy"); } catch (e) { ok = false; }
+      document.body.removeChild(ta);
+      return ok;
+    }
+  }
+
+  document.addEventListener("click", function (e) {
+    var t = e.target.closest ? e.target.closest("[data-copy],[data-sys],[data-go]") : null;
+    if (!t) return;
+    if (t.hasAttribute("data-copy")) { copy(t.getAttribute("data-copy"), t); return; }
+    e.preventDefault();
+    choose(t.getAttribute("data-sys") || t.getAttribute("data-go"), true);
+  });
+
+  $("files").innerHTML = FILES.map(function (f) { return '<a href="' + DL + f + '">' + f + "</a>"; }).join("");
+
+  var fromHash = (location.hash || "").replace("#", "");
+  var start = SYS[fromHash] ? fromHash : detected;
+  render(start || "unknown", !!start && start === detected);
+  // Raspberry Pi herkennen via de nieuwere browser-informatie (Chrome meldt op Linux altijd "x86_64").
+  if (!fromHash && detected === "linux" && navigator.userAgentData && navigator.userAgentData.getHighEntropyValues) {
+    navigator.userAgentData.getHighEntropyValues(["architecture"]).then(function (v) {
+      if (v && v.architecture === "arm") { detected = "pi"; render("pi", true); }
+    }).catch(function () {});
+  }
+})();
+</script>
+<noscript><style>#warn,#alts,.others{display:none}</style></noscript>
+</body>
+</html>
