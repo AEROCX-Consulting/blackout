@@ -70,7 +70,14 @@ jobs:
         with:
           go-version-file: go.mod
       - run: go vet ./...
-      - run: go test ./...
+      - name: go test
+        run: |
+          if ! go test -count=1 ./... > test.log 2>&1; then
+            echo "::error::tests mislukt"
+            grep -E -- '--- FAIL|_test\.go:[0-9]+|panic:|^FAIL' test.log | tail -80
+            exit 1
+          fi
+          tail -3 test.log
 
   linux:
     name: Linux en Raspberry Pi
