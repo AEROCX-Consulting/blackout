@@ -1,11 +1,10 @@
 package main
 
-// Tegen het opnieuw afspelen (replay) van opgevangen pakketten.
+// Tegen het opnieuw afspelen (replay) van opgevangen pakketten: de gezien-lijst.
 //
-// Elk versleuteld IP-pakket (JSON) draagt het verzendtijdstip "ts" in milliseconden. Pakketten ouder dan
-// 8 dagen of meer dan 10 minuten in de toekomst worden geweigerd. Berichten, SOS en groepskaarten
-// worden één keer verwerkt: de gezien-lijst (sleutel -> vervaltijd, 9 dagen) blijft bewaard over
-// herstarts heen (<datamap>/seen.json, max. 20 000, oudste eruit).
+// Berichten, SOS en groepskaarten worden één keer verwerkt: de gezien-lijst (sleutel -> vervaltijd,
+// 9 dagen) blijft bewaard over herstarts heen (<datamap>/seen.json, max. 20 000, oudste eruit).
+// Of een pakket vers is (opstart-ID + hoogwatermerk, zonder klokvergelijking) staat in clock.go.
 // Peers van v1.1 sturen geen ts: hun pakketten worden aanvaard, maar alleen via de gezien-lijst, en
 // voegen geen nieuwe adressen toe.
 
@@ -15,22 +14,12 @@ import (
 	"os"
 	"path/filepath"
 	"sort"
-	"sync/atomic"
 	"time"
 )
 
-// sendSkew verschuift het verzendtijdstip (alleen voor tests: oude pakketten maken).
-var sendSkew atomic.Int64
-
-// sendClockMs: verzendtijdstip in ms voor pakketten en radioframes.
-func sendClockMs() int64 { return time.Now().UnixMilli() + sendSkew.Load() }
-
 const (
-	tsMaxAge    = 8 * 86400 * 1000 // ms
-	tsMaxFuture = 10 * 60 * 1000   // ms
-	tsFresh     = 2 * 60 * 1000    // ms: alleen een vers pakket mag een adres toevoegen
-	seenKeep    = 9 * 86400        // s
-	seenMax     = 20000
+	seenKeep = 60 * 86400 // s (berichten, SOS, groepskaarten)
+	seenMax  = 20000
 )
 
 type seenFile struct {
@@ -124,24 +113,4 @@ func (n *Node) saveSeen(force bool) {
 		return
 	}
 	os.Rename(tmp, n.seenPath())
-}
-
-// checkTS beoordeelt het tijdstip uit een pakket.
-// ok=false: te oud of te ver in de toekomst (weigeren). legacy: geen ts (v1.1).
-// fresh: binnen 2 minuten van nu (alleen dan mag een adres toegevoegd worden).
-func checkTS(ts int64, nowMs int64) (ok, fresh, legacy bool) {
-	if ts == 0 {
-		return true, false, true
-	}
-	if ts < 1e11 { // seconden (ouder formaat): omzetten
-		ts *= 1000
-	}
-	if nowMs-ts > tsMaxAge || ts-nowMs > tsMaxFuture {
-		return false, false, false
-	}
-	d := nowMs - ts
-	if d < 0 {
-		d = -d
-	}
-	return true, d <= tsFresh, false
 }

@@ -26,6 +26,7 @@ import (
 	"crypto/rand"
 	"encoding/binary"
 	"encoding/hex"
+	"fmt"
 	"log"
 	"strings"
 	"time"
@@ -95,8 +96,6 @@ func loraHeadLen(f []byte) int {
 	return 30
 }
 
-const beaconMaxAge = 15 * 60 // s
-
 // loraFrames bouwt alle LoRa-frames van een eigen bericht voor één ontvanger.
 func (n *Node) loraFrames(c *Contact, m *Message) [][]byte {
 	a, err := n.aead(c)
@@ -152,7 +151,7 @@ func (n *Node) loraFrames(c *Contact, m *Message) [][]byte {
 		h = append(h, mid...)
 		h = append(h, byte(i), byte(cnt))
 		if !old {
-			h = binary.BigEndian.AppendUint32(h, uint32(sendClockMs()/1000))
+			h = binary.BigEndian.AppendUint32(h, uint32(n.sendClockMs()/1000))
 		}
 		nonce := make([]byte, 12)
 		rand.Read(nonce)
@@ -214,9 +213,9 @@ func (n *Node) loraSendAck(c *Contact, msgID string, bridge *Contact) {
 // loraBeacon: "ik ben bereikbaar" (ondertekend, niet versleuteld, dus zonder positie).
 func (n *Node) loraBeacon() {
 	h := n.loraHead('B')
-	h = binary.BigEndian.AppendUint32(h, uint32(sendClockMs()/1000))
-	n.beaconSeq++
-	h = binary.BigEndian.AppendUint32(h, n.beaconSeq)
+	h = binary.BigEndian.AppendUint32(h, uint32(n.sendClockMs()/1000))
+	n.beaconSeq++ // volgnummer = opstart (16 bits) | teller (16 bits)
+	h = binary.BigEndian.AppendUint32(h, uint32(n.boot16())<<16|uint32(n.beaconSeq))
 	sig := ed25519.Sign(n.edPriv, append([]byte("aerocx-blackout-beacon|"), h...))
 	n.radio.Drop("beacon")
 	n.radio.Enqueue("beacon", append(h, sig...), 2)
@@ -274,19 +273,33 @@ func (n *Node) loraFrame(p []byte, rssi int32, snr float32, bridge *Contact) {
 		if !ed25519.Verify(pub, append([]byte("aerocx-blackout-beacon|"), p[:hl]...), p[hl:]) {
 			return
 		}
+		// Vers als het volgnummer hoger is dan het hoogste van dezelfde opstart (geen klokvergelijking).
 		ts := int64(binary.BigEndian.Uint32(p[12:16]))
-		if d := now() - ts; d > beaconMaxAge || d < -tsMaxFuture/1000 {
-			return // te oud (opnieuw uitgezonden?) of klok ver verschoven
-		}
-		var seq uint32
+		boot, val := "", ts // v1.1 (geen volgnummer): de tijd van de afzender zelf
 		if hl == 20 {
-			seq = binary.BigEndian.Uint32(p[16:20])
+			seq := binary.BigEndian.Uint32(p[16:20])
+			boot, val = fmt.Sprintf("%04x", seq>>16), int64(seq&0xffff)
 		}
-		key := uint64(ts)<<32 | uint64(seq)
-		if key <= n.beaconLast[c.ID] {
+		if c.BeaconHi == nil {
+			c.BeaconHi = map[string]int64{}
+		}
+		if hi, ok := c.BeaconHi[boot]; ok && val <= hi {
 			return // al gezien: geen "gehoord via radio" op basis van een herhaald baken
 		}
-		n.beaconLast[c.ID] = key
+		if _, ok := c.BeaconHi[boot]; !ok && len(c.BeaconHi) >= maxBoots {
+			for k := range c.BeaconHi { // één oude opstart vergeten
+				if k != boot {
+					delete(c.BeaconHi, k)
+					break
+				}
+			}
+		}
+		c.BeaconHi[boot] = val
+		if hl == 20 {
+			c.RadioOff, c.RadioOffAt = ts*1000-time.Now().UnixMilli(), now()
+		}
+		n.noteMaxTS(c, ts*1000)
+		n.hwmDirty = true
 		seen()
 	case 'K':
 		if len(p) != 28+12+16 || !bytes.Equal(p[12:20], my8) {
@@ -299,8 +312,9 @@ func (n *Node) loraFrame(p []byte, rssi int32, snr float32, bridge *Contact) {
 		if _, err := a.Open(nil, p[28:40], p[40:], p[:28]); err != nil {
 			return
 		}
-		seen()
-		n.markAcked(c, hex.EncodeToString(p[20:28]), via)
+		if n.markAcked(c, hex.EncodeToString(p[20:28]), via) {
+			seen() // alleen een nieuwe bevestiging telt als "gehoord" (geen herhaalde)
+		}
 	case 'M', 'G', 'S', 'P', 'm', 'g', 's', 'p':
 		hl := loraHeadLen(p)
 		if len(p) < hl+12+16 || !bytes.Equal(p[12:20], my8) {
@@ -323,22 +337,20 @@ func (n *Node) loraFrame(p []byte, rssi int32, snr float32, bridge *Contact) {
 		if kind >= 'a' {
 			kind -= 'a' - 'A'
 			ts := int64(binary.BigEndian.Uint32(p[30:34]))
-			if ok, _, _ := checkTS(ts*1000, time.Now().UnixMilli()); !ok {
-				return // te oud of te ver in de toekomst
+			if n.tooOld(c, ts*1000, "") {
+				return // ouder dan 8 dagen (afzenderklok, zie clock.go)
 			}
+			n.noteMaxTS(c, ts*1000)
 			if !c.SendsTS {
 				c.SendsTS = true
-			}
-			if d := now() - ts; d > beaconMaxAge || d < -beaconMaxAge {
-				heard = false // oud (opnieuw uitgezonden) frame: wel verwerken, niet als "gehoord" tellen
 			}
 		} else if c.SendsTS {
 			return // dit contact stuurt frames met tijd: dit is een oud, opnieuw afgespeeld frame
 		}
 		msgID := hex.EncodeToString(p[20:28])
 		key := c.ID + "|" + msgID
-		if kind == p[3] && n.isSeen(key) {
-			heard = false // v1.1-frame van een al ontvangen bericht: kan een herhaling zijn
+		if n.isSeen(key) {
+			heard = false // al ontvangen bericht: kan een herhaling zijn, niet als "gehoord" tellen
 		}
 		if heard {
 			seen()

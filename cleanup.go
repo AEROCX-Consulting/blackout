@@ -58,11 +58,6 @@ func (n *Node) cleanMaps(t int64) {
 			delete(n.reach, k)
 		}
 	}
-	for k := range n.beaconLast {
-		if n.st.Contacts[k] == nil {
-			delete(n.beaconLast, k)
-		}
-	}
 	// groepsbevestigingen in delen: alleen voor de huidige versie van een eigen groep
 	for k := range n.grpParts {
 		p := strings.Split(k, "|")

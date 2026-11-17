@@ -161,21 +161,38 @@ func TestLoRaBeaconNoPositionNoReplay(t *testing.T) {
 	if ba.RadioSeen == 0 {
 		t.Fatal("volgend baken geweigerd")
 	}
-	// baken van 20 minuten geleden: genegeerd
-	sendSkew.Store(-20 * 60 * 1000)
-	a.loraBeacon()
-	sendSkew.Store(0)
-	old := rc.wait(t, 1)[0]
+	// eerste baken opnieuw na het tweede: nog steeds geweigerd
 	ba.RadioSeen = 0
-	delete(b.beaconLast, a.myID)
-	b.loraFrame(old, -100, 2, nil)
+	b.loraFrame(f, -100, 2, nil)
 	if ba.RadioSeen != 0 {
 		t.Fatal("oud baken aanvaard")
 	}
+	// zender herstart met een klok die een dag achterloopt: nieuwe opstart, baken wel gehoord
+	a.mu.Lock()
+	a.dirty = true
+	a.mu.Unlock()
+	a.save()
+	a2, err := loadNode(a.dir, 0, 0, true)
+	if err != nil {
+		t.Fatal(err)
+	}
+	a2.radio.testTx = rc.tx
+	sendSkew.Store(-86400 * 1000)
+	a2.loraBeacon()
+	sendSkew.Store(0)
+	f4 := rc.wait(t, 1)[0]
+	b.loraFrame(f4, -100, 2, nil)
+	if ba.RadioSeen == 0 {
+		t.Fatal("baken na herstart met oude klok geweigerd")
+	}
+	if off, ok := recentSkew(ba, 60); !ok || off > -86000*1000 || off < -86500*1000 {
+		t.Errorf("klokverschil uit baken: %d %v", off, ok)
+	}
 	// vervalst baken: handtekening klopt niet
-	f3 := append([]byte{}, f2...)
+	f3 := append([]byte{}, f4...)
 	f3[17] ^= 1
-	delete(b.beaconLast, a.myID)
+	ba.RadioSeen = 0
+	ba.BeaconHi = nil
 	b.loraFrame(f3, 0, 0, nil)
 	if ba.RadioSeen != 0 {
 		t.Fatal("vervalst baken aanvaard")

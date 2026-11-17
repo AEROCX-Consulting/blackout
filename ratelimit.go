@@ -11,10 +11,12 @@ import (
 )
 
 const (
-	pendPerSrc   = 3  // openstaande verzoeken per bron-IP (IPv6: per /64)
-	pendMax      = 50 // openstaande verzoeken in totaal (oudste eruit)
-	helloRate    = 20 // hello's per seconde, globaal
-	helloSrcRate = 4  // hello's per seconde per bron
+	pendPerSrc    = 3  // openstaande verzoeken per bron-IP (IPv6: per /64)
+	pendMax       = 50 // openstaande verzoeken in totaal (oudste eruit)
+	pendNewPerMin = 10 // nieuwe verzoeken per minuut (via het netwerk); daarboven worden nieuwe weggegooid
+	pendGroupMax  = 20 // verzoeken uit groepskaarten (eigen teller); daarboven worden nieuwe weggegooid
+	helloRate     = 20 // hello's per seconde, globaal
+	helloSrcRate  = 4  // hello's per seconde per bron
 )
 
 // srcPrefix: IPv4-adres, of het /64 van een IPv6-adres.
@@ -88,8 +90,11 @@ func (l *rateLim) allow(prefix string) bool {
 	return l.global.take(l.rate, 2*l.rate, t)
 }
 
-// addPending (onder slot): verzoek bewaren of bijwerken. Hooguit pendPerSrc per bron en
-// pendMax in totaal; bij te veel valt het oudste weg (nieuwe worden niet geweigerd).
+// addPending (onder slot): verzoek bewaren of bijwerken. Geeft nil als een nieuw verzoek weggegooid wordt.
+//   - via het netwerk: hooguit pendPerSrc per bron en pendMax in totaal (bij te veel valt het oudste weg),
+//     en hooguit pendNewPerMin nieuwe per minuut (daarboven worden nieuwe weggegooid, zodat spam uit veel
+//     /64's een echt verzoek niet snel kan verdringen);
+//   - uit groepskaarten (source "groep"): eigen maximum pendGroupMax, daarboven worden nieuwe weggegooid.
 func (n *Node) addPending(card Card, source, prefix string) (*Pending, bool) {
 	p := n.st.Pending[card.E]
 	if p != nil {
@@ -100,12 +105,37 @@ func (n *Node) addPending(card Card, source, prefix string) (*Pending, bool) {
 		n.dirty = true
 		return p, false
 	}
+	if source == "groep" {
+		cnt := 0
+		for _, q := range n.st.Pending {
+			if q.Source == "groep" {
+				cnt++
+			}
+		}
+		if cnt >= pendGroupMax {
+			return nil, false
+		}
+		p = &Pending{Card: card, Source: source, Seen: now()}
+		n.st.Pending[card.E] = p
+		n.dirty = true
+		return p, true
+	}
+	if m := now() / 60; m != n.pendMin {
+		n.pendMin, n.pendNew = m, 0
+	}
+	if n.pendNew >= pendNewPerMin {
+		return nil, false
+	}
+	n.pendNew++
 	type kv struct {
 		id   string
 		seen int64
 	}
 	var all, same []kv
 	for id, q := range n.st.Pending {
+		if q.Source == "groep" {
+			continue // die tellen apart
+		}
 		all = append(all, kv{id, q.Seen})
 		if prefix != "" && q.Prefix == prefix {
 			same = append(same, kv{id, q.Seen})
@@ -119,13 +149,15 @@ func (n *Node) addPending(card Card, source, prefix string) (*Pending, bool) {
 		delete(n.st.Pending, same[0].id)
 		same = same[1:]
 	}
-	if len(n.st.Pending) >= pendMax {
-		all = all[:0]
-		for id, q := range n.st.Pending {
+	all = all[:0]
+	for id, q := range n.st.Pending {
+		if q.Source != "groep" {
 			all = append(all, kv{id, q.Seen})
 		}
+	}
+	if len(all) >= pendMax {
 		oldestFirst(all)
-		for i := 0; len(n.st.Pending) >= pendMax && i < len(all); i++ {
+		for i := 0; i <= len(all)-pendMax; i++ {
 			delete(n.st.Pending, all[i].id)
 		}
 	}

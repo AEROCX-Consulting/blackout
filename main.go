@@ -23,6 +23,7 @@ import (
 	"strconv"
 	"strings"
 	"sync"
+	"sync/atomic"
 	"time"
 )
 
@@ -148,6 +149,15 @@ type Contact struct {
 	BridgeVia    string `json:"bridge_via,omitempty"`
 	Added        int64  `json:"added,omitempty"`
 	SendsTS      bool   `json:"sends_ts,omitempty"` // stuurt een verzendtijdstip mee (nieuwer dan v1.1)
+	// vers of afgespeeld zonder klokvergelijking (clock.go)
+	Boots      map[string]*bootMark `json:"boots,omitempty"`     // opstart-ID -> hoogwatermerk
+	Boot       string               `json:"boot,omitempty"`      // opstart-ID van de laatste verse ping
+	Skews      []int64              `json:"skews,omitempty"`     // klokverschil (ms), laatste metingen
+	SkewAt     int64                `json:"skew_at,omitempty"`   // s
+	RadioOff   int64                `json:"radio_off,omitempty"` // klokverschil uit het radiobaken (ms)
+	RadioOffAt int64                `json:"radio_off_at,omitempty"`
+	BeaconHi   map[string]int64     `json:"beacon_hi,omitempty"` // opstart (hex, 16 bits) -> hoogste teller; "" = v1.1 (tijd)
+	MaxTS      int64                `json:"max_ts,omitempty"`    // hoogste afzendertijd ooit (ms), over opstarts en radio heen
 }
 
 type Pending struct {
@@ -262,9 +272,14 @@ type Node struct {
 	brCount    map[string]int
 	brSeen     map[string]int64
 	grpParts   map[string]uint64 // eigenaar: groep|lid|versie -> ontvangen delen
-	beaconLast map[string]uint64 // contact -> tijd<<32|volgnummer van het laatste geldige baken
-	beaconSeq  uint32
-	mapClean   int64 // laatste opruimronde van de hulptabellen
+	beaconSeq  uint16
+	bootID     string // willekeurig per opstart (clock.go)
+	hwmDirty   bool   // hoogwatermerken gewijzigd: binnen 5 s bewaren
+	lastSave   time.Time
+	pendMin    int64 // minuut van de teller nieuwe verzoeken
+	pendNew    int
+	tsLast     atomic.Int64 // laatst gebruikte verzendtijd (ms)
+	mapClean   int64        // laatste opruimronde van de hulptabellen
 	blobIn     map[string]*blobRx
 	blobServe  map[string]int
 	lastPos    *Pos
@@ -322,7 +337,7 @@ func loadNode(dir string, udpPort, uiPort int, loopback bool) (*Node, error) {
 		radio: newRadio(), frags: map[string]*fragBuf{}, loraAcked: map[string]int64{},
 		loraLast: map[string]int64{}, loraTries: map[string]int{}, loraWait: 15, loraScale: 1,
 		radioHeard: map[string]map[string]int64{}, brLast: map[string]int64{}, brTries: map[string]int{},
-		brCount: map[string]int{}, brSeen: map[string]int64{}, grpParts: map[string]uint64{}, beaconLast: map[string]uint64{},
+		brCount: map[string]int{}, brSeen: map[string]int64{}, grpParts: map[string]uint64{}, bootID: newBootID(),
 		blobIn: map[string]*blobRx{}, blobServe: map[string]int{},
 		pingEvery: 15 * time.Second, outboxEvery: 3 * time.Second, retryGap: 8,
 		helloLim: newRateLim(helloRate, helloSrcRate),
@@ -463,10 +478,15 @@ func (n *Node) applyIdentity() error {
 func (n *Node) save() {
 	n.saveSeen(false)
 	n.mu.Lock()
+	if n.hwmDirty && time.Since(n.lastSave) >= 5*time.Second {
+		n.dirty = true // hoogwatermerken hooguit 5 s vertraagd bewaren
+	}
 	if !n.dirty {
 		n.mu.Unlock()
 		return
 	}
+	n.hwmDirty = false
+	n.lastSave = time.Now()
 	if len(n.st.Messages) > 5000 {
 		n.st.Messages = n.st.Messages[len(n.st.Messages)-5000:]
 	}
@@ -564,7 +584,8 @@ func (n *Node) open(c *Contact, pkt []byte) ([]byte, error) {
 
 // sealJSON versleutelt een payload voor c, met het verzendtijdstip (ms) erin.
 func (n *Node) sealJSON(c *Contact, w wire) []byte {
-	w.TS = sendClockMs()
+	w.TS = n.sendClockMs()
+	w.B = n.bootID
 	j, _ := json.Marshal(w)
 	return n.seal('E', c, j)
 }
@@ -910,25 +931,42 @@ type wire struct {
 	Part   int      `json:"part,omitempty"`
 	Parts  int      `json:"parts,omitempty"`
 	Miss   []int    `json:"miss,omitempty"`
+	B      string   `json:"b,omitempty"` // opstart-ID van de afzender (clock.go)
 }
 
 // onPayload verwerkt een ontsleutelde payload. seen wordt aangeroepen nadat het tijdstip
-// gecontroleerd is (fresh: binnen 2 min; legacy: zonder tijdstip) en geeft de weg terug.
+// beoordeeld is (fresh: hoger dan het hoogwatermerk van die opstart; legacy: zonder tijdstip, v1.1)
+// en geeft de weg terug. Er wordt niet vergeleken met de eigen klok (zie clock.go).
 func (n *Node) onPayload(c *Contact, pt []byte, relay *Contact, seen func(fresh, legacy bool) string) {
 	var m wire
 	if json.Unmarshal(pt, &m) != nil {
 		return
 	}
-	ok, fresh, legacy := checkTS(m.TS, time.Now().UnixMilli())
-	if !ok {
-		return // te oud of te ver in de toekomst: opnieuw afgespeeld of klok ver verschoven
-	}
-	if legacy && c.SendsTS {
-		return // dit contact stuurt altijd een tijdstip mee: dit is een oud, opnieuw afgespeeld pakket
-	}
-	if m.TS >= 1e11 && !c.SendsTS {
-		c.SendsTS = true
-		n.dirty = true
+	legacy := m.TS == 0
+	fresh := false
+	if legacy {
+		if c.SendsTS {
+			return // dit contact stuurt altijd een tijdstip mee: dit is een oud, opnieuw afgespeeld pakket
+		}
+	} else {
+		ts := m.TS
+		if ts < 1e11 { // seconden (ouder formaat)
+			ts *= 1000
+		}
+		switch m.T {
+		case "msg", "grp", "grpleave", "grpreq":
+			if n.tooOld(c, ts, m.B) {
+				return // ouder dan 8 dagen (afzenderklok): opgenomen en opnieuw afgespeeld
+			}
+		}
+		fresh = n.peerTS(c, ts, m.B)
+		if fresh && (m.T == "ping" || m.T == "pong") && m.TS >= 1e11 {
+			n.sampleSkew(c, ts, m.B)
+		}
+		if m.TS >= 1e11 && !c.SendsTS {
+			c.SendsTS = true
+			n.dirty = true
+		}
 	}
 	via := seen(fresh, legacy)
 	t := now()
@@ -1166,7 +1204,8 @@ func viaText(via string) string {
 	return ""
 }
 
-func (n *Node) markAcked(c *Contact, id, via string) {
+// markAcked: geeft true als dit een nieuwe bevestiging was.
+func (n *Node) markAcked(c *Contact, id, via string) bool {
 	for i := len(n.st.Messages) - 1; i >= 0 && i >= len(n.st.Messages)-3000; i-- {
 		msg := n.st.Messages[i]
 		if msg.From == "me" && msg.ID == id {
@@ -1177,10 +1216,12 @@ func (n *Node) markAcked(c *Contact, id, via string) {
 				}
 				n.dirty = true
 				n.radio.Drop(id + "|" + c.ID)
+				return true
 			}
-			return
+			return false
 		}
 	}
+	return false
 }
 
 func (n *Node) pingWire(t string) wire {
@@ -1289,6 +1330,9 @@ func (n *Node) onHello(fromID string, h helloMsg, from *net.UDPAddr, lan bool) {
 		return
 	}
 	p, isNew := n.addPending(card, source, srcPrefix(from.IP))
+	if p == nil {
+		return // te veel nieuwe verzoeken deze minuut
+	}
 	if isNew {
 		n.event("contact", card.N+" wil contact maken")
 	}

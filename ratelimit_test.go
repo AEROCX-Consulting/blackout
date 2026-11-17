@@ -84,6 +84,7 @@ func TestPendingLimitTotalDropsOldest(t *testing.T) {
 			first = c
 		}
 		n.mu.Lock()
+		n.pendNew = 0 // alsof elk verzoek in een andere minuut kwam
 		n.onHello(c.E, helloMsg{Card: c}, udp(fmt.Sprintf("[2001:db8:%x::1]:47474", i+1)), false)
 		n.st.Pending[c.E].Seen = now() - int64(1000-i)
 		n.mu.Unlock()

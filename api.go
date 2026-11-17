@@ -959,6 +959,7 @@ func (n *Node) stateJSON(r *http.Request, s *Session, osUnread, osImportant int)
 		HasRadio     bool              `json:"hasRadio"`
 		Bridge       bool              `json:"bridge"`
 		Groups       []string          `json:"groups"`
+		ClockSkew    *int64            `json:"clockSkew"` // ms: hun klok − mijn klok (laatste uur), anders null
 	}
 	cs := []uc{}
 	for _, c := range n.st.Contacts {
@@ -980,7 +981,11 @@ func (n *Node) stateJSON(r *http.Request, s *Session, osUnread, osImportant int)
 		if addrs == nil {
 			addrs = []string{}
 		}
-		cs = append(cs, uc{ID: c.ID, Short: short(c.ID), Name: c.Name, CardName: c.Card.N, Online: t-c.LastSeen < onlineSecs, Via: via,
+		var skew *int64
+		if off, ok := recentSkew(c, skewStateSecs); ok {
+			skew = &off
+		}
+		cs = append(cs, uc{ClockSkew: skew, ID: c.ID, Short: short(c.ID), Name: c.Name, CardName: c.Card.N, Online: t-c.LastSeen < onlineSecs, Via: via,
 			LastSeen: ms(c.LastSeen), Unread: c.Unread, RadioSeen: ms(c.RadioSeen), RadioRSSI: c.RadioRSSI, RadioSNR: c.RadioSNR,
 			Pos: posOut(c.Pos), Role: roleOf(c), Blocked: c.Blocked, IntroducedBy: c.IntroducedBy,
 			Route: map[string]string{"k": k, "t": txt}, Addrs: addrs, Version: c.PeerVer, HasRadio: c.PeerRadio, Bridge: c.PeerBridge, Groups: gs})
@@ -1098,6 +1103,11 @@ func (n *Node) stateJSON(r *http.Request, s *Session, osUnread, osImportant int)
 		"devices": devices, "invites": invites, "audit": audit, "log": logs,
 		"osint":     map[string]int{"unread": osUnread, "important": osImportant},
 		"autostart": n.autostart, "backup": map[string]any{"last": bLast}, "bridge": n.st.Bridge, "sdr": n.sdr,
+	}
+	if off, ok := n.myClockSkew(); ok {
+		out["clockSkew"] = off // ms: mijn klok − mediaan van mijn contacten
+	} else {
+		out["clockSkew"] = nil
 	}
 	if local {
 		out["pin"] = n.st.Pin

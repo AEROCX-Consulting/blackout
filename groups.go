@@ -341,6 +341,9 @@ func (n *Node) onGroupCard(c *Contact, m *wire, reply func(wire)) {
 			continue
 		}
 		p, isNew := n.addPending(card, "groep", "")
+		if p == nil {
+			continue // te veel verzoeken uit groepskaarten
+		}
 		wasGroup := p.Source == "groep"
 		p.Source = "groep"
 		p.Note = fmt.Sprintf("voorgesteld via %s door %s", g.Name, c.Name)

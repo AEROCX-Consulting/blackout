@@ -31,6 +31,8 @@ func securityHeaders(w http.ResponseWriter) {
 	h.Set("Referrer-Policy", "no-referrer")
 }
 
+// 100.64.0.0/10 (CGNAT) blijft bewust toegestaan: Starlink geeft thuis zulke adressen, en eigen
+// VPN's zoals Tailscale gebruiken dit bereik. Het is niet vanaf het open internet bereikbaar.
 var cgnatNet = &net.IPNet{IP: net.IPv4(100, 64, 0, 0).To4(), Mask: net.CIDRMask(10, 32)}
 
 // privateSource: mag dit adres het webscherm gebruiken? Loopback, RFC1918, CGNAT (100.64/10),
