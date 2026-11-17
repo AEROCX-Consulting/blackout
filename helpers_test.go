@@ -55,6 +55,7 @@ func liveNode(t *testing.T, name string, setup func(n *Node)) *tnode {
 	n.outboxEvery = 200 * time.Millisecond
 	n.retryGap = 1
 	n.loraWait = 1
+	n.nw.manual = true // geen STUN/router-rondes naar buiten in tests (netwifi_test.go doet ze zelf)
 	if setup != nil {
 		setup(n)
 	}

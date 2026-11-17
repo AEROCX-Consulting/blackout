@@ -1,19 +1,21 @@
-## AEROCX Blackout 1.2
+## AEROCX Blackout 1.2.1
 
-Berichten sturen naar je eigen mensen, ook als het gewone internet wegvalt. Rechtstreeks van computer naar computer, over Starlink, je eigen wifi of een LoRa-radio. Tussen de computers versleuteld, zonder server en zonder account.
+Berichten sturen naar je eigen mensen zolang er een wifi-netwerk is: op hetzelfde wifi-netwerk ook zonder internet, tussen huizen over gewoon internet (Starlink of je gewone provider), en over een LoRa-radio als alles wegvalt. Rechtstreeks van computer naar computer, tussen de computers versleuteld, zonder server en zonder account.
 
 **Downloaden en installeren:** ga naar **https://blackout.aerocx.be/**. De pagina kiest zelf het juiste bestand voor je computer.
 
+### Nieuw in 1.2.1
+- **Werkt ook op gewone wifi en gewoon internet**, niet alleen over Starlink: ook met Proximus, Telenet, Orange of een 4G/5G-hotspot.
+- **Zoekt zelf je publieke adres op** (bij Google en Cloudflare; uit te zetten in Instellingen) en **zet zelf een poort open op je router** als die dat toelaat. Lukt dat niet, dan gaan berichten via een contact dat jullie allebei kunnen bereiken.
+- **Duidelijkere verbindingsstatus** in de app: "via internet" in plaats van "via Starlink".
+
 ### Nieuw in 1.2
-- **Installeren met één klik** op Mac, Windows en Raspberry Pi. De app start vanzelf als je je aanmeldt en opent in je browser.
-- **Groepen** met een eigenaar, leden en rollen (beheerder, lid, lezer).
-- **Kortere code en QR-code** om contacten toe te voegen, en **uitnodigingen** die je één keer kunt gebruiken.
-- **SOS-knop**: gaat met voorrang naar al je contacten, ook meteen over de radio. Je ziet wie het gezien heeft.
-- **Locatie delen** (vast adres of GPS van de radio): staat standaard uit en gaat alleen versleuteld naar je contacten.
-- **Foto's** sturen (via Starlink en wifi) en een **versleutelde back-up**.
-- **Brug Starlink en radio**: kan je iemand niet rechtstreeks bereiken, dan zendt een contact met een radio het voor je uit.
-- **OSINT**: waarschuwingen van Meteoalarm, GDACS, aardbevingen, nieuws en berichten die je radio opvangt, op één plek.
-- **Beheer**: toestellen (iPad, telefoon) beheren, contacten blokkeren, nieuwe pincode, beheerlogboek.
+- Installeren met één klik op Mac, Windows en Raspberry Pi; de app start vanzelf als je je aanmeldt.
+- Groepen met rollen, kortere code en QR-code, uitnodigingen voor één keer.
+- SOS-knop met voorrang, ook meteen over de radio.
+- Locatie delen (standaard uit), foto's, versleutelde back-up.
+- Brug tussen internet en radio: een contact met een radio zendt het voor je uit.
+- OSINT: waarschuwingen en nieuws op één plek. Beheer van toestellen, contacten en pincode.
 
 ### Welk bestand heb ik nodig?
 | Systeem | Gewoon installeren | Zonder installatieprogramma |
@@ -29,7 +31,11 @@ Een nieuwe versie installeren: voer de installatieregel of het installatiebestan
 
 ### Eerlijk om te weten
 - Zolang de app niet bij Apple en Microsoft geregistreerd is, toont je computer de eerste keer een waarschuwing. Op de downloadpagina staat stap voor stap hoe je toch opent.
-- De Starlink-schotel heeft nog altijd het netwerk van SpaceX nodig. Valt Starlink weg, dan neemt de radio (Meshtastic, LoRa) het over voor wie er een heeft.
+- Tussen huizen heb je internet nodig: met Starlink het netwerk van SpaceX, anders je eigen provider. Valt dat weg, dan werkt het nog op hetzelfde wifi-netwerk, en neemt de radio (Meshtastic, LoRa) het over voor wie er een heeft.
+- Op gewoon internet zonder IPv6 kan het zijn dat twee huizen elkaar niet rechtstreeks vinden (strenge router of 4G-provider). Dan gaan berichten via een contact dat beide kunnen bereiken, of via de radio.
+- Je code bevat ook het internetadres van je station. Deel hem alleen met mensen die je vertrouwt.
+- Sluit je de app af, dan gaat de poort op je router weer dicht. Stopt de app onverwacht, dan sluit je router hem meestal na een uur vanzelf. Uitzetten kan in Instellingen → Verbinding.
+- Om je publieke adres te vinden vraagt de app dat op bij Google en Cloudflare (STUN); dat kun je uitzetten in Instellingen.
 - Je iPad of telefoon praat met je computer over gewone HTTP, niet versleuteld. Wie op hetzelfde wifi-netwerk meekijkt, kan de pincode en je berichten zien: gebruik dit alleen op je eigen, beveiligde wifi. Tussen de computers onderling is alles wel versleuteld.
 - Op de computer zelf vraagt de app geen pincode. Heeft je computer meerdere gebruikers, dan kan elke gebruiker van die computer de app bedienen.
 - Computers met de app op dezelfde wifi zien elkaar vanzelf, maar alleen als verzoek. Pas als jij het toelaat, worden het contacten.

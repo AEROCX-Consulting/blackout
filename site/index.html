@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>AEROCX Blackout downloaden</title>
-<meta name="description" content="Berichten sturen naar je eigen mensen, ook als het gewone internet wegvalt. Download AEROCX Blackout voor Mac, Windows en Raspberry Pi.">
+<meta name="description" content="Berichten sturen naar je eigen mensen zolang er een wifi-netwerk is: thuis ook zonder internet, tussen huizen over Starlink of je gewone provider, en over de radio als alles wegvalt. Download AEROCX Blackout voor Mac, Windows en Raspberry Pi.">
 <link rel="icon" type="image/png" href="favicon.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <style>
@@ -151,8 +151,8 @@ footer p{margin:6px 0}
     <section class="hero" aria-labelledby="titel">
       <div>
         <div class="lbl" id="hero-lbl">Download</div>
-        <h1 id="titel">Berichten sturen, ook als het gewone internet wegvalt.</h1>
-        <p class="lead">Rechtstreeks van computer naar computer, over Starlink, je eigen wifi of een radio. Versleuteld tussen de computers, zonder server en zonder account. Gratis.</p>
+        <h1 id="titel">Berichten sturen zolang er een wifi-netwerk is. En daarna over de radio.</h1>
+        <p class="lead">Op hetzelfde wifi-netwerk werkt het ook zonder internet. Tussen huizen gaat het over gewoon internet: Starlink, Proximus, Telenet, Orange of een 4G-hotspot. Valt alles weg, dan over een radio. Rechtstreeks van computer naar computer, versleuteld, zonder server en zonder account. Gratis.</p>
         <div id="primary">
           <a class="big" href="https://github.com/AEROCX-Consulting/blackout/releases/latest">Alle downloads</a>
         </div>
@@ -180,16 +180,20 @@ footer p{margin:6px 0}
     </section>
 
     <section class="about" id="hoe" aria-label="Hoe het werkt">
-      <div class="card"><div class="lbl">Zonder server</div><h3>Rechtstreeks</h3><p>Elke computer met de app is zijn eigen knooppunt. Berichten gaan rechtstreeks naar je contacten. Er is geen account en geen cloud.</p></div>
-      <div class="card"><div class="lbl">Versleuteld</div><h3>Tussen de stations versleuteld</h3><p>Tussen de computers met de app is alles versleuteld. Alleen de ontvanger kan het bericht lezen, ook een contact dat het onderweg doorgeeft niet.</p></div>
-      <div class="card"><div class="lbl">Starlink en radio</div><h3>Als het internet wegvalt</h3><p>Werkt het gewone internet niet, dan gaat het over Starlink of je wifi thuis. Valt ook dat weg, dan over een Meshtastic-radio, binnen het bereik van de radio's.</p></div>
+      <div class="card"><div class="lbl">Zonder server</div><h3>Rechtstreeks</h3><p>Op hetzelfde wifi-netwerk vinden de computers elkaar vanzelf, ook zonder internet. Tussen huizen zoekt de app zelf de weg over gewoon internet, of via een contact dat jullie allebei bereiken. Geen account, geen cloud.</p></div>
+      <div class="card"><div class="lbl">Versleuteld</div><h3>Tussen de stations versleuteld</h3><p>Tussen de computers met de app is alles versleuteld, over wifi, internet en radio. Alleen de ontvanger kan het bericht lezen, ook een contact dat het onderweg doorgeeft niet.</p></div>
+      <div class="card"><div class="lbl">Radio</div><h3>Als alles wegvalt</h3><p>Geen internet meer? Dan werkt het nog op hetzelfde wifi-netwerk. Is er helemaal geen netwerk meer, dan gaan berichten over een radio (Meshtastic, LoRa), binnen het bereik van de radio's.</p></div>
     </section>
 
     <section class="card honest" id="eerlijk" aria-labelledby="eerlijk-titel">
       <div class="lbl">Eerlijk om te weten</div>
       <h2 id="eerlijk-titel">Wat de app niet kan</h2>
       <ul>
-        <li><b>Starlink blijft SpaceX nodig hebben.</b> De app maakt je onafhankelijk van alle andere internetdiensten, maar niet van het netwerk van Starlink zelf. Valt dat weg, dan werkt het alleen nog over wifi in de buurt en over de radio.</li>
+        <li><b>Tussen huizen heb je internet nodig.</b> Met Starlink blijf je afhankelijk van het netwerk van SpaceX, met een gewone provider van die provider. Valt dat weg, dan werkt het nog op hetzelfde wifi-netwerk en over de radio.</li>
+        <li><b>Niet altijd rechtstreeks tussen huizen.</b> Op gewoon internet zonder IPv6 kan het zijn dat twee huizen elkaar niet rechtstreeks vinden (strenge router of 4G-provider). Dan gaan berichten via een contact dat beide kunnen bereiken, of via de radio.</li>
+        <li><b>Je adres opvragen bij Google en Cloudflare.</b> Om je publieke adres te vinden vraagt de app dat op bij Google en Cloudflare (STUN); dat kun je uitzetten in Instellingen.</li>
+        <li><b>De app zet zelf een poort open op je router</b>, als je router dat toelaat (UPnP of NAT-PMP). Zo kunnen je contacten je van buitenaf bereiken. Sluit je de app af, dan gaat de poort weer dicht; stopt de app onverwacht, dan sluit je router hem meestal na een uur vanzelf. Wil je dat niet, zet het uit in de app (Instellingen → Verbinding) of op je router.</li>
+        <li><b>Je code bevat ook je internetadres.</b> Wie je code of QR-code krijgt, kent het adres van je station. Deel hem alleen met mensen die je vertrouwt.</li>
         <li><b>Je iPad of telefoon gebruikt gewone HTTP.</b> Die verbinding met je computer is niet versleuteld: wie op hetzelfde wifi-netwerk meekijkt, kan de pincode en je berichten zien. Gebruik het alleen op je eigen, beveiligde wifi. Tussen de computers onderling is alles wel versleuteld.</li>
         <li><b>Op de computer zelf is er geen pincode.</b> Heeft je computer meerdere gebruikers, dan kan elke gebruiker van die computer de app openen en bedienen.</li>
         <li><b>Contacten voeg je vooraf toe</b>, aan beide kanten, zolang alles nog werkt. Computers met de app op dezelfde wifi zien elkaar vanzelf, maar alleen als verzoek: jij beslist of je ze toelaat.</li>

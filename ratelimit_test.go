@@ -44,7 +44,7 @@ func TestPendingLimitPerSource(t *testing.T) {
 		c := strangerCard(t, fmt.Sprintf("Vreemde %d", i))
 		cards = append(cards, c)
 		n.mu.Lock()
-		n.onHello(c.E, helloMsg{Card: c}, udp("[2001:db8:5:6::"+fmt.Sprint(i+1)+"]:47474"), false)
+		n.onHello(c.E, helloMsg{Card: c}, udp("[2001:db8:5:6::"+fmt.Sprint(i+1)+"]:47474"))
 		n.st.Pending[c.E].Seen = now() - int64(100-i) // oplopend: de laatste is de nieuwste
 		n.mu.Unlock()
 	}
@@ -58,7 +58,7 @@ func TestPendingLimitPerSource(t *testing.T) {
 	// ander /64 telt apart
 	c := strangerCard(t, "Ander net")
 	n.mu.Lock()
-	n.onHello(c.E, helloMsg{Card: c}, udp("[2001:db8:5:7::1]:47474"), false)
+	n.onHello(c.E, helloMsg{Card: c}, udp("[2001:db8:5:7::1]:47474"))
 	n.mu.Unlock()
 	if n.st.Pending[c.E] == nil {
 		t.Error("ander /64 geweigerd")
@@ -67,7 +67,7 @@ func TestPendingLimitPerSource(t *testing.T) {
 	for i := 0; i < 4; i++ {
 		c := strangerCard(t, "v4")
 		n.mu.Lock()
-		n.onHello(c.E, helloMsg{Card: c}, udp("192.168.50.77:47474"), true)
+		n.onHello(c.E, helloMsg{Card: c}, udp("192.168.50.77:47474"))
 		n.mu.Unlock()
 	}
 	if k := countPrefix(n, "192.168.50.77"); k != pendPerSrc {
@@ -85,7 +85,7 @@ func TestPendingLimitTotalDropsOldest(t *testing.T) {
 		}
 		n.mu.Lock()
 		n.pendNew = 0 // alsof elk verzoek in een andere minuut kwam
-		n.onHello(c.E, helloMsg{Card: c}, udp(fmt.Sprintf("[2001:db8:%x::1]:47474", i+1)), false)
+		n.onHello(c.E, helloMsg{Card: c}, udp(fmt.Sprintf("[2001:db8:%x::1]:47474", i+1)))
 		n.st.Pending[c.E].Seen = now() - int64(1000-i)
 		n.mu.Unlock()
 	}

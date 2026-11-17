@@ -9,8 +9,10 @@ import (
 	"net"
 	"net/http"
 	"os"
+	"os/signal"
 	"path/filepath"
 	"strings"
+	"syscall"
 	"time"
 )
 
@@ -23,6 +25,7 @@ func main() {
 	radioPort := flag.String("radio-port", "", "seriële poort van de Meshtastic-radio (standaard: automatisch zoeken)")
 	radioTCP := flag.String("radio-tcp", "", "IP-adres van een Meshtastic-radio via wifi")
 	loraFast := flag.Bool("lora-fast", false, "(test) korte wachttijden voor de radio")
+	stunServers := flag.String("stun-servers", "", "STUN-servers (host:poort, komma-gescheiden) in plaats van Google/Cloudflare")
 	openFlag := flag.Bool("open", false, "na het starten de browser openen")
 	background := flag.Bool("background", false, "op de achtergrond draaien (logboek naar blackout.log in de gegevensmap)")
 	autostart := flag.String("autostart", "", "automatisch starten bij aanmelden: on of off (en dan stoppen)")
@@ -91,6 +94,15 @@ func main() {
 	if *radioTCP != "" {
 		n.st.RadioMode, n.st.RadioTarget = "tcp", *radioTCP
 	}
+	if s := strings.TrimSpace(*stunServers); s != "" {
+		var list []string
+		for _, x := range strings.Split(s, ",") {
+			if x = strings.TrimSpace(x); x != "" {
+				list = append(list, x)
+			}
+		}
+		n.nw.servers = list
+	}
 	if *loraFast {
 		n.loraWait, n.loraScale = 3, 30
 		n.radio.minGap = 300 * time.Millisecond
@@ -114,9 +126,17 @@ func main() {
 	log.Printf("AEROCX Blackout %s gestart, gegevens in %s", version, *dataDir)
 
 	srv := &http.Server{Handler: n.routes(), ReadHeaderTimeout: 10 * time.Second}
+	sig := make(chan os.Signal, 1)
+	signal.Notify(sig, os.Interrupt, syscall.SIGTERM)
+	go func() {
+		s := <-sig
+		log.Printf("AEROCX Blackout stopt (%v)", s)
+		n.stop()
+	}()
 	go func() {
 		<-n.quit
-		log.Printf("AEROCX Blackout stopt (gevraagd via het scherm)")
+		log.Printf("AEROCX Blackout stopt")
+		n.releaseNet() // open poort op de router weer sluiten
 		n.mu.Lock()
 		n.dirty = true
 		n.mu.Unlock()

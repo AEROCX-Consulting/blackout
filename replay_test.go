@@ -382,7 +382,7 @@ func TestPendingNewRateAndGroupCap(t *testing.T) {
 		c := strangerCard(t, fmt.Sprint("spam", i))
 		last = c
 		n.mu.Lock()
-		n.onHello(c.E, helloMsg{Card: c}, udp(fmt.Sprintf("[2001:db8:%x::1]:47474", i+1)), false)
+		n.onHello(c.E, helloMsg{Card: c}, udp(fmt.Sprintf("[2001:db8:%x::1]:47474", i+1)))
 		n.mu.Unlock()
 	}
 	if len(n.st.Pending) != pendNewPerMin {

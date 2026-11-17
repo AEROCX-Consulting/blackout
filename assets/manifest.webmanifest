@@ -1,7 +1,7 @@
 {
   "name": "AEROCX Blackout",
   "short_name": "Blackout",
-  "description": "Berichten en meldingen zonder centrale server: over Starlink, wifi en radio.",
+  "description": "Berichten en meldingen zonder centrale server: over wifi, internet en radio.",
   "lang": "nl",
   "id": "/",
   "start_url": "/",

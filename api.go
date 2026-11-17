@@ -12,7 +12,6 @@ import (
 	"sort"
 	"strconv"
 	"strings"
-	"sync"
 	"time"
 	"unicode/utf8"
 )
@@ -103,7 +102,10 @@ func (n *Node) route(c *Contact, radioReady bool) (string, string) {
 		case c.Via == "lan":
 			return "lan", "via wifi (zelfde netwerk)"
 		default:
-			return "star", "via Starlink"
+			if n.netIsStarlink() {
+				return "star", "via Starlink"
+			}
+			return "star", "via internet"
 		}
 	}
 	if radioReady && t-c.RadioSeen < 1200 {
@@ -581,6 +583,8 @@ func (n *Node) routes() *http.ServeMux {
 			KeepDays   *int                       `json:"keepDays"`
 			OpenGroups *bool                      `json:"openGroups"`
 			Bridge     *bool                      `json:"bridge"`
+			Stun       *bool                      `json:"stun"`
+			Portmap    *bool                      `json:"portmap"`
 			ID         string                     `json:"id"`
 			Name       string                     `json:"name"`
 			Groups     []string                   `json:"groups"`
@@ -660,6 +664,24 @@ func (n *Node) routes() *http.ServeMux {
 						n.groupPublish(g)
 					}
 				}
+			}
+			if in.Stun != nil && *in.Stun == n.st.Policy.StunOff {
+				n.st.Policy.StunOff = !*in.Stun
+				if *in.Stun {
+					n.audit("Publiek adres opzoeken (bij Google/Cloudflare) aangezet")
+				} else {
+					n.audit("Publiek adres opzoeken uitgezet")
+				}
+				n.nw.kick()
+			}
+			if in.Portmap != nil && *in.Portmap == n.st.Policy.PortmapOff {
+				n.st.Policy.PortmapOff = !*in.Portmap
+				if *in.Portmap {
+					n.audit("Poort openzetten op de router aangezet")
+				} else {
+					n.audit("Poort openzetten op de router uitgezet")
+				}
+				n.nw.kick()
 			}
 			if in.Bridge != nil && *in.Bridge != n.st.Bridge {
 				n.st.Bridge = *in.Bridge
@@ -911,7 +933,6 @@ func (n *Node) routes() *http.ServeMux {
 		n.osint.ServeHTTP(w, r)
 	})
 
-	var quitOnce sync.Once
 	page("/api/quit", func(w http.ResponseWriter, r *http.Request) {
 		if !isLocalReq(r) {
 			httpErr(w, 403, "Alleen op deze computer zelf")
@@ -922,7 +943,7 @@ func (n *Node) routes() *http.ServeMux {
 			return
 		}
 		writeJSON(w, okJSON)
-		quitOnce.Do(func() { close(n.quit) })
+		n.stop()
 	})
 	return mux
 }
@@ -1103,6 +1124,7 @@ func (n *Node) stateJSON(r *http.Request, s *Session, osUnread, osImportant int)
 		"devices": devices, "invites": invites, "audit": audit, "log": logs,
 		"osint":     map[string]int{"unread": osUnread, "important": osImportant},
 		"autostart": n.autostart, "backup": map[string]any{"last": bLast}, "bridge": n.st.Bridge, "sdr": n.sdr,
+		"net": n.netJSON(),
 	}
 	if off, ok := n.myClockSkew(); ok {
 		out["clockSkew"] = off // ms: mijn klok − mediaan van mijn contacten
@@ -1117,7 +1139,8 @@ func (n *Node) stateJSON(r *http.Request, s *Session, osUnread, osImportant int)
 
 func (n *Node) policyOut() map[string]any {
 	p := n.st.Policy
-	return map[string]any{"autoLan": p.AutoLan, "keepDays": p.KeepDays, "openGroups": p.OpenGroups, "keyRot": ms(p.KeyRot)}
+	return map[string]any{"autoLan": p.AutoLan, "keepDays": p.KeepDays, "openGroups": p.OpenGroups, "keyRot": ms(p.KeyRot),
+		"stun": !p.StunOff, "portmap": !p.PortmapOff}
 }
 
 func (n *Node) convsJSON() []map[string]any {

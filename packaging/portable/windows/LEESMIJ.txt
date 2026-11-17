@@ -24,8 +24,12 @@ Je gegevens en sleutels staan in %APPDATA%\AEROCX Blackout.
 
 Wat het is
 - Elke computer met AEROCX Blackout is een eigen knooppunt. Er is geen server, geen account en geen cloud.
-- Berichten gaan rechtstreeks van computer naar computer: over Starlink (IPv6), over je eigen wifi,
-  of over een LoRa-radio (Meshtastic) als het internet helemaal weg is.
+- Het werkt zolang er een wifi-netwerk is:
+  * op hetzelfde wifi-netwerk, ook zonder internet. Computers met de app vinden elkaar vanzelf;
+  * tussen huizen over gewoon internet: Starlink of een gewone provider (Proximus, Telenet, Orange,
+    een 4G/5G-hotspot). De app zoekt zelf de weg; lukt dat niet, dan via een contact dat jullie
+    allebei kunnen bereiken;
+  * over een LoRa-radio (Meshtastic) als er helemaal geen netwerk meer is.
 - Tussen de computers met de app is alles versleuteld. Alleen de ontvanger kan een bericht lezen,
   ook als een contact het onderweg doorgeeft.
 - Een bericht wordt opnieuw verstuurd (tot 7 dagen) tot de ontvanger het bevestigt.
@@ -47,14 +51,25 @@ iPad of telefoon
 
 Goed om te weten
 - De app gebruikt deze poorten: UDP 47474 (berichten), TCP 8474 (het scherm in je browser),
-  UDP 47475 (zoeken op je eigen wifi).
+  UDP 47475 (zoeken op je eigen wifi). Laat je router het toe (UPnP of NAT-PMP), dan zet de app
+  zelf een poort voor de berichten open, zodat je contacten je van buitenaf kunnen bereiken.
+- Om je publieke adres te vinden vraagt de app dat op bij Google en Cloudflare (STUN).
+  Dat kun je uitzetten in Instellingen.
 - Maak in de app een back-up (Instellingen > Back-up). Bewaar die op een USB-stick.
 - Locatie delen staat standaard uit. Zet je het aan, dan gaat je locatie alleen versleuteld naar je contacten.
 - Op de computer zelf (http://localhost:8474) vraagt de app geen pincode. Heeft de computer meerdere
   gebruikers, dan kan elke gebruiker van die computer de app bedienen.
 - Er is geen automatische update. Voor een nieuwe versie haal je de nieuwste versie op
   https://blackout.aerocx.be/ en installeer je die opnieuw. Je gegevens blijven bewaard.
-- Starlink zelf heeft nog altijd het netwerk van SpaceX nodig. Valt Starlink uit, dan neemt de radio
-  het over voor wie een Meshtastic-radio heeft.
+- Tussen huizen heb je internet nodig: met Starlink het netwerk van SpaceX, anders je eigen provider.
+  Valt dat weg, dan werkt het nog op hetzelfde wifi-netwerk, en neemt de radio het over voor wie
+  een Meshtastic-radio heeft.
+- Op gewoon internet zonder IPv6 kan het zijn dat twee huizen elkaar niet rechtstreeks vinden
+  (strenge router of 4G-provider). Dan gaan berichten via een contact dat beide kunnen bereiken,
+  of via de radio.
+- Je code bevat ook het internetadres van je station. Deel hem alleen met mensen die je
+  vertrouwt.
+- Sluit je de app af, dan gaat de poort op je router weer dicht. Stopt de app onverwacht,
+  dan sluit je router hem meestal na een uur vanzelf. Uitzetten kan in Instellingen > Verbinding.
 
 Meer uitleg en de nieuwste versie: https://blackout.aerocx.be/

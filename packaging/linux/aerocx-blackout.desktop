@@ -2,10 +2,10 @@
 Type=Application
 Name=AEROCX Blackout
 GenericName=Noodcommunicatie
-Comment=Berichten over Starlink, wifi en radio, zonder centrale server
+Comment=Berichten over wifi, internet en radio, zonder centrale server
 Exec=aerocx-blackout -open
 Icon=aerocx-blackout
 Terminal=false
 Categories=Network;Chat;
-Keywords=Starlink;Meshtastic;LoRa;nood;chat;
+Keywords=wifi;internet;Starlink;Meshtastic;LoRa;nood;chat;
 StartupNotify=false

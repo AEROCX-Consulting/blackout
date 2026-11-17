@@ -438,7 +438,7 @@ tr[data-open]{cursor:pointer} tr[data-open]:hover td{background:#FAFAFB}
     <section class="view" id="v-berichten"><div class="page">
       <div class="date">Berichten</div>
       <h1 class="s">Gesprekken en groepen</h1>
-      <p class="lead">Elk bericht kiest zelf de beste weg: Starlink, wifi, radio of een brug via een buur.</p>
+      <p class="lead">Elk bericht kiest zelf de beste weg: wifi in huis, internet, radio of een brug via een buur.</p>
       <div class="card chat" id="chat">
         <div class="convs">
           <div class="chead"><div class="seg" id="cvFilter"></div><button class="btn ghost sm" type="button" data-act="newGroup" style="margin-left:auto;padding:8px 10px" title="Nieuwe groep" aria-label="Nieuwe groep"><svg class="i" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></button></div>
@@ -489,7 +489,7 @@ tr[data-open]{cursor:pointer} tr[data-open]:hover td{background:#FAFAFB}
     <section class="view" id="v-koppelen"><div class="page">
       <div class="date">Koppelen</div>
       <h1 class="s">Iemand toevoegen</h1>
-      <p class="lead">Laat je QR-code scannen en scan die van de ander. Wie niet naast je staat, krijgt je code via mail, sms of op papier. Beiden moeten elkaar toevoegen.</p>
+      <p class="lead">Laat je QR-code scannen en scan die van de ander. Wie niet naast je staat, krijgt je code via mail, sms of op papier. Beiden moeten elkaar toevoegen. Je code bevat ook het internetadres van je station; deel hem alleen met mensen die je vertrouwt.</p>
       <div class="pair">
         <div class="stack">
           <div class="card cpad">
@@ -534,6 +534,14 @@ tr[data-open]{cursor:pointer} tr[data-open]:hover td{background:#FAFAFB}
           <div class="row"><input type="text" id="myName" placeholder="Je naam" style="flex:1;min-width:160px" maxlength="40" aria-label="Je naam"><input type="text" id="myLoc" placeholder="bv. 50.8798, 4.7005" class="mono" style="flex:1;min-width:160px;font-size:14px" aria-label="Vaste locatie"><button class="btn sm" type="button" data-act="saveMe">Bewaar</button></div>
           <p style="margin:12px 0 12px;font-size:13.5px" class="muted" id="locTxt"></p>
           <label class="tg">Deel mijn locatie met mijn contacten — versleuteld<input type="checkbox" id="shareLoc2" data-chg="share"></label></div>
+        <div class="card cpad" id="netCard"><h3>Verbinding</h3><p>Berichten nemen vanzelf de beste weg die er nu is.</p>
+          <div class="kv"><span>Wifi in huis</span><span>Wie op hetzelfde wifi-netwerk zit, vind je vanzelf. Werkt ook als het internet uitvalt.</span><span>Internet</span><span>Via Starlink of je gewone provider (Proximus, Telenet, 4G …). Zo bereik je contacten in een ander huis, zolang er internet is.</span><span>Radio</span><span>Een LoRa-radio voor als wifi en internet allebei wegvallen.</span></div>
+          <p style="margin:0 0 14px;font-size:14.5px;color:var(--ink)" id="netTxt"></p>
+          <label class="tg">Mijn publieke adres opzoeken (bij Google/Cloudflare)<input type="checkbox" id="stunOn" data-chg="netpol" data-k="stun"></label>
+          <p class="muted" style="margin:6px 0 14px;font-size:13.5px">Zo vinden contacten buiten je huis je makkelijker. Uit is privacyvriendelijker, maar dan ben je minder goed bereikbaar.</p>
+          <label class="tg">Zelf een poort openzetten op mijn router (als de router dat toelaat)<input type="checkbox" id="pmOn" data-chg="netpol" data-k="portmap"></label>
+          <p class="muted" style="margin:6px 0 0;font-size:13.5px">Dan bereiken contacten je ook als jij hen niet eerst iets stuurde. De poort gaat weer dicht als je de app afsluit; stopt de app onverwacht, dan sluit je router hem meestal na een uur vanzelf.</p>
+          <p class="faint mono" style="margin:12px 0 0;font-size:11.5px;line-height:1.5" id="netTech"></p></div>
         <div class="card cpad"><h3>Radio (LoRa · Meshtastic)</h3><p id="radioTxt"></p>
           <div class="row"><select id="rMode" data-chg="rmode" style="flex:1;min-width:200px" aria-label="Hoe de radio verbonden is"><option value="auto">USB (automatisch zoeken)</option><option value="tcp">Via wifi (IP-adres van de radio)</option><option value="off">Uit</option></select><select id="rCh" style="width:auto;min-width:190px" aria-label="Kanaal"></select></div>
           <div class="row" style="margin-top:8px"><input type="text" id="rTarget" class="mono" style="flex:1;min-width:180px;font-size:14px" aria-label="Poort of adres"><button class="btn sm" type="button" data-act="saveRadio">Bewaar</button></div>
@@ -627,6 +635,7 @@ const IC={
  meer:'<circle cx="6" cy="12" r="1.3"/><circle cx="12" cy="12" r="1.3"/><circle cx="18" cy="12" r="1.3"/>',
  send:'<path d="M4.5 12L20 4.5l-5.5 15-3-6z"/>',
  sat:'<path d="M5 13a6 6 0 0 0 6 6M5 9a10 10 0 0 1 10 10"/><circle cx="5.5" cy="18.5" r="1.4"/>',
+ net:'<circle cx="12" cy="12" r="8.5"/><path d="M3.5 12h17M12 3.5c2.4 2.4 3.6 5.2 3.6 8.5s-1.2 6.1-3.6 8.5c-2.4-2.4-3.6-5.2-3.6-8.5s1.2-6.1 3.6-8.5z"/>',
  wifi:'<path d="M4 9.5a11.5 11.5 0 0 1 16 0M7 12.8a7 7 0 0 1 10 0M10 16a2.8 2.8 0 0 1 4 0"/><circle cx="12" cy="19" r=".6"/>',
  radio:'<path d="M12 10v10M8 20h8"/><path d="M9 7a4 4 0 0 1 6 0M6.5 4.5a7.5 7.5 0 0 1 11 0"/>',
  brug:'<path d="M3 16h18M6 16v-4a6 6 0 0 1 12 0v4M10 16v-3M14 16v-3"/>',
@@ -717,19 +726,30 @@ function routeOf(c){
   if(!c) return {k:'none',t:'onbekend'};
   if(c.blocked) return {k:'none',t:'geblokkeerd'};
   if(c.route&&c.route.k) return {k:c.route.k,t:c.route.t||ROUTE_TXT[c.route.k]||''};
-  if(c.online) return c.via==='lan'?{k:'lan',t:'via wifi in huis'}:{k:'star',t:'via Starlink'};
+  if(c.online) return c.via==='lan'?{k:'lan',t:'via wifi in huis'}:{k:'star',t:'via '+inetName()};
   if(c.radioSeen&&nowMs()-T(c.radioSeen)<30*60e3) return {k:'radio',t:'via radio'};
   return {k:'none',t:'nu niet bereikbaar, wacht'};
 }
-const ROUTE_TXT={star:'via Starlink',lan:'via wifi in huis',radio:'via radio',bridge:'via een brug',relay:'doorgegeven door een contact',none:'nu niet bereikbaar, wacht'};
-const VIA={star:'Starlink',lan:'wifi',radio:'radio',bridge:'brug',relay:'doorgegeven'};
+const ROUTE_TXT={get star(){ return 'via '+inetName(); },lan:'via wifi in huis',radio:'via radio',bridge:'via een brug',relay:'doorgegeven door een contact',none:'nu niet bereikbaar, wacht'};
+const VIA={get star(){ return inetName(); },lan:'wifi',radio:'radio',bridge:'brug',relay:'doorgegeven'};
 const dotOf=k=>(k==='star'||k==='lan')?'on':(k==='radio'||k==='bridge'||k==='relay')?'half':'off';
-const routeIc=k=>({star:'sat',lan:'wifi',radio:'radio',bridge:'brug',relay:'relay'}[k]||'alert');
+const routeIc=k=>({star:isStarlink()?'sat':'net',lan:'wifi',radio:'radio',bridge:'brug',relay:'relay'}[k]||'alert');
 const reachable=c=>routeOf(c).k!=='none';
 function routeCounts(){ const n={direct:0,radio:0,bridge:0,none:0}; contacts().forEach(c=>{ const k=routeOf(c).k; if(k==='star'||k==='lan'||k==='relay') n.direct++; else if(k==='radio') n.radio++; else if(k==='bridge') n.bridge++; else n.none++; }); return n; }
-function starlinkOk(){ if(!S) return false; const a=arr(S.me&&S.me.addrs); if(a.some(x=>/^\[?2[0-9a-f]{3}:/i.test(x))) return true; return contacts().some(c=>routeOf(c).k==='star'); }
+/* internet: Starlink of een gewone provider; "Starlink" alleen als de schotel gevonden is */
+const NET=()=>S&&S.net||{};
+const isStarlink=()=>!!NET().starlink;
+const inetName=()=>isStarlink()?'Starlink':'internet';
+const InetName=()=>isStarlink()?'Starlink':'Internet';
+function inetOk(){ if(!S) return false; if(S.net) return !!S.net.internet||contacts().some(c=>routeOf(c).k==='star'); return contacts().some(c=>routeOf(c).k==='star'); }
+function inetSub(noDish){ const n=NET(), p=[];
+  if(!inetOk()) return lanOk()||n.lan?'geen internet · wifi in huis werkt':'geen internet';
+  if(n.starlink&&!noDish) p.push('Starlink-schotel');
+  if(n.ipv6Global) p.push('IPv6');
+  p.push(n.portOpen?'poort open via je router':(n.ipv6Global?'IPv4 alleen uitgaand':'alleen uitgaand'));
+  return p.join(' · '); }
 const radioOk=()=>!!(S&&S.radio&&S.radio.connected);
-const lanOk=()=>contacts().some(c=>routeOf(c).k==='lan');
+const lanOk=()=>contacts().some(c=>routeOf(c).k==='lan')||!!NET().lan;
 
 /* afstand en richting */
 function km(a,b){const R=6371,r=x=>x*Math.PI/180;const dLa=r(b.lat-a.lat),dLo=r(b.lon-a.lon);const h=Math.sin(dLa/2)**2+Math.cos(r(a.lat))*Math.cos(r(b.lat))*Math.sin(dLo/2)**2;return 2*R*Math.asin(Math.sqrt(h));}
@@ -786,11 +806,12 @@ document.addEventListener('keydown',e=>{ if(e.key==='Escape') closeOv(); if((e.m
 /* ================= kop: verbinding, SOS ================= */
 function renderChrome(){
   // zijbalk: echte status, geen schakelaars
-  const st=starlinkOk(), rd=radioOk(), r=S&&S.radio||{};
+  const st=inetOk(), rd=radioOk(), r=S&&S.radio||{}, nn=NET();
   const row=(cls,name,x)=>`<div><i class="dot ${cls}"></i>${name}<span class="x">${esc(x)}</span></div>`;
   put('conn',`<span class="lbl" style="color:var(--sideMuted)">Verbindingen</span>`+
     row(conn?'on':'off','Station',conn?'verbonden':'weg')+
-    row(S?(st?'on':'off'):'off','Starlink',!S?'—':st?'online':'niet bereikbaar')+
+    row(S?(nn.lan?'on':'off'):'off','Wifi in huis',!S?'—':nn.lan?'verbonden':'geen netwerk')+
+    row(S?(st?(nn.portOpen||nn.ipv6Global?'on':'half'):'off'):'off','Internet',!S?'—':st?(nn.starlink?'via Starlink':nn.portOpen?'poort open':'online'):'niet bereikbaar')+
     row(S?(rd?(r.canSend===false?'half':'on'):'off'):'off','Radio',!S?'—':rd?(r.region||'verbonden'):'niet aangesloten')+
     row(S&&S.bridge&&st&&rd?'on':'off','Brug',!S?'—':S.bridge?(st&&rd?'actief':'aan, wacht'):'uit'));
   if(S&&S.me){ $('meName').textContent=S.me.name||'Dit station'; $('meAv').textContent=initials(S.me.name); $('meSub').textContent=(S.me.role==='beheerder'||!S.me.role?'Beheerder':S.me.role)+' · '+(S.me.id||''); }
@@ -834,14 +855,14 @@ function renderToday(){
   else if(reach===cs.length) g=`${greetWord()} ${fn}, ${cs.length===1?'je contact is':'alle '+cs.length+' contacten zijn'} bereikbaar.`;
   else g=`${greetWord()} ${fn}, ${reach} van ${cs.length} contacten ${reach===1?'is':'zijn'} bereikbaar.`;
   $('greet').textContent=g;
-  const st=starlinkOk(), rd=radioOk(), r=S.radio||{}, lan=lanOk();
-  const mode=st?(rd?'Starlink en radio':'Alleen Starlink'):(rd?'Alleen radio':(lan?'Alleen wifi in huis':'Geen verbinding'));
-  const modeIc=st?'sat':rd?'radio':lan?'wifi':'alert';
+  const st=inetOk(), rd=radioOk(), r=S.radio||{}, lan=lanOk();
+  const mode=st?(rd?InetName()+' en radio':'Via '+inetName()):(rd?(lan?'Wifi in huis en radio':'Alleen radio'):(lan?'Alleen wifi in huis':'Geen verbinding'));
+  const modeIc=st?(isStarlink()?'sat':'net'):rd?'radio':lan?'wifi':'alert';
   const pend=arr(S.pending).length, imp=S.osint?+S.osint.important||0:0;
-  const chip=!st&&rd?'Blackout-modus: berichten gaan via radio en bruggen':!st&&!rd?'Berichten wachten tot er een weg is':pend?plural(pend,'verzoek wacht','verzoeken wachten'):'Klaar om te versturen';
+  const chip=!st&&rd?'Blackout-modus: berichten gaan via radio en bruggen':!st&&!rd?(lan?'Geen internet: wifi in huis werkt wel':'Berichten wachten tot er een weg is'):pend?plural(pend,'verzoek wacht','verzoeken wachten'):'Klaar om te versturen';
   const radioTxt=rd?`radio ${r.region||''}${r.channelName?', kanaal '+r.channelName:''}`.replace(/\s+,/,','):'geen radio aangesloten';
   put('heroCard',`<div class="top"><span class="lbl">NU · ${hhmm(nowMs())}</span><span class="chip">${esc(chip)}</span></div>
-    <div class="row" style="gap:18px;flex-wrap:nowrap"><span class="bigicon">${ic(modeIc)}</span><div><h2>${mode}</h2><div class="sub">${st?'IPv6 via je schotel':'Starlink niet bereikbaar'} · ${esc(radioTxt)}${S.bridge&&st&&rd?' · brug actief':''}</div></div></div>
+    <div class="row" style="gap:18px;flex-wrap:nowrap"><span class="bigicon">${ic(modeIc)}</span><div><h2>${mode}</h2><div class="sub">${esc(inetSub())} · ${esc(radioTxt)}${S.bridge&&st&&rd?' · brug actief':''}</div></div></div>
     <div class="acts"><button class="btn" type="button" data-act="openConv" data-c="alle">${ic('send')}Nieuw bericht</button><button class="btn ghost" type="button" data-act="go" data-v="radar">Radar</button><button class="btn ghost" type="button" data-act="go" data-v="osint">OSINT${imp?` · ${imp} belangrijk`:''}</button></div>
     <div class="note">Valt een weg weg, dan kiest de app vanzelf de volgende. Berichten die nergens heen kunnen, wachten tot er weer een weg is.</div>`);
   const pct=cs.length?reach/cs.length:0, C2=2*Math.PI*40;
@@ -850,7 +871,7 @@ function renderToday(){
   const its=osintData?arr(osintData.items):null;
   const cnt=f=>its?its.filter(f).length:'–';
   put('osintCard',`<span class="lbl">OSINT</span><div class="kv2" style="margin-top:8px"><div><span>Waarschuwingen</span><b>${cnt(o=>o.sev>=2)}</b></div><div><span>Mesh-berichten</span><b>${cnt(o=>o.src==='mesh')}</b></div><div><span>Luchtverkeer</span><b>${cnt(o=>o.src==='adsb')}</b></div></div>`);
-  const tabs=[['alle','Alle',cs.length],['direct','Starlink en wifi',n.direct],['radio','Radio en brug',n.radio+n.bridge],['none','Wacht',n.none]];
+  const tabs=[['alle','Alle',cs.length],['direct','Internet en wifi',n.direct],['radio','Radio en brug',n.radio+n.bridge],['none','Wacht',n.none]];
   put('ctTabs',tabs.map(([k,t,c])=>`<button type="button" data-act="ctTab" data-t="${k}" aria-pressed="${ctTab===k}">${t}<span class="n">${c}</span></button>`).join(''));
   const inTab=c=>{ const k=routeOf(c).k; return ctTab==='alle'||(ctTab==='direct'&&(k==='star'||k==='lan'||k==='relay'))||(ctTab==='radio'&&(k==='radio'||k==='bridge'))||(ctTab==='none'&&k==='none'); };
   const rows=cs.filter(inTab);
@@ -884,7 +905,7 @@ function renderConvs(){
   }).join('')||'<p class="empty">Niets in deze lijst.</p>');
 }
 function convMeta(){
-  if(conv==='alle'){ const cs=contacts().filter(c=>!c.blocked), n=routeCounts(); const p=[]; if(n.direct) p.push(n.direct+' via Starlink of wifi'); if(n.radio) p.push(n.radio+' via radio'); if(n.bridge) p.push(n.bridge+' via brug'); if(n.none) p.push(n.none+' wacht');
+  if(conv==='alle'){ const cs=contacts().filter(c=>!c.blocked), n=routeCounts(); const p=[]; if(n.direct) p.push(n.direct+' via internet of wifi'); if(n.radio) p.push(n.radio+' via radio'); if(n.bridge) p.push(n.bridge+' via brug'); if(n.none) p.push(n.none+' wacht');
     return {title:'Iedereen',route:`${plural(cs.length,'persoon','personen')}${p.length?' · '+p.join(' · '):''}`,kind:'alle'}; }
   if(isGroupConv(conv)){ const g=G(conv); if(!g){ const cv=convList().find(x=>x.cid===conv); return {title:cv?cv.name:'Groep',route:'',kind:'groep'}; }
     const ms=arr(g.members).map(C).filter(Boolean), w=ms.filter(c=>!reachable(c)).length;
@@ -900,7 +921,7 @@ function renderThread(){
   const blocked=m.c&&m.c.blocked;
   $('txt').disabled=!!blocked; $('sendBtn').disabled=!!blocked; $('txt').placeholder=blocked?'Je hebt dit contact geblokkeerd':'Schrijf een bericht…';
   const rs=recipients(), radioOnly=rs.some(c=>{ const k=routeOf(c).k; return k==='radio'||k==='bridge'; });
-  put('cHint',radioOnly?"Foto's gaan alleen over Starlink en wifi. Wie nu alleen via radio bereikbaar is, krijgt enkel de tekst.":'');
+  put('cHint',radioOnly?"Foto's gaan alleen over wifi en internet. Wie nu alleen via radio bereikbaar is, krijgt enkel de tekst.":'');
   const list=arr(msgCache[conv]);
   const box=$('msgs');
   const nearBottom=box.scrollHeight-box.scrollTop-box.clientHeight<80;
@@ -970,7 +991,7 @@ async function shrink(file){
 }
 $('photoIn').addEventListener('change',async e=>{
   const f=e.target.files&&e.target.files[0]; e.target.value=''; if(!f) return;
-  try{ const r=await shrink(f); const t=$('txt').value.trim(); $('txt').value=''; autoGrow(); queueSend(conv,t,r.data); toast(`Foto verkleind tot ${Math.round(r.bytes/1024)} kB. Gaat alleen over Starlink en wifi.`); }
+  try{ const r=await shrink(f); const t=$('txt').value.trim(); $('txt').value=''; autoGrow(); queueSend(conv,t,r.data); toast(`Foto verkleind tot ${Math.round(r.bytes/1024)} kB. Gaat alleen over wifi en internet.`); }
   catch(err){ toast(err.message||'Deze afbeelding kon niet geopend worden.',true); }
 });
 
@@ -1176,9 +1197,9 @@ function invitesTableHtml(){
 /* ================= logboek ================= */
 function renderLogboek(){
   if(!S) return;
-  const st=starlinkOk(), rd=radioOk(), n=routeCounts(), r=S.radio||{};
-  $('statusLead').textContent=st?(rd?'Starlink en radio werken. Wie geen Starlink heeft, bereik je via de radio of via een brug.':'Alleen Starlink. Sluit een radio aan om ook buren zonder Starlink te bereiken.'):(rd?'Geen Starlink: alles loopt via de radio. Wie buiten bereik is, krijgt je bericht zodra er een weg is.':'Geen Starlink en geen radio. Berichten wachten tot er weer een verbinding is.');
-  put('kpis',[['Starlink of wifi',n.direct,'rechtstreeks'],['Via radio',n.radio,'LoRa-mesh'],['Via brug',n.bridge,'Starlink naar radio'],['Wacht',n.none,'nu niet bereikbaar'],['Radio',rd?(+r.rx||0):'—',rd?`ontvangen · ${+r.tx||0} verzonden`:'niet aangesloten']].map(([l,v,x])=>`<div class="kpi"><span class="lbl">${l}</span><b>${v}</b><span class="x">${x}</span></div>`).join(''));
+  const st=inetOk(), rd=radioOk(), n=routeCounts(), r=S.radio||{}, lan=lanOk(), I=InetName();
+  $('statusLead').textContent=st?(rd?`${I} en radio werken. Wie geen internet heeft, bereik je via de radio of via een brug.`:`${I} werkt (${inetSub(true)}). Sluit een radio aan om ook buren zonder internet te bereiken.`):(rd?(lan?'Geen internet: wifi in huis en de radio werken. Wie buiten bereik is, krijgt je bericht zodra er een weg is.':'Geen internet: alles loopt via de radio. Wie buiten bereik is, krijgt je bericht zodra er een weg is.'):(lan?'Geen internet en geen radio. Wie op hetzelfde wifi-netwerk zit, bereik je wel; de rest wacht tot er weer een verbinding is.':'Geen internet en geen radio. Berichten wachten tot er weer een verbinding is.'));
+  put('kpis',[['Internet of wifi',n.direct,'rechtstreeks'],['Via radio',n.radio,'LoRa-mesh'],['Via brug',n.bridge,'internet naar radio'],['Wacht',n.none,'nu niet bereikbaar'],['Radio',rd?(+r.rx||0):'—',rd?`ontvangen · ${+r.tx||0} verzonden`:'niet aangesloten']].map(([l,v,x])=>`<div class="kpi"><span class="lbl">${l}</span><b>${v}</b><span class="x">${x}</span></div>`).join(''));
   put('nodes',contacts().map(c=>{ const rr=routeOf(c), d=distTxt(c.pos); return `<tr data-open data-act="openConv" data-c="${esc(c.id)}"><td><div class="who"><span class="av">${esc(initials(c.name))}<i class="dot ${dotOf(rr.k)}"></i></span><b>${esc(c.name)}</b></div></td><td><span class="chip ${rr.k==='none'?'amber':''}">${esc(rr.t)}</span></td><td class="mono" style="font-size:13px">${c.radioSeen?esc(c.radioRssi+' dBm'):'—'}</td><td class="mono hide-m" style="font-size:13px">${d?esc(d):'—'}</td><td class="hide-m muted" style="font-size:14px">${esc(ago(c.lastSeen))}</td></tr>`; }).join('')||'<tr><td colspan="5" class="muted">Nog geen contacten.</td></tr>');
   put('log',arr(S.log).map(l=>`<div><span class="t">${esc(hhmm(l.t))}</span><span><span class="k">${esc(l.k)}</span>${esc(l.x)}</span></div>`).join('')||'<p class="empty">Nog niets gebeurd.</p>');
 }
@@ -1207,6 +1228,11 @@ function renderSettings(){
   put('radioTxt',r.connected?`<b style="color:var(--ink);font-weight:500">Verbonden</b> met ${esc(r.longName||'radio')} <span class="mono" style="font-size:13px">${esc(r.nodeId||'')}</span> via ${esc(r.transport||'USB')} · regio ${esc(r.region||'?')}${r.preset?' · '+esc(r.preset):''} · kanaal ${esc(r.channelUsed)}${r.channelName?' ('+esc(r.channelName)+')':''} · ${+r.tx||0} verzonden, ${+r.rx||0} ontvangen${r.lastRx?', laatst '+esc(ago(r.lastRx)):''}${r.queue?' · '+r.queue+' in de wachtrij':''}.${r.canSend===false?' <b style="color:var(--amber);font-weight:400">Zenden lukt nog niet: kies een kanaal.</b>':''}${r.error?`<br><span style="color:var(--amber)">${esc(r.error)}</span>`:''}`
     :`Geen radio verbonden. Sluit een Meshtastic-radio aan met een USB-kabel; de app zoekt hem vanzelf.${r.error?`<br><span style="color:var(--amber)">${esc(r.error)}</span>`:''}${arr(r.ports).length?`<br><span class="mono" style="font-size:12.5px">USB-poorten: ${esc(r.ports.join(', '))}</span>`:''}`);
   $('bridgeOn').checked=!!S.bridge;
+  const nn=NET(), po=S.policy||{};
+  $('stunOn').checked=po.stun!==false; $('pmOn').checked=po.portmap!==false;
+  const pmTxt=nn.portPermanent?'poort open op je router (blijft open tot je de app netjes afsluit)':{upnp:'poort open op je router',natpmp:'poort open op je router',pcp:'poort open op je router',uit:'poort openzetten staat uit','niet ondersteund':'je router laat geen poort openzetten',bezig:'router wordt bekeken'}[nn.portmap]||'';
+  $('netTxt').textContent=!S.net?'':'Nu: '+[nn.lan?'wifi in huis verbonden':'geen wifi-netwerk',inetOk()?InetName().toLowerCase()+' werkt'+(nn.ipv6Global?' (met IPv6)':''):'geen internet',pmTxt].filter(Boolean).join(' · ')+'.';
+  $('netTech').textContent=!S.net?'':`Technisch: STUN ${({ok:'ok',uit:'uit',mislukt:'geen antwoord',bezig:'bezig'})[nn.stun]||nn.stun}${nn.changingPort?' (wisselende poort)':''} · poort ${pmName(nn.portmap)} · UDP 47474 · multicast 239.255.47.47 en ff02::4747${arr(nn.publicAddrs).length?' · publiek '+arr(nn.publicAddrs).join(', '):''}`;
   const adsb=arr(osintData&&osintData.sources).find(s=>s.id==='adsb');
   $('sdrTxt').textContent=S.sdr||(adsb&&adsb.active)?'Status: ontvanger gevonden.':(adsb&&adsb.status?'Status: '+adsb.status+'.':'Status: geen ontvanger gevonden op deze computer.');
   $('sdrOn').checked=adsb?adsb.on!==false:true; $('sdrOn').disabled=!adsb;
@@ -1217,7 +1243,7 @@ function renderSettings(){
   $('bkTxt').textContent=last?`Laatste back-up: ${dmy(last)}.`:'Nog geen back-up gemaakt. Doe het nu, zolang alles werkt.';
   put('padCard',S.local?`<h3>iPad of telefoon</h3><p>Verbind het toestel met dezelfde wifi, open Safari en ga naar een van deze adressen. Typ daarna de pincode. Tip: in Safari Deel → Zet op beginscherm, voor een app-icoon.</p><div class="urls">${arr(S.urls).map(esc).join('<br>')||'Geen adres gevonden'}</div><span class="lbl" style="display:block;margin-top:16px">Pincode</span><div class="pin">${esc(S.pin||'—')}</div>`
     :`<h3>Dit toestel</h3><p style="margin:0">Dit toestel is gekoppeld aan het station op de computer. De pincode staat daar bij Instellingen.</p>`);
-  put('aboutKv',`<span>Versie</span><span class="mono" style="font-size:13px">${esc(S.version||'')}</span><span>Station</span><span class="mono" style="font-size:13px">${esc(S.me.id||'')}</span><span>Adressen</span><span class="mono" style="font-size:12.5px;overflow-wrap:anywhere">${arr(S.me.addrs).map(esc).join('<br>')||'geen'}</span><span>Starlink</span><span>${starlinkOk()?'IPv6 actief, bereikbaar via Starlink':'geen IPv6 gevonden'}</span><span>Klok</span><span>${S.clockSkew==null?'nog niet vergeleken met je contacten':Math.abs(+S.clockSkew)>SKEW_MS?`<span class="chip amber">loopt ${esc(durTxt(+S.clockSkew))} ${+S.clockSkew>0?'voor':'achter'}</span> op je contacten. Berichten komen gewoon aan, maar tijden kunnen vreemd lijken. Zet de tijd van deze computer juist als dat kan.`:'gelijk met je contacten'}</span>`);
+  put('aboutKv',`<span>Versie</span><span class="mono" style="font-size:13px">${esc(S.version||'')}</span><span>Station</span><span class="mono" style="font-size:13px">${esc(S.me.id||'')}</span><span>Adressen</span><span class="mono" style="font-size:12.5px;overflow-wrap:anywhere">${arr(S.me.addrs).map(esc).join('<br>')||'geen'}</span><span>Internet</span><span>${esc(inetOk()?InetName()+' · '+inetSub():inetSub())}</span>${arr(NET().publicAddrs).length?`<span>Publiek</span><span class="mono" style="font-size:12.5px;overflow-wrap:anywhere">${arr(NET().publicAddrs).map(esc).join('<br>')}</span>`:''}<span>Klok</span><span>${S.clockSkew==null?'nog niet vergeleken met je contacten':Math.abs(+S.clockSkew)>SKEW_MS?`<span class="chip amber">loopt ${esc(durTxt(+S.clockSkew))} ${+S.clockSkew>0?'voor':'achter'}</span> op je contacten. Berichten komen gewoon aan, maar tijden kunnen vreemd lijken. Zet de tijd van deze computer juist als dat kan.`:'gelijk met je contacten'}</span>`);
   $('quitBtn').disabled=!S.local; $('quitTxt').textContent=S.local?'Stopt AEROCX Blackout op deze computer. Je ontvangt dan geen berichten meer tot je het weer opent.':'Afsluiten kan alleen op de computer zelf.';
 }
 async function makeBackup(){
@@ -1246,7 +1272,7 @@ async function restoreBackup(){
 $('rsFile').addEventListener('change',()=>{ const f=$('rsFile').files[0]; $('rsName').textContent=f?f.name:'Geen bestand gekozen'; });
 
 /* ================= beheer ================= */
-const PERMS=[['send','Berichten sturen','1-op-1 en in groepen'],['alle','Kanaal Iedereen','naar alle leden tegelijk'],['sos','SOS versturen','noodbericht met voorrang'],['groups','Groepen maken','en leden toevoegen'],['invite','Mensen uitnodigen','eigen QR-code laten scannen'],['osint','OSINT delen','meldingen doorsturen'],['bridge','Brug gebruiken','berichten via Starlink naar radio']];
+const PERMS=[['send','Berichten sturen','1-op-1 en in groepen'],['alle','Kanaal Iedereen','naar alle leden tegelijk'],['sos','SOS versturen','noodbericht met voorrang'],['groups','Groepen maken','en leden toevoegen'],['invite','Mensen uitnodigen','eigen QR-code laten scannen'],['osint','OSINT delen','meldingen doorsturen'],['bridge','Brug gebruiken','berichten via internet naar radio']];
 let admTab=pref('admTab')||'gebruikers';
 function renderBeheer(){
   if(!S) return;
@@ -1289,6 +1315,7 @@ function memberGroups(c){
       try{ await api('/api/group',{action:'update',id:g.id,name:g.name,members:mem,roles:g.roles||{}}); }catch(e){ ok=false; if(!e.login) toast(`${g.name}: ${e.message}`,true); } }
     if(ok) toast('Groepen van '+c.name+' bewaard'); poll(true); };
 }
+const pmName=m=>({upnp:'UPnP',natpmp:'NAT-PMP',pcp:'PCP',uit:'uit','niet ondersteund':'niet ondersteund',bezig:'bezig'})[m]||m||'—';
 function policyBody(patch){ const po=Object.assign({autoLan:false,keepDays:30,openGroups:false},S.policy||{},patch); return {action:'policy',autoLan:!!po.autoLan,keepDays:+po.keepDays||0,openGroups:!!po.openGroups}; }
 
 /* ================= zoeken ================= */
@@ -1395,6 +1422,7 @@ const CH={
   rmode:()=>radioModeUI(),
   oSource:el=>{ el.blur(); osintPost({action:'source',id:el.dataset.id,on:el.checked}); },
   role:async el=>{ const c=C(el.dataset.id), v=el.value; el.blur(); if(await act('/api/contact',{action:'role',id:el.dataset.id,role:v},`${c?c.name:'Contact'}: ${roleName(v).toLowerCase()}`)===null) renderBeheer(); },
+  netpol:async el=>{ const on=el.checked, k=el.dataset.k; el.blur(); if(await act('/api/admin',{...policyBody({}),[k]:on},k==='stun'?(on?'Publiek adres wordt opgezocht':'Publiek adres wordt niet meer opgezocht'):(on?'Poort openzetten op de router staat aan':'Poort op de router gaat dicht'))===null) el.checked=!on; },
   policy:async el=>{ const on=el.checked; el.blur(); if(await act('/api/admin',policyBody({[el.dataset.k]:on}),'Bewaard')===null) el.checked=!on; },
   perm:async el=>{ const pm=JSON.parse(JSON.stringify(S.perms||{})); (pm[el.dataset.r]=pm[el.dataset.r]||{})[el.dataset.p]=el.checked; el.blur(); if(await act('/api/admin',{action:'perms',perms:pm},'Rechten bewaard')===null) el.checked=!el.checked; }
 };

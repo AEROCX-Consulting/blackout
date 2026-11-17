@@ -1,4 +1,5 @@
-// AEROCX | Blackout – peer-to-peer berichten over Starlink (IPv6) en lokale netwerken.
+// AEROCX | Blackout – peer-to-peer berichten over wifi in huis, internet (Starlink of een gewone
+// provider) en radio.
 // Elke computer met AEROCX | Blackout is een volwaardig knooppunt: geen centrale server.
 package main
 
@@ -19,7 +20,6 @@ import (
 	"net"
 	"os"
 	"path/filepath"
-	"sort"
 	"strconv"
 	"strings"
 	"sync"
@@ -33,7 +33,7 @@ var uiFS embed.FS
 var b64 = base64.RawURLEncoding
 
 // version is overschrijfbaar met -ldflags "-X main.version=…".
-var version = "1.2.0"
+var version = "1.2.1"
 
 const (
 	appID      = "aerocx-blackout"
@@ -192,6 +192,9 @@ type Policy struct {
 	KeepDays   int   `json:"keepDays"`
 	OpenGroups bool  `json:"openGroups"`
 	KeyRot     int64 `json:"keyRot"`
+	// v1.2.1: standaard aan (dus "uit" bewaren, zodat oude bestanden aan blijven)
+	StunOff    bool `json:"stunOff,omitempty"`
+	PortmapOff bool `json:"portmapOff,omitempty"`
 }
 
 type State struct {
@@ -244,7 +247,9 @@ type Node struct {
 	keys     map[string]cipher.AEAD
 	keyX     map[string]string
 	socks    map[string]*net.UDPConn
+	sockInfo map[string]ifAddr // socketsleutel -> adres en interface
 	myAddrs  []string
+	locAddrs []string                    // eigen adressen (zonder publieke adressen uit STUN/router)
 	reach    map[string]map[string]int64 // doel -> tussenpersoon -> tijd
 	lastTry  map[string]int64
 	lastPing map[string]int64
@@ -296,6 +301,17 @@ type Node struct {
 
 	helloLim *rateLim
 
+	// wifi en internet (netif.go, netstatus.go)
+	mc        mcastState
+	mcMu      sync.Mutex
+	mcastPort int  // standaard 47475 (tests)
+	noLAN     bool // (tests) geen multicast
+	probeLast map[string]int64
+	addrSig   string
+	bindFail  map[string]bool
+	nw        *netWatch
+	quitOnce  sync.Once
+
 	pingEvery   time.Duration
 	outboxEvery time.Duration
 	retryGap    int64
@@ -330,7 +346,7 @@ func loadNode(dir string, udpPort, uiPort int, loopback bool) (*Node, error) {
 	}
 	n := &Node{
 		dir: dir, path: filepath.Join(dir, "blackout.json"), udpPort: udpPort, uiPort: uiPort, loopback: loopback,
-		keys: map[string]cipher.AEAD{}, keyX: map[string]string{}, socks: map[string]*net.UDPConn{},
+		keys: map[string]cipher.AEAD{}, keyX: map[string]string{}, socks: map[string]*net.UDPConn{}, sockInfo: map[string]ifAddr{},
 		reach: map[string]map[string]int64{}, lastTry: map[string]int64{}, lastPing: map[string]int64{},
 		seenMsg: map[string]int64{}, relayCnt: map[string]int{}, dropFrom: map[string]bool{},
 		kick: make(chan struct{}, 1), quit: make(chan struct{}),
@@ -342,6 +358,7 @@ func loadNode(dir string, udpPort, uiPort int, loopback bool) (*Node, error) {
 		pingEvery: 15 * time.Second, outboxEvery: 3 * time.Second, retryGap: 8,
 		helloLim: newRateLim(helloRate, helloSrcRate),
 	}
+	n.nw = newNetWatch()
 	st := &State{}
 	if raw, err := os.ReadFile(n.path); err == nil {
 		if err := json.Unmarshal(raw, st); err != nil {
@@ -592,92 +609,106 @@ func (n *Node) sealJSON(c *Contact, w wire) []byte {
 
 // ---------- netwerk ----------
 
-func localIPs(loopback bool) []net.IP {
-	var out []net.IP
-	ifs, _ := net.Interfaces()
-	for _, ifc := range ifs {
-		if ifc.Flags&net.FlagUp == 0 {
-			continue
-		}
-		addrs, _ := ifc.Addrs()
-		for _, a := range addrs {
-			ipn, ok := a.(*net.IPNet)
-			if !ok {
-				continue
-			}
-			ip := ipn.IP
-			if ip.IsLinkLocalUnicast() || ip.IsMulticast() || ip.IsUnspecified() {
-				continue
-			}
-			if ip.IsLoopback() {
-				if loopback {
-					out = append(out, ip)
-				}
-				continue
-			}
-			if ip.To4() == nil && !ip.IsGlobalUnicast() {
-				continue
-			}
-			out = append(out, ip)
-		}
-	}
-	// IPv6 eerst (dat is de weg over Starlink), dan IPv4 (lokaal netwerk)
-	sort.SliceStable(out, func(i, j int) bool { return out[i].To4() == nil && out[j].To4() != nil })
-	if len(out) > 12 {
-		out = out[:12]
-	}
-	return out
-}
-
 func (n *Node) refreshAddrs() {
-	want := map[string]net.IP{}
+	list := listIfAddrs(n.loopback)
+	want := map[string]ifAddr{}
 	var order []string
-	for _, ip := range localIPs(n.loopback) {
-		k := ip.String()
+	for _, a := range list {
+		k := a.key()
 		if _, ok := want[k]; !ok {
-			want[k] = ip
+			want[k] = a
 			order = append(order, k)
 		}
 	}
 	n.mu.Lock()
 	defer n.mu.Unlock()
+	if n.bindFail == nil {
+		n.bindFail = map[string]bool{}
+	}
 	for k, conn := range n.socks {
-		if _, ok := want[k]; !ok {
+		if a, ok := want[k]; !ok || a.Index != n.sockInfo[k].Index {
 			conn.Close()
 			delete(n.socks, k)
+			delete(n.sockInfo, k)
 		}
 	}
 	for _, k := range order {
 		if _, ok := n.socks[k]; ok {
+			n.sockInfo[k] = want[k]
 			continue
 		}
-		ip := want[k]
+		a := want[k]
 		network := "udp6"
-		if ip.To4() != nil {
+		if a.v4() {
 			network = "udp4"
 		}
-		conn, err := net.ListenUDP(network, &net.UDPAddr{IP: ip, Port: n.udpPort})
+		conn, err := net.ListenUDP(network, a.udpAddr(n.udpPort))
 		if err != nil {
-			log.Printf("kan niet luisteren op %s: %v", k, err)
+			if !n.bindFail[k] {
+				n.bindFail[k] = true
+				log.Printf("kan niet luisteren op %s: %v", k, err)
+			}
 			continue
 		}
+		delete(n.bindFail, k)
+		if a.v4() && !a.Loop {
+			// multicast van deze socket via zijn eigen interface (werkt ook zonder standaardroute)
+			rawSock(conn, func(fd uintptr) error { return sockMcastIf4(fd, a.IP) })
+		}
 		n.socks[k] = conn
+		n.sockInfo[k] = a
 		go n.readLoop(conn, false)
 	}
 	var addrs []string
+	var sig []string
 	for _, k := range order {
-		if _, ok := n.socks[k]; ok && len(addrs) < 8 {
+		if _, ok := n.socks[k]; !ok {
+			continue
+		}
+		sig = append(sig, k+"/"+strconv.Itoa(want[k].Index))
+		if !want[k].LL && len(addrs) < 8 {
 			addrs = append(addrs, net.JoinHostPort(k, strconv.Itoa(n.udpPort)))
+		}
+	}
+	n.locAddrs = addrs
+	n.mcastRefresh(list)
+	n.applyAddrs()
+	if s := strings.Join(sig, ","); s != n.addrSig {
+		first := n.addrSig == ""
+		n.addrSig = s
+		n.mcastHello() // meteen laten weten dat ik er (op een nieuw netwerk) ben
+		if !first {
+			n.event("netwerk", "Netwerk gewijzigd: verbindingen worden opnieuw gezocht")
+			n.nw.kick() // publiek adres en router opnieuw bekijken
+		}
+	}
+}
+
+// applyAddrs (onder slot): de adressen in mijn kaart = eigen adressen + publieke adressen
+// (STUN, poort op de router). Geeft true als de kaart wijzigde.
+func (n *Node) applyAddrs() bool {
+	addrs := append([]string{}, n.locAddrs...)
+	for _, p := range n.nw.cardAddrs() {
+		if len(addrs) >= 12 {
+			break
+		}
+		if !contains(addrs, p) {
+			addrs = append(addrs, p)
 		}
 	}
 	if strings.Join(addrs, ",") != strings.Join(n.myAddrs, ",") {
 		n.myAddrs = addrs
 		n.bumpCard()
 		log.Printf("mijn adressen: %v", addrs)
+		return true
 	}
+	return false
 }
 
-func (n *Node) readLoop(conn *net.UDPConn, lan bool) {
+// readLoop: mcast = de socket van de multicastgroep. Die socket ontvangt ook gewone unicast
+// (poort 47475 op alle adressen), dus mcast is NOOIT een bewijs dat de afzender op het eigen
+// netwerk zit; daarvoor telt alleen het bronadres (onLink).
+func (n *Node) readLoop(conn *net.UDPConn, mcast bool) {
 	buf := make([]byte, 65536)
 	for {
 		nr, from, err := conn.ReadFromUDP(buf)
@@ -688,9 +719,17 @@ func (n *Node) readLoop(conn *net.UDPConn, lan bool) {
 			time.Sleep(50 * time.Millisecond)
 			continue
 		}
+		if !mcast && isSTUN(buf[:nr]) {
+			// antwoord van een STUN-server: nooit als pakket van een contact verwerken
+			n.nw.onSTUN(buf[:nr], from, conn)
+			continue
+		}
+		if mcast && n.mcastDup(buf[:nr]) {
+			continue
+		}
 		pkt := make([]byte, nr)
 		copy(pkt, buf[:nr])
-		n.handle(pkt, from, lan)
+		n.handle(pkt, from, mcast)
 	}
 }
 
@@ -731,12 +770,17 @@ func (n *Node) writeAll(pkt []byte, dst *net.UDPAddr) {
 		return
 	}
 	v4 := dst.IP.To4() != nil
+	dstLL := dst.IP.IsLinkLocalUnicast()
 	for _, conn := range n.socks {
 		la := conn.LocalAddr().(*net.UDPAddr)
 		if (la.IP.To4() != nil) != v4 {
 			continue
 		}
 		if la.IP.IsLoopback() != dst.IP.IsLoopback() {
+			continue
+		}
+		// link-local alleen vanaf link-local, en bij IPv6 vanaf dezelfde interface
+		if la.IP.IsLinkLocalUnicast() != dstLL || (dstLL && !v4 && dst.Zone != "" && la.Zone != dst.Zone) {
 			continue
 		}
 		conn.WriteToUDP(pkt, dst)
@@ -763,7 +807,7 @@ func (n *Node) sendViaRelay(relay, target *Contact, inner []byte) {
 
 // markSeen: c is rechtstreeks gehoord. Alleen een vers pakket (fresh) mag een nieuw adres toevoegen;
 // een pakket zonder tijdstip (v1.1) ververst alleen adressen die al gekend zijn.
-func (n *Node) markSeen(c *Contact, from *net.UDPAddr, lan, fresh bool) {
+func (n *Node) markSeen(c *Contact, from *net.UDPAddr, fresh bool) {
 	t := now()
 	if t-c.LastSeen >= onlineSecs && c.LastSeen > 0 {
 		n.event("contact", c.Name+" is weer online")
@@ -773,7 +817,7 @@ func (n *Node) markSeen(c *Contact, from *net.UDPAddr, lan, fresh bool) {
 	if _, known := c.Observed[a]; fresh || known || contains(c.Card.A, a) {
 		c.Observed[a] = t
 	}
-	if lan || isLocalNet(from.IP) {
+	if n.onLink(from.IP) {
 		c.Via = "lan"
 	} else {
 		c.Via = "star"
@@ -797,7 +841,7 @@ func (n *Node) ipOnline(c *Contact) bool {
 	return c != nil && !c.Blocked && now()-c.LastSeen < onlineSecs && !strings.HasPrefix(c.Via, "relay")
 }
 
-func (n *Node) handle(pkt []byte, from *net.UDPAddr, lan bool) {
+func (n *Node) handle(pkt []byte, from *net.UDPAddr, mcast bool) {
 	if len(pkt) < 36 || pkt[0] != 'N' || pkt[1] != 'N' || pkt[2] != 1 {
 		return
 	}
@@ -807,7 +851,7 @@ func (n *Node) handle(pkt []byte, from *net.UDPAddr, lan bool) {
 		return
 	}
 	if t == 'H' {
-		n.handleHello(fromID, pkt[36:], from, lan)
+		n.handleHello(fromID, pkt[36:], from, mcast)
 		return
 	}
 	n.mu.Lock()
@@ -830,9 +874,9 @@ func (n *Node) handle(pkt []byte, from *net.UDPAddr, lan bool) {
 		}
 		n.onPayload(c, pt, nil, func(fresh, legacy bool) string {
 			if fresh || legacy {
-				n.markSeen(c, from, lan, fresh)
+				n.markSeen(c, from, fresh)
 			}
-			if lan || isLocalNet(from.IP) {
+			if n.onLink(from.IP) {
 				return "lan"
 			}
 			return "star"
@@ -1191,7 +1235,7 @@ func eventKind(via string, sos bool) string {
 func viaText(via string) string {
 	switch via {
 	case "star":
-		return " via Starlink"
+		return " via internet"
 	case "lan":
 		return " via wifi"
 	case "radio":
@@ -1274,7 +1318,7 @@ func (n *Node) helloFor(c *Contact) []byte {
 
 // handleHello: de handtekening van een hello wordt BUITEN het globale slot gecontroleerd en
 // hello's worden afgeremd per bron-prefix en globaal (tegen CPU-verbruik door vreemden).
-func (n *Node) handleHello(fromID string, raw []byte, from *net.UDPAddr, lan bool) {
+func (n *Node) handleHello(fromID string, raw []byte, from *net.UDPAddr, mcast bool) {
 	if len(raw) > 8192 {
 		return
 	}
@@ -1284,6 +1328,9 @@ func (n *Node) handleHello(fromID string, raw []byte, from *net.UDPAddr, lan boo
 	var knownTS int64
 	if c != nil {
 		knownTS = c.Card.TS
+		if mcast && !skip && n.onLink(from.IP) {
+			n.lanProbe(c, from) // bekend contact op het eigen netwerk: adres rechtstreeks leren
+		}
 	}
 	n.mu.Unlock()
 	if skip {
@@ -1304,11 +1351,11 @@ func (n *Node) handleHello(fromID string, raw []byte, from *net.UDPAddr, lan boo
 	}
 	n.mu.Lock()
 	defer n.mu.Unlock()
-	n.onHello(fromID, h, from, lan)
+	n.onHello(fromID, h, from)
 }
 
 // onHello (onder slot): een hello met een geldige (al gecontroleerde) kaart.
-func (n *Node) onHello(fromID string, h helloMsg, from *net.UDPAddr, lan bool) {
+func (n *Node) onHello(fromID string, h helloMsg, from *net.UDPAddr) {
 	card := h.Card
 	if c := n.st.Contacts[fromID]; c != nil {
 		if !c.Blocked && card.TS > c.Card.TS {
@@ -1321,7 +1368,7 @@ func (n *Node) onHello(fromID string, h helloMsg, from *net.UDPAddr, lan bool) {
 		return
 	}
 	source := "internet"
-	if lan || isLocalNet(from.IP) {
+	if n.onLink(from.IP) { // bronadres op een eigen netwerk; de socket zegt niets (zie readLoop)
 		source = "lan"
 	}
 	if source == "lan" && n.st.Policy.AutoLan && n.st.Removed[fromID] == 0 {
@@ -1510,6 +1557,9 @@ func (n *Node) msgWire(m *Message) wire {
 	return w
 }
 
+// stop: netjes stoppen (scherm, Ctrl+C of afmelden).
+func (n *Node) stop() { n.quitOnce.Do(func() { close(n.quit) }) }
+
 func (n *Node) kickOutbox() {
 	select {
 	case n.kick <- struct{}{}:
@@ -1517,23 +1567,14 @@ func (n *Node) kickOutbox() {
 	}
 }
 
+// startLAN: elke 10 s een hello per interface naar de multicastgroep (zie netif.go).
 func (n *Node) startLAN() {
-	gaddr, _ := net.ResolveUDPAddr("udp4", mcastGroup)
-	if mc, err := net.ListenMulticastUDP("udp4", nil, gaddr); err == nil {
-		go n.readLoop(mc, true)
-	} else {
-		log.Printf("zoeken op het lokale netwerk werkt niet: %v", err)
-	}
 	go func() {
 		for {
-			if conn, err := net.DialUDP("udp4", nil, gaddr); err == nil {
-				n.mu.Lock()
-				p := n.helloPkt()
-				n.mu.Unlock()
-				conn.Write(p)
-				conn.Close()
-			}
 			time.Sleep(10 * time.Second)
+			n.mu.Lock()
+			n.mcastHello()
+			n.mu.Unlock()
 		}
 	}()
 }
@@ -1600,10 +1641,13 @@ func (n *Node) run() {
 		}
 	}()
 	go func() {
-		for range time.Tick(20 * time.Second) {
+		for range time.Tick(10 * time.Second) {
 			n.refreshAddrs()
 		}
 	}()
+	if !n.nw.manual {
+		go n.netLoop()
+	}
 	go func() {
 		round := 0
 		n.pingTick(round)
